@@ -28,12 +28,11 @@
             background-color: var(--bg-dark);
             color: var(--text-light);
             margin: 0;
-            padding: 20px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            /* Förhindrar att man råkar dra i sidan och "refresha" på mobilen */
             overscroll-behavior-y: contain;
             touch-action: manipulation;
         }
@@ -50,40 +49,49 @@
             margin-top: env(safe-area-inset-top);
         }
 
-        h1 { margin: 0; font-size: 1.2rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px; }
+        h1 { margin: 0; font-size: 1rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px; }
         
-        .distance-selector {
-            margin: 1rem 0;
+        .selector-label {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-top: 1rem;
+            display: block;
+            text-transform: uppercase;
+        }
+
+        .selector-group {
+            margin: 0.5rem 0 1rem 0;
             display: flex;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
             flex-wrap: wrap;
         }
 
-        .dist-btn {
+        .option-btn {
             background: #374151;
             color: white;
             border: 2px solid transparent;
-            padding: 10px 18px;
+            padding: 6px 12px;
             border-radius: 8px;
             font-weight: bold;
+            font-size: 0.9rem;
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
         }
 
-        .dist-btn.active {
+        .option-btn.active {
             border-color: var(--accent);
             background: var(--accent);
         }
 
-        .current-distance { font-size: 3.5rem; font-weight: 800; margin: 0.5rem 0; color: white; }
+        .current-distance { font-size: 3.5rem; font-weight: 800; margin: 0.2rem 0; color: white; }
         
         .progress-container {
             background: #374151;
             border-radius: 999px;
             height: 12px;
             width: 100%;
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
             overflow: hidden;
         }
 
@@ -109,7 +117,7 @@
         .btn {
             border: none;
             border-radius: 1rem;
-            padding: 2rem 1rem;
+            padding: 1.8rem 1rem;
             font-size: 1.7rem;
             font-weight: 700;
             color: white;
@@ -130,7 +138,7 @@
         .btn-stann { background-color: var(--color-stann); }
 
         .control-panel {
-            margin-top: 2rem;
+            margin-top: 1.5rem;
             display: flex;
             justify-content: center;
         }
@@ -198,12 +206,23 @@
     <div class="container">
         <header>
             <h1>Skytte-träning</h1>
-            <div class="distance-selector">
-                <button class="dist-btn active" onclick="setDistance(0)">6m</button>
-                <button class="dist-btn" onclick="setDistance(1)">7m</button>
-                <button class="dist-btn" onclick="setDistance(2)">8m</button>
-                <button class="dist-btn" onclick="setDistance(3)">9m</button>
+            
+            <span class="selector-label">Välj avstånd</span>
+            <div class="selector-group">
+                <button class="option-btn dist-btn active" onclick="setDistance(0)">6m</button>
+                <button class="option-btn dist-btn" onclick="setDistance(1)">7m</button>
+                <button class="option-btn dist-btn" onclick="setDistance(2)">8m</button>
+                <button class="option-btn dist-btn" onclick="setDistance(3)">9m</button>
             </div>
+
+            <span class="selector-label">Antal skott</span>
+            <div class="selector-group">
+                <button class="option-btn count-btn" onclick="setTotalShots(20)">20</button>
+                <button class="option-btn count-btn" onclick="setTotalShots(30)">30</button>
+                <button class="option-btn count-btn" onclick="setTotalShots(40)">40</button>
+                <button class="option-btn count-btn active" onclick="setTotalShots(50)">50</button>
+            </div>
+
             <div class="current-distance" id="display-distance">6m</div>
         </header>
 
@@ -212,7 +231,7 @@
         </div>
         
         <div class="counter">
-            Skott: <span id="current-shot">1</span> / 50
+            Skott: <span id="current-shot">1</span> / <span id="total-shot-display">50</span>
         </div>
 
         <div class="button-group">
@@ -255,7 +274,7 @@
         const distances = [6, 7, 8, 9];
         let currentDistIdx = 0;
         let shotCount = 0;
-        const shotsPerDistance = 50;
+        let shotsPerDistance = 50;
 
         let sessionStats = {
             miss: 0,
@@ -274,10 +293,30 @@
             resetDistance();
         }
 
+        function setTotalShots(count) {
+            if (shotCount > 0) {
+                if (!confirm("Du har påbörjat en serie. Vill du ändra antal skott och nollställa framstegen?")) {
+                    return;
+                }
+            }
+            shotsPerDistance = count;
+            updateShotCountButtons();
+            document.getElementById('total-shot-display').innerText = shotsPerDistance;
+            resetDistance();
+        }
+
         function updateDistanceButtons() {
             const btns = document.querySelectorAll('.dist-btn');
             btns.forEach((btn, i) => {
                 if (i === currentDistIdx) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+        }
+
+        function updateShotCountButtons() {
+            const btns = document.querySelectorAll('.count-btn');
+            btns.forEach((btn) => {
+                if (parseInt(btn.innerText) === shotsPerDistance) btn.classList.add('active');
                 else btn.classList.remove('active');
             });
         }
@@ -301,7 +340,7 @@
         }
 
         function showSummary() {
-            document.getElementById('summary-title').innerText = `Resultat ${distances[currentDistIdx]}m`;
+            document.getElementById('summary-title').innerText = `Resultat ${distances[currentDistIdx]}m (${shotsPerDistance} skott)`;
             document.getElementById('res-miss').innerText = sessionStats.miss;
             document.getElementById('res-traff').innerText = sessionStats.traff;
             document.getElementById('res-stann').innerText = sessionStats.stann;
