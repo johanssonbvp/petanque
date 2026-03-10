@@ -1,390 +1,759 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Petanque Skytteträning</title>
-    
-    <!-- Mobiloptimerings-taggar -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Petanque">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#111827">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Petanque Skytteträning</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Petanque">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#111827">
+<style>
+  :root {
+    --miss: #ef4444;
+    --traff: #facc15;
+    --stann: #22c55e;
+    --bg: #111827;
+    --card: #1f2937;
+    --border: #374151;
+    --text: #f3f4f6;
+    --muted: #9ca3af;
+    --accent: #6366f1;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    overscroll-behavior-y: contain;
+    touch-action: manipulation;
+  }
 
-    <style>
-        :root {
-            --color-miss: #ef4444; /* Röd */
-            --color-traff: #facc15; /* Gul */
-            --color-stann: #22c55e; /* Grön */
-            --bg-dark: #111827;
-            --card-bg: #1f2937;
-            --text-light: #f3f4f6;
-            --accent: #6366f1;
-        }
+  /* TABS */
+  .tabs {
+    display: flex;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 14px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+  }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-light);
-            margin: 0;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            overscroll-behavior-y: contain;
-            touch-action: manipulation;
-        }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
 
-        .container {
-            width: 100%;
-            max-width: 500px;
-            text-align: center;
-            padding-bottom: env(safe-area-inset-bottom);
-        }
+  /* TRAINING TAB */
+  .training-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+    max-width: 500px;
+    margin: 0 auto;
+    padding-bottom: calc(env(safe-area-inset-bottom) + 20px);
+  }
 
-        header {
-            margin-bottom: 1.5rem;
-            margin-top: env(safe-area-inset-top);
-        }
+  .section-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 12px 0 6px;
+  }
 
-        h1 { margin: 0; font-size: 1rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px; }
-        
-        .selector-label {
-            font-size: 0.8rem;
-            color: #6b7280;
-            margin-top: 1rem;
-            display: block;
-            text-transform: uppercase;
-        }
+  .selector-group {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+  }
 
-        .selector-group {
-            margin: 0.5rem 0 1rem 0;
-            display: flex;
-            justify-content: center;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
+  .opt-btn {
+    background: var(--border);
+    color: white;
+    border: 2px solid transparent;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .opt-btn.active { border-color: var(--accent); background: var(--accent); }
 
-        .option-btn {
-            background: #374151;
-            color: white;
-            border: 2px solid transparent;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 0.9rem;
-            cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
-        }
+  .current-dist {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin: 10px 0 6px;
+    color: white;
+  }
 
-        .option-btn.active {
-            border-color: var(--accent);
-            background: var(--accent);
-        }
+  .progress-wrap {
+    background: var(--border);
+    border-radius: 999px;
+    height: 12px;
+    width: 100%;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .progress-bar {
+    background: var(--accent);
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease;
+  }
 
-        .current-distance { font-size: 3.5rem; font-weight: 800; margin: 0.2rem 0; color: white; }
-        
-        .progress-container {
-            background: #374151;
-            border-radius: 999px;
-            height: 12px;
-            width: 100%;
-            margin-bottom: 0.8rem;
-            overflow: hidden;
-        }
+  .counter {
+    font-size: 1.1rem;
+    color: #d1d5db;
+    margin-bottom: 20px;
+  }
 
-        .progress-bar {
-            background: var(--accent);
-            height: 100%;
-            width: 0%;
-            transition: width 0.3s ease;
-        }
+  .btn-group {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    width: 100%;
+  }
 
-        .counter {
-            font-size: 1.2rem;
-            margin-bottom: 1.5rem;
-            color: #d1d5db;
-        }
+  .shot-btn {
+    border: none;
+    border-radius: 1rem;
+    padding: 1.6rem 1rem;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.1s;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
+    text-transform: uppercase;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .shot-btn:active { transform: scale(0.96); opacity: 0.9; }
+  .btn-miss { background: var(--miss); }
+  .btn-traff { background: var(--traff); color: #111; }
+  .btn-stann { background: var(--stann); }
 
-        .button-group {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-        }
+  .reset-link {
+    color: var(--muted);
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.9rem;
+    background: none;
+    border: none;
+    padding: 16px;
+    margin-top: 4px;
+  }
 
-        .btn {
-            border: none;
-            border-radius: 1rem;
-            padding: 1.8rem 1rem;
-            font-size: 1.7rem;
-            font-weight: 700;
-            color: white;
-            cursor: pointer;
-            transition: transform 0.1s;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-            text-transform: uppercase;
-            -webkit-tap-highlight-color: transparent;
-        }
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.88);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.show { display: flex; }
 
-        .btn:active {
-            transform: scale(0.96);
-            opacity: 0.9;
-        }
+  .modal-card {
+    background: var(--card);
+    padding: 1.8rem;
+    border-radius: 1.5rem;
+    width: 100%;
+    max-width: 400px;
+  }
+  .modal-card h2 { margin-top: 0; font-size: 1.3rem; }
+  .modal-card p { color: #d1d5db; line-height: 1.5; }
 
-        .btn-miss { background-color: var(--color-miss); }
-        .btn-traff { background-color: var(--color-traff); color: #111; }
-        .btn-stann { background-color: var(--color-stann); }
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 1.1rem;
+  }
+  .stat-val { font-weight: 800; }
 
-        .control-panel {
-            margin-top: 1.5rem;
-            display: flex;
-            justify-content: center;
-        }
+  .modal-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 1.2rem; }
 
-        .reset-link {
-            color: #9ca3af;
-            text-decoration: underline;
-            cursor: pointer;
-            font-size: 0.9rem;
-            background: none;
-            border: none;
-            padding: 15px;
-        }
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 1rem;
+    width: 100%;
+    border-radius: 0.75rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .btn-secondary {
+    background: var(--border);
+    color: white;
+    border: none;
+    padding: 0.8rem;
+    width: 100%;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-danger {
+    background: var(--miss);
+    color: white;
+    border: none;
+    padding: 0.8rem;
+    width: 100%;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
 
-        /* Summary Overlay */
-        #summary-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.92);
-            z-index: 100;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            backdrop-filter: blur(4px);
-        }
+  /* STATS TAB */
+  .stats-wrap {
+    padding: 16px;
+    max-width: 500px;
+    margin: 0 auto;
+    padding-bottom: calc(env(safe-area-inset-bottom) + 20px);
+  }
 
-        .summary-card {
-            background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 1.5rem;
-            width: 100%;
-            max-width: 400px;
-        }
+  .stats-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .stats-header h2 { margin: 0; font-size: 1.1rem; }
 
-        .stat-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.8rem 0;
-            border-bottom: 1px solid #374151;
-            font-size: 1.2rem;
-        }
+  .clear-history-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
 
-        .stat-val { font-weight: 800; }
+  .dist-filter {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
 
-        .next-btn {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 1.2rem;
-            width: 100%;
-            border-radius: 0.75rem;
-            font-size: 1.2rem;
-            margin-top: 1.5rem;
-            font-weight: bold;
-            cursor: pointer;
-        }
-    </style>
+  .chart-card {
+    background: var(--card);
+    border-radius: 1rem;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .chart-title {
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+
+  canvas { width: 100% !important; }
+
+  .history-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .history-item {
+    background: var(--card);
+    border-radius: 0.75rem;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .history-left { display: flex; flex-direction: column; gap: 3px; }
+  .history-dist { font-weight: 700; font-size: 1.1rem; }
+  .history-date { font-size: 0.8rem; color: var(--muted); }
+  .history-right { text-align: right; }
+  .history-pct { font-size: 1.4rem; font-weight: 800; }
+  .history-detail { font-size: 0.78rem; color: var(--muted); }
+
+  .empty-state {
+    text-align: center;
+    color: var(--muted);
+    padding: 60px 20px;
+    font-size: 0.95rem;
+  }
+  .empty-icon { font-size: 2.5rem; margin-bottom: 10px; }
+</style>
 </head>
 <body>
 
-    <div class="container">
-        <header>
-            <h1>Skytte-träning</h1>
-            
-            <span class="selector-label">Välj avstånd</span>
-            <div class="selector-group">
-                <button class="option-btn dist-btn active" onclick="setDistance(0)">6m</button>
-                <button class="option-btn dist-btn" onclick="setDistance(1)">7m</button>
-                <button class="option-btn dist-btn" onclick="setDistance(2)">8m</button>
-                <button class="option-btn dist-btn" onclick="setDistance(3)">9m</button>
-            </div>
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('training')">🎯 Träning</button>
+  <button class="tab-btn" onclick="switchTab('stats')">📊 Statistik</button>
+</div>
 
-            <span class="selector-label">Antal skott</span>
-            <div class="selector-group">
-                <button class="option-btn count-btn" onclick="setTotalShots(20)">20</button>
-                <button class="option-btn count-btn" onclick="setTotalShots(30)">30</button>
-                <button class="option-btn count-btn" onclick="setTotalShots(40)">40</button>
-                <button class="option-btn count-btn active" onclick="setTotalShots(50)">50</button>
-            </div>
-
-            <div class="current-distance" id="display-distance">6m</div>
-        </header>
-
-        <div class="progress-container">
-            <div id="progress-bar" class="progress-bar"></div>
-        </div>
-        
-        <div class="counter">
-            Skott: <span id="current-shot">1</span> / <span id="total-shot-display">50</span>
-        </div>
-
-        <div class="button-group">
-            <button class="btn btn-miss" onclick="handleShot('miss')">Miss</button>
-            <button class="btn btn-traff" onclick="handleShot('traff')">Träff</button>
-            <button class="btn btn-stann" onclick="handleShot('stann')">Stann</button>
-        </div>
-
-        <div class="control-panel">
-            <button class="reset-link" onclick="confirmReset()">Nollställ aktuellt resultat</button>
-        </div>
+<!-- TRAINING TAB -->
+<div id="tab-training" class="tab-content active">
+  <div class="training-wrap">
+    <div class="section-label">Välj avstånd</div>
+    <div class="selector-group" id="dist-btns">
+      <button class="opt-btn dist-btn active" onclick="setDistance(0)">6m</button>
+      <button class="opt-btn dist-btn" onclick="setDistance(1)">7m</button>
+      <button class="opt-btn dist-btn" onclick="setDistance(2)">8m</button>
+      <button class="opt-btn dist-btn" onclick="setDistance(3)">9m</button>
     </div>
 
-    <!-- Sammanfattning Overlay -->
-    <div id="summary-overlay">
-        <div class="summary-card">
-            <h2 id="summary-title" style="margin-top: 0;">Resultat 6m</h2>
-            <div class="stat-row">
-                <span>Antal Missar:</span>
-                <span class="stat-val" style="color: var(--color-miss)" id="res-miss">0</span>
-            </div>
-            <div class="stat-row">
-                <span>Antal Träffar:</span>
-                <span class="stat-val" style="color: var(--color-traff)" id="res-traff">0</span>
-            </div>
-            <div class="stat-row">
-                <span>Antal Stann:</span>
-                <span class="stat-val" style="color: var(--color-stann)" id="res-stann">0</span>
-            </div>
-            <div class="stat-row" style="border: none; margin-top: 10px; font-size: 1.4rem;">
-                <span>Total Träff%:</span>
-                <span class="stat-val" id="res-percent">0%</span>
-            </div>
-            <button class="next-btn" id="modal-btn" onclick="nextStep()">Nästa avstånd</button>
-            <button class="reset-link" style="display: block; width: 100%; margin-top: 10px;" onclick="closeSummary()">Stäng</button>
-        </div>
+    <div class="section-label">Antal skott</div>
+    <div class="selector-group" id="count-btns">
+      <button class="opt-btn count-btn" onclick="setTotalShots(20)">20</button>
+      <button class="opt-btn count-btn" onclick="setTotalShots(30)">30</button>
+      <button class="opt-btn count-btn" onclick="setTotalShots(40)">40</button>
+      <button class="opt-btn count-btn active" onclick="setTotalShots(50)">50</button>
     </div>
 
-    <script>
-        const distances = [6, 7, 8, 9];
-        let currentDistIdx = 0;
-        let shotCount = 0;
-        let shotsPerDistance = 50;
+    <div class="current-dist" id="display-distance">6m</div>
 
-        let sessionStats = {
-            miss: 0,
-            traff: 0,
-            stann: 0
-        };
+    <div class="progress-wrap">
+      <div id="progress-bar" class="progress-bar"></div>
+    </div>
+    <div class="counter">Skott: <span id="cur-shot">1</span> / <span id="tot-shot">50</span></div>
 
-        function setDistance(idx) {
-            if (shotCount > 0) {
-                if (!confirm("Du har påbörjat en serie. Vill du byta avstånd och nollställa framstegen?")) {
-                    return;
-                }
-            }
-            currentDistIdx = idx;
-            updateDistanceButtons();
-            resetDistance();
-        }
+    <div class="btn-group">
+      <button class="shot-btn btn-miss" onclick="handleShot('miss')">Miss</button>
+      <button class="shot-btn btn-traff" onclick="handleShot('traff')">Träff</button>
+      <button class="shot-btn btn-stann" onclick="handleShot('stann')">Stann</button>
+    </div>
 
-        function setTotalShots(count) {
-            if (shotCount > 0) {
-                if (!confirm("Du har påbörjat en serie. Vill du ändra antal skott och nollställa framstegen?")) {
-                    return;
-                }
-            }
-            shotsPerDistance = count;
-            updateShotCountButtons();
-            document.getElementById('total-shot-display').innerText = shotsPerDistance;
-            resetDistance();
-        }
+    <button class="reset-link" onclick="openResetModal()">Nollställ aktuellt resultat</button>
+  </div>
+</div>
 
-        function updateDistanceButtons() {
-            const btns = document.querySelectorAll('.dist-btn');
-            btns.forEach((btn, i) => {
-                if (i === currentDistIdx) btn.classList.add('active');
-                else btn.classList.remove('active');
-            });
-        }
+<!-- STATS TAB -->
+<div id="tab-stats" class="tab-content">
+  <div class="stats-wrap">
+    <div class="stats-header">
+      <h2>Sessionshistorik</h2>
+      <button class="clear-history-btn" onclick="openClearModal()">Rensa allt</button>
+    </div>
 
-        function updateShotCountButtons() {
-            const btns = document.querySelectorAll('.count-btn');
-            btns.forEach((btn) => {
-                if (parseInt(btn.innerText) === shotsPerDistance) btn.classList.add('active');
-                else btn.classList.remove('active');
-            });
-        }
+    <div class="dist-filter" id="dist-filter">
+      <button class="opt-btn active" onclick="setFilter('all', this)">Alla</button>
+      <button class="opt-btn" onclick="setFilter(6, this)">6m</button>
+      <button class="opt-btn" onclick="setFilter(7, this)">7m</button>
+      <button class="opt-btn" onclick="setFilter(8, this)">8m</button>
+      <button class="opt-btn" onclick="setFilter(9, this)">9m</button>
+    </div>
 
-        function handleShot(type) {
-            if (shotCount < shotsPerDistance) {
-                sessionStats[type]++;
-                shotCount++;
-                updateUI();
+    <div class="chart-card">
+      <div class="chart-title">Träff% över tid</div>
+      <canvas id="trend-chart" height="180"></canvas>
+    </div>
 
-                if (shotCount === shotsPerDistance) {
-                    showSummary();
-                }
-            }
-        }
+    <div id="history-list" class="history-list"></div>
+  </div>
+</div>
 
-        function updateUI() {
-            document.getElementById('current-shot').innerText = Math.min(shotCount + 1, shotsPerDistance);
-            const progress = (shotCount / shotsPerDistance) * 100;
-            document.getElementById('progress-bar').style.width = progress + '%';
-        }
+<!-- SUMMARY MODAL -->
+<div id="summary-modal" class="modal-overlay">
+  <div class="modal-card">
+    <h2 id="sum-title">Resultat</h2>
+    <div class="stat-row">
+      <span>Missar</span>
+      <span class="stat-val" style="color:var(--miss)" id="sum-miss">0</span>
+    </div>
+    <div class="stat-row">
+      <span>Träffar</span>
+      <span class="stat-val" style="color:var(--traff)" id="sum-traff">0</span>
+    </div>
+    <div class="stat-row">
+      <span>Stann</span>
+      <span class="stat-val" style="color:var(--stann)" id="sum-stann">0</span>
+    </div>
+    <div class="stat-row" style="border:none; font-size:1.3rem; margin-top:8px;">
+      <span>Träff%</span>
+      <span class="stat-val" id="sum-pct">0%</span>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" id="next-btn" onclick="nextDistance()">Nästa avstånd</button>
+      <button class="btn-secondary" onclick="closeSummary()">Stäng</button>
+    </div>
+  </div>
+</div>
 
-        function showSummary() {
-            document.getElementById('summary-title').innerText = `Resultat ${distances[currentDistIdx]}m (${shotsPerDistance} skott)`;
-            document.getElementById('res-miss').innerText = sessionStats.miss;
-            document.getElementById('res-traff').innerText = sessionStats.traff;
-            document.getElementById('res-stann').innerText = sessionStats.stann;
-            
-            const hitRate = ((sessionStats.traff + sessionStats.stann) / shotsPerDistance * 100).toFixed(1);
-            document.getElementById('res-percent').innerText = hitRate + '%';
+<!-- CONFIRM RESET MODAL -->
+<div id="reset-modal" class="modal-overlay">
+  <div class="modal-card">
+    <h2>Nollställ?</h2>
+    <p>Vill du nollställa resultatet för det här avståndet? Datan sparas inte.</p>
+    <div class="modal-actions">
+      <button class="btn-danger" onclick="doReset()">Ja, nollställ</button>
+      <button class="btn-secondary" onclick="closeModal('reset-modal')">Avbryt</button>
+    </div>
+  </div>
+</div>
 
-            const btn = document.getElementById('modal-btn');
-            if (currentDistIdx === distances.length - 1) {
-                btn.innerText = "Börja om från 6m";
-            } else {
-                btn.innerText = "Nästa avstånd (" + distances[currentDistIdx + 1] + "m)";
-            }
+<!-- CONFIRM CHANGE MODAL -->
+<div id="change-modal" class="modal-overlay">
+  <div class="modal-card">
+    <h2>Byta inställning?</h2>
+    <p>Du har påbörjat en serie. Vill du byta och nollställa framstegen?</p>
+    <div class="modal-actions">
+      <button class="btn-danger" onclick="doChange()">Ja, byt</button>
+      <button class="btn-secondary" onclick="closeModal('change-modal')">Avbryt</button>
+    </div>
+  </div>
+</div>
 
-            document.getElementById('summary-overlay').style.display = 'flex';
-        }
+<!-- CLEAR HISTORY MODAL -->
+<div id="clear-modal" class="modal-overlay">
+  <div class="modal-card">
+    <h2>Rensa historik?</h2>
+    <p>All sparad historik tas bort permanent.</p>
+    <div class="modal-actions">
+      <button class="btn-danger" onclick="doClearHistory()">Ja, rensa allt</button>
+      <button class="btn-secondary" onclick="closeModal('clear-modal')">Avbryt</button>
+    </div>
+  </div>
+</div>
 
-        function closeSummary() {
-            document.getElementById('summary-overlay').style.display = 'none';
-        }
+<script>
+const DISTANCES = [6,7,8,9];
+let distIdx = 0;
+let shotCount = 0;
+let totalShots = 50;
+let stats = { miss:0, traff:0, stann:0 };
+let pendingChange = null;
+let activeFilter = 'all';
+let chartInstance = null;
 
-        function nextStep() {
-            if (currentDistIdx < distances.length - 1) {
-                currentDistIdx++;
-            } else {
-                currentDistIdx = 0;
-            }
-            updateDistanceButtons();
-            resetDistance();
-            document.getElementById('summary-overlay').style.display = 'none';
-        }
+// --- PERSISTENCE ---
+function loadSession() {
+  try {
+    const s = JSON.parse(localStorage.getItem('pt_session') || 'null');
+    if (s) {
+      distIdx = s.distIdx ?? 0;
+      shotCount = s.shotCount ?? 0;
+      totalShots = s.totalShots ?? 50;
+      stats = s.stats ?? { miss:0, traff:0, stann:0 };
+    }
+  } catch(e) {}
+}
 
-        function confirmReset() {
-            if (confirm("Vill du nollställa resultatet för det här avståndet?")) {
-                resetDistance();
-            }
-        }
+function saveSession() {
+  localStorage.setItem('pt_session', JSON.stringify({ distIdx, shotCount, totalShots, stats }));
+}
 
-        function resetDistance() {
-            shotCount = 0;
-            sessionStats = { miss: 0, traff: 0, stann: 0 };
-            document.getElementById('display-distance').innerText = distances[currentDistIdx] + 'm';
-            updateUI();
-        }
-    </script>
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem('pt_history') || '[]'); }
+  catch(e) { return []; }
+}
+
+function saveHistory(h) { localStorage.setItem('pt_history', JSON.stringify(h)); }
+
+function addHistoryEntry() {
+  const h = loadHistory();
+  h.unshift({
+    dist: DISTANCES[distIdx],
+    shots: totalShots,
+    miss: stats.miss,
+    traff: stats.traff,
+    stann: stats.stann,
+    pct: +((( stats.traff + stats.stann) / totalShots) * 100).toFixed(1),
+    date: new Date().toISOString()
+  });
+  saveHistory(h);
+}
+
+// --- TABS ---
+function switchTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'stats') renderStats();
+}
+
+// --- TRAINING ---
+function setDistance(idx) {
+  if (shotCount > 0) { pendingChange = () => _setDistance(idx); openModal('change-modal'); return; }
+  _setDistance(idx);
+}
+function _setDistance(idx) {
+  distIdx = idx;
+  updateDistBtns();
+  resetCurrent();
+}
+
+function setTotalShots(n) {
+  if (shotCount > 0) { pendingChange = () => _setTotalShots(n); openModal('change-modal'); return; }
+  _setTotalShots(n);
+}
+function _setTotalShots(n) {
+  totalShots = n;
+  updateCountBtns();
+  document.getElementById('tot-shot').innerText = totalShots;
+  resetCurrent();
+}
+
+function handleShot(type) {
+  if (shotCount >= totalShots) return;
+  stats[type]++;
+  shotCount++;
+  saveSession();
+  updateUI();
+  if (shotCount === totalShots) { addHistoryEntry(); showSummary(); }
+}
+
+function updateUI() {
+  const next = Math.min(shotCount + 1, totalShots);
+  document.getElementById('cur-shot').innerText = shotCount < totalShots ? next : totalShots;
+  document.getElementById('progress-bar').style.width = (shotCount / totalShots * 100) + '%';
+}
+
+function updateDistBtns() {
+  document.querySelectorAll('.dist-btn').forEach((b,i) =>
+    b.classList.toggle('active', i === distIdx));
+  document.getElementById('display-distance').innerText = DISTANCES[distIdx] + 'm';
+}
+
+function updateCountBtns() {
+  document.querySelectorAll('.count-btn').forEach(b =>
+    b.classList.toggle('active', parseInt(b.innerText) === totalShots));
+  document.getElementById('tot-shot').innerText = totalShots;
+}
+
+function resetCurrent() {
+  shotCount = 0;
+  stats = { miss:0, traff:0, stann:0 };
+  document.getElementById('display-distance').innerText = DISTANCES[distIdx] + 'm';
+  updateUI();
+  saveSession();
+}
+
+// --- MODALS ---
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+function openResetModal() { openModal('reset-modal'); }
+function doReset() { closeModal('reset-modal'); resetCurrent(); }
+
+function doChange() {
+  closeModal('change-modal');
+  if (pendingChange) { pendingChange(); pendingChange = null; }
+}
+
+function openClearModal() { openModal('clear-modal'); }
+function doClearHistory() {
+  saveHistory([]);
+  closeModal('clear-modal');
+  renderStats();
+}
+
+function showSummary() {
+  document.getElementById('sum-title').innerText = `Resultat ${DISTANCES[distIdx]}m (${totalShots} skott)`;
+  document.getElementById('sum-miss').innerText = stats.miss;
+  document.getElementById('sum-traff').innerText = stats.traff;
+  document.getElementById('sum-stann').innerText = stats.stann;
+  const pct = ((stats.traff + stats.stann) / totalShots * 100).toFixed(1);
+  document.getElementById('sum-pct').innerText = pct + '%';
+  const nb = document.getElementById('next-btn');
+  if (distIdx === DISTANCES.length - 1) nb.innerText = 'Börja om från 6m';
+  else nb.innerText = `Nästa avstånd (${DISTANCES[distIdx+1]}m)`;
+  openModal('summary-modal');
+}
+
+function closeSummary() { closeModal('summary-modal'); }
+
+function nextDistance() {
+  distIdx = distIdx < DISTANCES.length - 1 ? distIdx + 1 : 0;
+  updateDistBtns();
+  resetCurrent();
+  closeModal('summary-modal');
+}
+
+// --- STATS ---
+function setFilter(val, btn) {
+  activeFilter = val;
+  document.querySelectorAll('#dist-filter .opt-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderStats();
+}
+
+function renderStats() {
+  const all = loadHistory();
+  const filtered = activeFilter === 'all' ? all : all.filter(e => e.dist === activeFilter);
+
+  renderChart(filtered);
+  renderHistoryList(filtered);
+}
+
+function renderChart(data) {
+  const canvas = document.getElementById('trend-chart');
+  const ctx = canvas.getContext('2d');
+
+  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+
+  if (data.length === 0) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    return;
+  }
+
+  // Reverse so oldest first
+  const pts = [...data].reverse();
+  const labels = pts.map((e, i) => `${e.dist}m #${i+1}`);
+  const values = pts.map(e => e.pct);
+
+  // Simple canvas chart
+  const W = canvas.offsetWidth || 400;
+  const H = 180;
+  canvas.width = W;
+  canvas.height = H;
+
+  const pad = { top: 20, right: 16, bottom: 30, left: 36 };
+  const cw = W - pad.left - pad.right;
+  const ch = H - pad.top - pad.bottom;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Grid lines
+  ctx.strokeStyle = '#374151';
+  ctx.lineWidth = 1;
+  [0, 25, 50, 75, 100].forEach(v => {
+    const y = pad.top + ch - (v / 100) * ch;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(pad.left + cw, y);
+    ctx.stroke();
+    ctx.fillStyle = '#6b7280';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(v + '%', pad.left - 4, y + 4);
+  });
+
+  if (pts.length === 1) {
+    // Single dot
+    const x = pad.left + cw / 2;
+    const y = pad.top + ch - (values[0] / 100) * ch;
+    ctx.beginPath();
+    ctx.arc(x, y, 5, 0, Math.PI * 2);
+    ctx.fillStyle = '#6366f1';
+    ctx.fill();
+  } else {
+    const step = cw / (pts.length - 1);
+
+    // Area fill
+    const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
+    grad.addColorStop(0, 'rgba(99,102,241,0.35)');
+    grad.addColorStop(1, 'rgba(99,102,241,0)');
+    ctx.beginPath();
+    pts.forEach((p, i) => {
+      const x = pad.left + i * step;
+      const y = pad.top + ch - (values[i] / 100) * ch;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.lineTo(pad.left + (pts.length - 1) * step, pad.top + ch);
+    ctx.lineTo(pad.left, pad.top + ch);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Line
+    ctx.beginPath();
+    ctx.strokeStyle = '#6366f1';
+    ctx.lineWidth = 2.5;
+    ctx.lineJoin = 'round';
+    pts.forEach((p, i) => {
+      const x = pad.left + i * step;
+      const y = pad.top + ch - (values[i] / 100) * ch;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    // Dots
+    pts.forEach((p, i) => {
+      const x = pad.left + i * step;
+      const y = pad.top + ch - (values[i] / 100) * ch;
+      ctx.beginPath();
+      ctx.arc(x, y, 4, 0, Math.PI * 2);
+      ctx.fillStyle = '#6366f1';
+      ctx.fill();
+      ctx.strokeStyle = '#111827';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    });
+  }
+
+  // X labels (show max 6)
+  ctx.fillStyle = '#6b7280';
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'center';
+  const step2 = pts.length > 1 ? cw / (pts.length - 1) : 0;
+  const skip = Math.ceil(pts.length / 6);
+  pts.forEach((p, i) => {
+    if (i % skip === 0 || i === pts.length - 1) {
+      const x = pts.length === 1 ? pad.left + cw / 2 : pad.left + i * step2;
+      ctx.fillText(labels[i], x, H - 6);
+    }
+  });
+}
+
+function renderHistoryList(data) {
+  const el = document.getElementById('history-list');
+  if (data.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🎯</div>Inga sessioner sparade än.<br>Slutför en träning för att se statistik här.</div>`;
+    return;
+  }
+
+  el.innerHTML = data.map(e => {
+    const d = new Date(e.date);
+    const dateStr = d.toLocaleDateString('sv-SE', { day:'numeric', month:'short', year:'numeric' });
+    const timeStr = d.toLocaleTimeString('sv-SE', { hour:'2-digit', minute:'2-digit' });
+    const color = e.pct >= 70 ? 'var(--stann)' : e.pct >= 40 ? 'var(--traff)' : 'var(--miss)';
+    return `
+      <div class="history-item">
+        <div class="history-left">
+          <span class="history-dist">${e.dist}m &mdash; ${e.shots} skott</span>
+          <span class="history-date">${dateStr} ${timeStr}</span>
+          <span class="history-detail" style="margin-top:2px">
+            <span style="color:var(--miss)">●</span> ${e.miss}
+            &nbsp;<span style="color:var(--traff)">●</span> ${e.traff}
+            &nbsp;<span style="color:var(--stann)">●</span> ${e.stann}
+          </span>
+        </div>
+        <div class="history-right">
+          <div class="history-pct" style="color:${color}">${e.pct}%</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// --- INIT ---
+loadSession();
+updateDistBtns();
+updateCountBtns();
+updateUI();
+</script>
 </body>
 </html>
