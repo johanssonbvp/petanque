@@ -6,754 +6,840 @@
 <title>Petanque Skytteträning</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Petanque">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#111827">
 <style>
-  :root {
-    --miss: #ef4444;
-    --traff: #facc15;
-    --stann: #22c55e;
-    --bg: #111827;
-    --card: #1f2937;
-    --border: #374151;
-    --text: #f3f4f6;
-    --muted: #9ca3af;
-    --accent: #6366f1;
-  }
-  * { box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
-    overscroll-behavior-y: contain;
-    touch-action: manipulation;
-  }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-  /* TABS */
-  .tabs {
-    display: flex;
-    background: var(--card);
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-  .tab-btn {
-    flex: 1;
-    padding: 14px;
-    background: none;
-    border: none;
-    color: var(--muted);
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-    transition: all 0.2s;
-  }
-  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+:root {
+  --miss: #f87171;
+  --traff: #fbbf24;
+  --stann: #34d399;
+  --bg: #0a0a0f;
+  --surface: #13131a;
+  --card: #1a1a24;
+  --border: rgba(255,255,255,0.07);
+  --text: #f1f1f3;
+  --muted: #6b6b80;
+  --accent: #7c6ff7;
+  --accent2: #a78bfa;
+  --glow: rgba(124,111,247,0.25);
+}
 
-  .tab-content { display: none; }
-  .tab-content.active { display: block; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* TRAINING TAB */
-  .training-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 16px;
-    max-width: 500px;
-    margin: 0 auto;
-    padding-bottom: calc(env(safe-area-inset-bottom) + 20px);
-  }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overscroll-behavior-y: contain;
+  touch-action: manipulation;
+}
 
-  .section-label {
-    font-size: 0.75rem;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin: 12px 0 6px;
-  }
+/* ── TABS ── */
+.tab-bar {
+  display: flex;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: 0 4px;
+}
+.tab-btn {
+  flex: 1;
+  padding: 15px 8px;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab-btn.active { color: var(--accent2); border-bottom-color: var(--accent2); }
 
-  .selector-group {
-    display: flex;
-    justify-content: center;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-bottom: 4px;
-  }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
 
-  .opt-btn {
-    background: var(--border);
-    color: white;
-    border: 2px solid transparent;
-    padding: 6px 14px;
-    border-radius: 8px;
-    font-weight: 700;
-    font-size: 0.9rem;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .opt-btn.active { border-color: var(--accent); background: var(--accent); }
+/* ── TRAINING ── */
+.train-wrap {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
 
-  .current-dist {
-    font-size: 3.5rem;
-    font-weight: 800;
-    margin: 10px 0 6px;
-    color: white;
-  }
+/* Hero distance display */
+.hero {
+  text-align: center;
+  margin-bottom: 28px;
+}
+.hero-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.hero-dist {
+  font-size: 6rem;
+  font-weight: 900;
+  line-height: 1;
+  background: linear-gradient(135deg, #fff 30%, var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 30px var(--glow));
+}
+.hero-sub { font-size: 0.85rem; color: var(--muted); margin-top: 6px; }
 
-  .progress-wrap {
-    background: var(--border);
-    border-radius: 999px;
-    height: 12px;
-    width: 100%;
-    overflow: hidden;
-    margin-bottom: 8px;
-  }
-  .progress-bar {
-    background: var(--accent);
-    height: 100%;
-    width: 0%;
-    transition: width 0.3s ease;
-  }
+/* Pill selectors */
+.pill-section { margin-bottom: 20px; }
+.pill-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.pill-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.pill {
+  background: var(--card);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.18s;
+  -webkit-tap-highlight-color: transparent;
+}
+.pill.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+  box-shadow: 0 0 16px var(--glow);
+}
 
-  .counter {
-    font-size: 1.1rem;
-    color: #d1d5db;
-    margin-bottom: 20px;
-  }
+/* Progress ring + bar */
+.progress-section {
+  margin: 24px 0 20px;
+}
+.progress-track {
+  height: 6px;
+  background: var(--card);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 999px;
+  width: 0%;
+  transition: width 0.35s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 0 8px var(--glow);
+}
+.progress-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.progress-meta span { font-weight: 600; }
 
-  .btn-group {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
-    width: 100%;
-  }
+/* Mini live stats */
+.live-stats {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.live-chip {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 6px;
+  text-align: center;
+}
+.live-chip .val {
+  font-size: 1.4rem;
+  font-weight: 800;
+  display: block;
+}
+.live-chip .lbl {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.chip-miss .val { color: var(--miss); }
+.chip-traff .val { color: var(--traff); }
+.chip-stann .val { color: var(--stann); }
 
-  .shot-btn {
-    border: none;
-    border-radius: 1rem;
-    padding: 1.6rem 1rem;
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: white;
-    cursor: pointer;
-    transition: transform 0.1s;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
-    text-transform: uppercase;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .shot-btn:active { transform: scale(0.96); opacity: 0.9; }
-  .btn-miss { background: var(--miss); }
-  .btn-traff { background: var(--traff); color: #111; }
-  .btn-stann { background: var(--stann); }
+/* Shot buttons */
+.shot-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.shot-btn {
+  border: none;
+  border-radius: 18px;
+  padding: 22px 16px;
+  font-family: inherit;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+  -webkit-tap-highlight-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+}
+.shot-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.08);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.shot-btn:active { transform: scale(0.97); }
+.shot-btn:active::before { opacity: 1; }
 
-  .reset-link {
-    color: var(--muted);
-    text-decoration: underline;
-    cursor: pointer;
-    font-size: 0.9rem;
-    background: none;
-    border: none;
-    padding: 16px;
-    margin-top: 4px;
-  }
+.btn-miss {
+  background: linear-gradient(135deg, #dc2626, #f87171);
+  color: white;
+  box-shadow: 0 4px 20px rgba(220,38,38,0.3);
+}
+.btn-traff {
+  background: linear-gradient(135deg, #d97706, #fbbf24);
+  color: #1a1000;
+  box-shadow: 0 4px 20px rgba(217,119,6,0.3);
+}
+.btn-stann {
+  background: linear-gradient(135deg, #059669, #34d399);
+  color: white;
+  box-shadow: 0 4px 20px rgba(5,150,105,0.3);
+}
+.btn-icon { font-size: 1.3rem; }
 
-  /* MODAL */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.88);
-    z-index: 100;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    backdrop-filter: blur(4px);
-  }
-  .modal-overlay.show { display: flex; }
+.reset-btn {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 12px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 
-  .modal-card {
-    background: var(--card);
-    padding: 1.8rem;
-    border-radius: 1.5rem;
-    width: 100%;
-    max-width: 400px;
-  }
-  .modal-card h2 { margin-top: 0; font-size: 1.3rem; }
-  .modal-card p { color: #d1d5db; line-height: 1.5; }
+/* ── STATS ── */
+.stats-wrap {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
 
-  .stat-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.7rem 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 1.1rem;
-  }
-  .stat-val { font-weight: 800; }
+.stats-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.stats-top h2 { font-size: 1.1rem; font-weight: 700; }
 
-  .modal-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 1.2rem; }
+.clear-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 0.75rem;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
 
-  .btn-primary {
-    background: var(--accent);
-    color: white;
-    border: none;
-    padding: 1rem;
-    width: 100%;
-    border-radius: 0.75rem;
-    font-size: 1.1rem;
-    font-weight: 700;
-    cursor: pointer;
-  }
-  .btn-secondary {
-    background: var(--border);
-    color: white;
-    border: none;
-    padding: 0.8rem;
-    width: 100%;
-    border-radius: 0.75rem;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  .btn-danger {
-    background: var(--miss);
-    color: white;
-    border: none;
-    padding: 0.8rem;
-    width: 100%;
-    border-radius: 0.75rem;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-  }
+.filter-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
 
-  /* STATS TAB */
-  .stats-wrap {
-    padding: 16px;
-    max-width: 500px;
-    margin: 0 auto;
-    padding-bottom: calc(env(safe-area-inset-bottom) + 20px);
-  }
+/* Summary card above chart */
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.sum-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 8px;
+  text-align: center;
+}
+.sum-card .sv { font-size: 1.6rem; font-weight: 800; }
+.sum-card .sk { font-size: 0.65rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-top: 2px; }
 
-  .stats-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-  }
-  .stats-header h2 { margin: 0; font-size: 1.1rem; }
+.chart-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px 14px 10px;
+  margin-bottom: 20px;
+}
+.chart-head {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
 
-  .clear-history-btn {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 0.8rem;
-    cursor: pointer;
-  }
+.history-list { display: flex; flex-direction: column; gap: 8px; }
 
-  .dist-filter {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-bottom: 16px;
-  }
+.hist-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: border-color 0.2s;
+}
+.hist-left { display: flex; flex-direction: column; gap: 4px; }
+.hist-dist { font-size: 0.95rem; font-weight: 700; }
+.hist-date { font-size: 0.75rem; color: var(--muted); }
+.hist-dots { font-size: 0.75rem; margin-top: 2px; }
+.hist-pct { font-size: 1.6rem; font-weight: 900; }
 
-  .chart-card {
-    background: var(--card);
-    border-radius: 1rem;
-    padding: 16px;
-    margin-bottom: 16px;
-  }
-  .chart-title {
-    font-size: 0.85rem;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 12px;
-  }
+/* ── MODALS ── */
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(8px);
+  z-index: 50;
+  justify-content: center;
+  align-items: flex-end;
+  padding: 16px;
+}
+.overlay.show { display: flex; }
 
-  canvas { width: 100% !important; }
+.sheet {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 28px 24px;
+  width: 100%;
+  max-width: 440px;
+  margin-bottom: env(safe-area-inset-bottom);
+  animation: slideUp 0.28s cubic-bezier(.4,0,.2,1);
+}
+@keyframes slideUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.sheet h2 { font-size: 1.25rem; font-weight: 800; margin-bottom: 6px; }
+.sheet p { color: var(--muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px; }
 
-  .history-list { display: flex; flex-direction: column; gap: 10px; }
+.sheet-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 1rem;
+}
+.sheet-stat:last-of-type { border: none; }
+.sheet-stat .sv { font-weight: 800; font-size: 1.15rem; }
 
-  .history-item {
-    background: var(--card);
-    border-radius: 0.75rem;
-    padding: 12px 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .history-left { display: flex; flex-direction: column; gap: 3px; }
-  .history-dist { font-weight: 700; font-size: 1.1rem; }
-  .history-date { font-size: 0.8rem; color: var(--muted); }
-  .history-right { text-align: right; }
-  .history-pct { font-size: 1.4rem; font-weight: 800; }
-  .history-detail { font-size: 0.78rem; color: var(--muted); }
+.pct-display {
+  text-align: center;
+  padding: 16px 0 4px;
+}
+.pct-big { font-size: 3.5rem; font-weight: 900; background: linear-gradient(135deg,#fff,var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.pct-label { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
 
-  .empty-state {
-    text-align: center;
-    color: var(--muted);
-    padding: 60px 20px;
-    font-size: 0.95rem;
-  }
-  .empty-icon { font-size: 2.5rem; margin-bottom: 10px; }
+.sheet-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
+
+.mbtn {
+  border: none;
+  border-radius: 14px;
+  padding: 15px;
+  width: 100%;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.mbtn:active { transform: scale(0.98); opacity: 0.9; }
+.mbtn-accent { background: var(--accent); color: white; }
+.mbtn-ghost { background: rgba(255,255,255,0.06); color: var(--text); }
+.mbtn-danger { background: linear-gradient(135deg,#dc2626,#f87171); color: white; }
+
+.empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 60px 20px;
+}
+.empty-icon { font-size: 3rem; margin-bottom: 12px; }
+.empty p { font-size: 0.9rem; line-height: 1.6; }
 </style>
 </head>
 <body>
 
-<div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('training')">🎯 Träning</button>
-  <button class="tab-btn" onclick="switchTab('stats')">📊 Statistik</button>
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('training',this)">🎯&nbsp; Träning</button>
+  <button class="tab-btn" onclick="switchTab('stats',this)">📊&nbsp; Statistik</button>
 </div>
 
-<!-- TRAINING TAB -->
+<!-- ══ TRAINING ══ -->
 <div id="tab-training" class="tab-content active">
-  <div class="training-wrap">
-    <div class="section-label">Välj avstånd</div>
-    <div class="selector-group" id="dist-btns">
-      <button class="opt-btn dist-btn active" onclick="setDistance(0)">6m</button>
-      <button class="opt-btn dist-btn" onclick="setDistance(1)">7m</button>
-      <button class="opt-btn dist-btn" onclick="setDistance(2)">8m</button>
-      <button class="opt-btn dist-btn" onclick="setDistance(3)">9m</button>
+  <div class="train-wrap">
+
+    <div class="hero">
+      <div class="hero-label">Aktuellt avstånd</div>
+      <div class="hero-dist" id="hero-dist">6m</div>
+      <div class="hero-sub" id="hero-sub">Redo att skjuta</div>
     </div>
 
-    <div class="section-label">Antal skott</div>
-    <div class="selector-group" id="count-btns">
-      <button class="opt-btn count-btn" onclick="setTotalShots(20)">20</button>
-      <button class="opt-btn count-btn" onclick="setTotalShots(30)">30</button>
-      <button class="opt-btn count-btn" onclick="setTotalShots(40)">40</button>
-      <button class="opt-btn count-btn active" onclick="setTotalShots(50)">50</button>
+    <div class="pill-section">
+      <div class="pill-label">Avstånd</div>
+      <div class="pill-group" id="dist-pills">
+        <button class="pill dist-pill active" onclick="setDistance(0)">6m</button>
+        <button class="pill dist-pill" onclick="setDistance(1)">7m</button>
+        <button class="pill dist-pill" onclick="setDistance(2)">8m</button>
+        <button class="pill dist-pill" onclick="setDistance(3)">9m</button>
+      </div>
     </div>
 
-    <div class="current-dist" id="display-distance">6m</div>
-
-    <div class="progress-wrap">
-      <div id="progress-bar" class="progress-bar"></div>
-    </div>
-    <div class="counter">Skott: <span id="cur-shot">1</span> / <span id="tot-shot">50</span></div>
-
-    <div class="btn-group">
-      <button class="shot-btn btn-miss" onclick="handleShot('miss')">Miss</button>
-      <button class="shot-btn btn-traff" onclick="handleShot('traff')">Träff</button>
-      <button class="shot-btn btn-stann" onclick="handleShot('stann')">Stann</button>
+    <div class="pill-section">
+      <div class="pill-label">Antal skott</div>
+      <div class="pill-group" id="count-pills">
+        <button class="pill count-pill" onclick="setTotal(20)">20</button>
+        <button class="pill count-pill" onclick="setTotal(30)">30</button>
+        <button class="pill count-pill" onclick="setTotal(40)">40</button>
+        <button class="pill count-pill active" onclick="setTotal(50)">50</button>
+      </div>
     </div>
 
-    <button class="reset-link" onclick="openResetModal()">Nollställ aktuellt resultat</button>
+    <div class="progress-section">
+      <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+      <div class="progress-meta">
+        <span>Skott <span id="cur-shot">1</span> / <span id="tot-shot">50</span></span>
+        <span id="prog-pct">0%</span>
+      </div>
+    </div>
+
+    <div class="live-stats">
+      <div class="live-chip chip-miss">
+        <span class="val" id="live-miss">0</span>
+        <span class="lbl">Miss</span>
+      </div>
+      <div class="live-chip chip-traff">
+        <span class="val" id="live-traff">0</span>
+        <span class="lbl">Träff</span>
+      </div>
+      <div class="live-chip chip-stann">
+        <span class="val" id="live-stann">0</span>
+        <span class="lbl">Stann</span>
+      </div>
+    </div>
+
+    <div class="shot-grid">
+      <button class="shot-btn btn-miss" onclick="shoot('miss')">
+        <span class="btn-icon">✕</span> Miss
+      </button>
+      <button class="shot-btn btn-traff" onclick="shoot('traff')">
+        <span class="btn-icon">◎</span> Träff
+      </button>
+      <button class="shot-btn btn-stann" onclick="shoot('stann')">
+        <span class="btn-icon">★</span> Stann
+      </button>
+    </div>
+
+    <button class="reset-btn" onclick="openModal('reset-modal')">Nollställ aktuellt resultat</button>
   </div>
 </div>
 
-<!-- STATS TAB -->
+<!-- ══ STATS ══ -->
 <div id="tab-stats" class="tab-content">
   <div class="stats-wrap">
-    <div class="stats-header">
-      <h2>Sessionshistorik</h2>
-      <button class="clear-history-btn" onclick="openClearModal()">Rensa allt</button>
+    <div class="stats-top">
+      <h2>Historik</h2>
+      <button class="clear-btn" onclick="openModal('clear-modal')">Rensa allt</button>
     </div>
 
-    <div class="dist-filter" id="dist-filter">
-      <button class="opt-btn active" onclick="setFilter('all', this)">Alla</button>
-      <button class="opt-btn" onclick="setFilter(6, this)">6m</button>
-      <button class="opt-btn" onclick="setFilter(7, this)">7m</button>
-      <button class="opt-btn" onclick="setFilter(8, this)">8m</button>
-      <button class="opt-btn" onclick="setFilter(9, this)">9m</button>
+    <div class="filter-row" id="dist-filter">
+      <button class="pill active" onclick="setFilter('all',this)">Alla</button>
+      <button class="pill" onclick="setFilter(6,this)">6m</button>
+      <button class="pill" onclick="setFilter(7,this)">7m</button>
+      <button class="pill" onclick="setFilter(8,this)">8m</button>
+      <button class="pill" onclick="setFilter(9,this)">9m</button>
     </div>
 
-    <div class="chart-card">
-      <div class="chart-title">Träff% över tid</div>
-      <canvas id="trend-chart" height="180"></canvas>
+    <div class="summary-cards" id="sum-cards" style="display:none">
+      <div class="sum-card">
+        <div class="sv" id="sc-sessions" style="color:var(--accent2)">0</div>
+        <div class="sk">Sessioner</div>
+      </div>
+      <div class="sum-card">
+        <div class="sv" id="sc-shots">0</div>
+        <div class="sk">Skott</div>
+      </div>
+      <div class="sum-card">
+        <div class="sv" id="sc-avg" style="color:var(--stann)">0%</div>
+        <div class="sk">Snitt%</div>
+      </div>
     </div>
 
-    <div id="history-list" class="history-list"></div>
+    <div class="chart-card" id="chart-card" style="display:none">
+      <div class="chart-head">Träff% per session</div>
+      <canvas id="chart" height="160"></canvas>
+    </div>
+
+    <div id="hist-list" class="history-list"></div>
   </div>
 </div>
 
-<!-- SUMMARY MODAL -->
-<div id="summary-modal" class="modal-overlay">
-  <div class="modal-card">
+<!-- ══ MODALS ══ -->
+
+<!-- Summary -->
+<div class="overlay" id="sum-modal">
+  <div class="sheet">
     <h2 id="sum-title">Resultat</h2>
-    <div class="stat-row">
+    <p id="sum-subtitle" style="margin-bottom:0"></p>
+    <div class="pct-display">
+      <div class="pct-big" id="sum-pct">0%</div>
+      <div class="pct-label">Total träff%</div>
+    </div>
+    <div class="sheet-stat">
       <span>Missar</span>
-      <span class="stat-val" style="color:var(--miss)" id="sum-miss">0</span>
+      <span class="sv" style="color:var(--miss)" id="sum-miss">0</span>
     </div>
-    <div class="stat-row">
+    <div class="sheet-stat">
       <span>Träffar</span>
-      <span class="stat-val" style="color:var(--traff)" id="sum-traff">0</span>
+      <span class="sv" style="color:var(--traff)" id="sum-traff">0</span>
     </div>
-    <div class="stat-row">
+    <div class="sheet-stat">
       <span>Stann</span>
-      <span class="stat-val" style="color:var(--stann)" id="sum-stann">0</span>
+      <span class="sv" style="color:var(--stann)" id="sum-stann">0</span>
     </div>
-    <div class="stat-row" style="border:none; font-size:1.3rem; margin-top:8px;">
-      <span>Träff%</span>
-      <span class="stat-val" id="sum-pct">0%</span>
-    </div>
-    <div class="modal-actions">
-      <button class="btn-primary" id="next-btn" onclick="nextDistance()">Nästa avstånd</button>
-      <button class="btn-secondary" onclick="closeSummary()">Stäng</button>
+    <div class="sheet-actions">
+      <button class="mbtn mbtn-accent" id="next-btn" onclick="nextDist()">Nästa avstånd</button>
+      <button class="mbtn mbtn-ghost" onclick="closeModal('sum-modal')">Stäng</button>
     </div>
   </div>
 </div>
 
-<!-- CONFIRM RESET MODAL -->
-<div id="reset-modal" class="modal-overlay">
-  <div class="modal-card">
+<!-- Reset confirm -->
+<div class="overlay" id="reset-modal">
+  <div class="sheet">
     <h2>Nollställ?</h2>
-    <p>Vill du nollställa resultatet för det här avståndet? Datan sparas inte.</p>
-    <div class="modal-actions">
-      <button class="btn-danger" onclick="doReset()">Ja, nollställ</button>
-      <button class="btn-secondary" onclick="closeModal('reset-modal')">Avbryt</button>
+    <p>Vill du nollställa det aktuella avståndet? Resultaten sparas inte.</p>
+    <div class="sheet-actions">
+      <button class="mbtn mbtn-danger" onclick="doReset()">Ja, nollställ</button>
+      <button class="mbtn mbtn-ghost" onclick="closeModal('reset-modal')">Avbryt</button>
     </div>
   </div>
 </div>
 
-<!-- CONFIRM CHANGE MODAL -->
-<div id="change-modal" class="modal-overlay">
-  <div class="modal-card">
+<!-- Change confirm -->
+<div class="overlay" id="change-modal">
+  <div class="sheet">
     <h2>Byta inställning?</h2>
     <p>Du har påbörjat en serie. Vill du byta och nollställa framstegen?</p>
-    <div class="modal-actions">
-      <button class="btn-danger" onclick="doChange()">Ja, byt</button>
-      <button class="btn-secondary" onclick="closeModal('change-modal')">Avbryt</button>
+    <div class="sheet-actions">
+      <button class="mbtn mbtn-danger" onclick="doChange()">Ja, byt</button>
+      <button class="mbtn mbtn-ghost" onclick="closeModal('change-modal')">Avbryt</button>
     </div>
   </div>
 </div>
 
-<!-- CLEAR HISTORY MODAL -->
-<div id="clear-modal" class="modal-overlay">
-  <div class="modal-card">
+<!-- Clear history -->
+<div class="overlay" id="clear-modal">
+  <div class="sheet">
     <h2>Rensa historik?</h2>
-    <p>All sparad historik tas bort permanent.</p>
-    <div class="modal-actions">
-      <button class="btn-danger" onclick="doClearHistory()">Ja, rensa allt</button>
-      <button class="btn-secondary" onclick="closeModal('clear-modal')">Avbryt</button>
+    <p>All sparad historik tas bort permanent och kan inte återställas.</p>
+    <div class="sheet-actions">
+      <button class="mbtn mbtn-danger" onclick="doClear()">Ja, rensa allt</button>
+      <button class="mbtn mbtn-ghost" onclick="closeModal('clear-modal')">Avbryt</button>
     </div>
   </div>
 </div>
 
 <script>
-const DISTANCES = [6,7,8,9];
-let distIdx = 0;
-let shotCount = 0;
-let totalShots = 50;
-let stats = { miss:0, traff:0, stann:0 };
-let pendingChange = null;
-let activeFilter = 'all';
-let chartInstance = null;
+const DISTS = [6,7,8,9];
+let distIdx=0, shotCount=0, total=50, stats={miss:0,traff:0,stann:0};
+let pendingFn=null, activeFilter='all', chartObj=null;
 
-// --- PERSISTENCE ---
+/* ── Storage ── */
+const ls = {
+  get: k => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+  set: (k,v) => { try { localStorage.setItem(k,JSON.stringify(v)); } catch {} }
+};
 function loadSession() {
-  try {
-    const s = JSON.parse(localStorage.getItem('pt_session') || 'null');
-    if (s) {
-      distIdx = s.distIdx ?? 0;
-      shotCount = s.shotCount ?? 0;
-      totalShots = s.totalShots ?? 50;
-      stats = s.stats ?? { miss:0, traff:0, stann:0 };
-    }
-  } catch(e) {}
+  const s = ls.get('pt_s');
+  if (s) { distIdx=s.d??0; shotCount=s.n??0; total=s.t??50; stats=s.stats??{miss:0,traff:0,stann:0}; }
 }
-
-function saveSession() {
-  localStorage.setItem('pt_session', JSON.stringify({ distIdx, shotCount, totalShots, stats }));
-}
-
-function loadHistory() {
-  try { return JSON.parse(localStorage.getItem('pt_history') || '[]'); }
-  catch(e) { return []; }
-}
-
-function saveHistory(h) { localStorage.setItem('pt_history', JSON.stringify(h)); }
-
-function addHistoryEntry() {
-  const h = loadHistory();
-  h.unshift({
-    dist: DISTANCES[distIdx],
-    shots: totalShots,
-    miss: stats.miss,
-    traff: stats.traff,
-    stann: stats.stann,
-    pct: +((( stats.traff + stats.stann) / totalShots) * 100).toFixed(1),
-    date: new Date().toISOString()
-  });
+function saveSession() { ls.set('pt_s',{d:distIdx,n:shotCount,t:total,stats}); }
+function getHistory() { return ls.get('pt_h') || []; }
+function saveHistory(h) { ls.set('pt_h',h); }
+function pushHistory() {
+  const h = getHistory();
+  h.unshift({ dist:DISTS[distIdx], shots:total, miss:stats.miss, traff:stats.traff, stann:stats.stann,
+    pct:+((( stats.traff+stats.stann)/total)*100).toFixed(1), date:new Date().toISOString() });
   saveHistory(h);
 }
 
-// --- TABS ---
-function switchTab(name) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  event.target.classList.add('active');
-  if (name === 'stats') renderStats();
+/* ── Tabs ── */
+function switchTab(name,btn) {
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  if (name==='stats') renderStats();
 }
 
-// --- TRAINING ---
+/* ── Training ── */
 function setDistance(idx) {
-  if (shotCount > 0) { pendingChange = () => _setDistance(idx); openModal('change-modal'); return; }
-  _setDistance(idx);
+  if (shotCount>0) { pendingFn=()=>_setDist(idx); openModal('change-modal'); return; }
+  _setDist(idx);
 }
-function _setDistance(idx) {
-  distIdx = idx;
-  updateDistBtns();
-  resetCurrent();
-}
+function _setDist(idx) { distIdx=idx; refreshDistPills(); refreshUI(); }
 
-function setTotalShots(n) {
-  if (shotCount > 0) { pendingChange = () => _setTotalShots(n); openModal('change-modal'); return; }
-  _setTotalShots(n);
+function setTotal(n) {
+  if (shotCount>0) { pendingFn=()=>_setTotal(n); openModal('change-modal'); return; }
+  _setTotal(n);
 }
-function _setTotalShots(n) {
-  totalShots = n;
-  updateCountBtns();
-  document.getElementById('tot-shot').innerText = totalShots;
-  resetCurrent();
-}
+function _setTotal(n) { total=n; refreshCountPills(); refreshUI(); }
 
-function handleShot(type) {
-  if (shotCount >= totalShots) return;
+function shoot(type) {
+  if (shotCount>=total) return;
   stats[type]++;
   shotCount++;
   saveSession();
-  updateUI();
-  if (shotCount === totalShots) { addHistoryEntry(); showSummary(); }
+  refreshUI();
+  if (window.navigator.vibrate) navigator.vibrate(30);
+  if (shotCount===total) { pushHistory(); showSummary(); }
 }
 
-function updateUI() {
-  const next = Math.min(shotCount + 1, totalShots);
-  document.getElementById('cur-shot').innerText = shotCount < totalShots ? next : totalShots;
-  document.getElementById('progress-bar').style.width = (shotCount / totalShots * 100) + '%';
+function refreshDistPills() {
+  document.querySelectorAll('.dist-pill').forEach((b,i)=>b.classList.toggle('active',i===distIdx));
+  document.getElementById('hero-dist').innerText = DISTS[distIdx]+'m';
+}
+function refreshCountPills() {
+  document.querySelectorAll('.count-pill').forEach(b=>b.classList.toggle('active',parseInt(b.innerText)===total));
 }
 
-function updateDistBtns() {
-  document.querySelectorAll('.dist-btn').forEach((b,i) =>
-    b.classList.toggle('active', i === distIdx));
-  document.getElementById('display-distance').innerText = DISTANCES[distIdx] + 'm';
+function refreshUI() {
+  const done = shotCount;
+  const next = Math.min(done+1, total);
+  document.getElementById('hero-dist').innerText = DISTS[distIdx]+'m';
+  document.getElementById('cur-shot').innerText = done < total ? next : total;
+  document.getElementById('tot-shot').innerText = total;
+  const pct = Math.round(done/total*100);
+  document.getElementById('prog-fill').style.width = pct+'%';
+  document.getElementById('prog-pct').innerText = pct+'%';
+  document.getElementById('live-miss').innerText = stats.miss;
+  document.getElementById('live-traff').innerText = stats.traff;
+  document.getElementById('live-stann').innerText = stats.stann;
+  const hits = stats.traff+stats.stann;
+  document.getElementById('hero-sub').innerText = done===0 ? 'Redo att skjuta'
+    : done<total ? `${hits} träffar av ${done} skott`
+    : 'Serien klar!';
 }
 
-function updateCountBtns() {
-  document.querySelectorAll('.count-btn').forEach(b =>
-    b.classList.toggle('active', parseInt(b.innerText) === totalShots));
-  document.getElementById('tot-shot').innerText = totalShots;
-}
-
-function resetCurrent() {
-  shotCount = 0;
-  stats = { miss:0, traff:0, stann:0 };
-  document.getElementById('display-distance').innerText = DISTANCES[distIdx] + 'm';
-  updateUI();
-  saveSession();
-}
-
-// --- MODALS ---
-function openModal(id) { document.getElementById(id).classList.add('show'); }
-function closeModal(id) { document.getElementById(id).classList.remove('show'); }
-
-function openResetModal() { openModal('reset-modal'); }
-function doReset() { closeModal('reset-modal'); resetCurrent(); }
-
-function doChange() {
-  closeModal('change-modal');
-  if (pendingChange) { pendingChange(); pendingChange = null; }
-}
-
-function openClearModal() { openModal('clear-modal'); }
-function doClearHistory() {
-  saveHistory([]);
-  closeModal('clear-modal');
-  renderStats();
-}
+function doReset() { closeModal('reset-modal'); _reset(); }
+function _reset() { shotCount=0; stats={miss:0,traff:0,stann:0}; saveSession(); refreshUI(); }
+function doChange() { closeModal('change-modal'); if(pendingFn){pendingFn(); pendingFn=null;} }
 
 function showSummary() {
-  document.getElementById('sum-title').innerText = `Resultat ${DISTANCES[distIdx]}m (${totalShots} skott)`;
+  const d = DISTS[distIdx];
+  document.getElementById('sum-title').innerText = `${d}m – ${total} skott`;
+  document.getElementById('sum-subtitle').innerText = new Date().toLocaleDateString('sv-SE',{weekday:'long',day:'numeric',month:'long'});
   document.getElementById('sum-miss').innerText = stats.miss;
   document.getElementById('sum-traff').innerText = stats.traff;
   document.getElementById('sum-stann').innerText = stats.stann;
-  const pct = ((stats.traff + stats.stann) / totalShots * 100).toFixed(1);
-  document.getElementById('sum-pct').innerText = pct + '%';
+  const p = ((stats.traff+stats.stann)/total*100).toFixed(1);
+  document.getElementById('sum-pct').innerText = p+'%';
   const nb = document.getElementById('next-btn');
-  if (distIdx === DISTANCES.length - 1) nb.innerText = 'Börja om från 6m';
-  else nb.innerText = `Nästa avstånd (${DISTANCES[distIdx+1]}m)`;
-  openModal('summary-modal');
+  nb.innerText = distIdx<DISTS.length-1 ? `Nästa avstånd (${DISTS[distIdx+1]}m)` : 'Börja om från 6m';
+  openModal('sum-modal');
+}
+function nextDist() {
+  distIdx = distIdx<DISTS.length-1 ? distIdx+1 : 0;
+  refreshDistPills(); _reset(); closeModal('sum-modal');
 }
 
-function closeSummary() { closeModal('summary-modal'); }
+/* ── Modals ── */
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+function doClear() { saveHistory([]); closeModal('clear-modal'); renderStats(); }
 
-function nextDistance() {
-  distIdx = distIdx < DISTANCES.length - 1 ? distIdx + 1 : 0;
-  updateDistBtns();
-  resetCurrent();
-  closeModal('summary-modal');
-}
+// Close on backdrop click
+document.querySelectorAll('.overlay').forEach(o => o.addEventListener('click', e => {
+  if (e.target===o) o.classList.remove('show');
+}));
 
-// --- STATS ---
+/* ── Stats ── */
 function setFilter(val, btn) {
-  activeFilter = val;
-  document.querySelectorAll('#dist-filter .opt-btn').forEach(b => b.classList.remove('active'));
+  activeFilter=val;
+  document.querySelectorAll('#dist-filter .pill').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   renderStats();
 }
 
 function renderStats() {
-  const all = loadHistory();
-  const filtered = activeFilter === 'all' ? all : all.filter(e => e.dist === activeFilter);
+  const all = getHistory();
+  const data = activeFilter==='all' ? all : all.filter(e=>e.dist===activeFilter);
+  const hasData = data.length>0;
 
-  renderChart(filtered);
-  renderHistoryList(filtered);
+  document.getElementById('sum-cards').style.display = hasData ? 'grid' : 'none';
+  document.getElementById('chart-card').style.display = hasData ? 'block' : 'none';
+
+  if (hasData) {
+    document.getElementById('sc-sessions').innerText = data.length;
+    document.getElementById('sc-shots').innerText = data.reduce((a,e)=>a+e.shots,0);
+    const avg = (data.reduce((a,e)=>a+e.pct,0)/data.length).toFixed(1);
+    document.getElementById('sc-avg').innerText = avg+'%';
+    drawChart(data);
+  }
+  renderList(data);
 }
 
-function renderChart(data) {
-  const canvas = document.getElementById('trend-chart');
+function drawChart(data) {
+  const canvas = document.getElementById('chart');
   const ctx = canvas.getContext('2d');
+  if (chartObj) { chartObj=null; }
 
-  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
-
-  if (data.length === 0) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    return;
-  }
-
-  // Reverse so oldest first
   const pts = [...data].reverse();
-  const labels = pts.map((e, i) => `${e.dist}m #${i+1}`);
-  const values = pts.map(e => e.pct);
-
-  // Simple canvas chart
   const W = canvas.offsetWidth || 400;
-  const H = 180;
-  canvas.width = W;
-  canvas.height = H;
+  const H = 160;
+  canvas.width = W * (window.devicePixelRatio||1);
+  canvas.height = H * (window.devicePixelRatio||1);
+  canvas.style.width = W+'px';
+  canvas.style.height = H+'px';
+  ctx.scale(window.devicePixelRatio||1, window.devicePixelRatio||1);
 
-  const pad = { top: 20, right: 16, bottom: 30, left: 36 };
-  const cw = W - pad.left - pad.right;
-  const ch = H - pad.top - pad.bottom;
+  const pad={top:16,right:12,bottom:28,left:38};
+  const cw=W-pad.left-pad.right, ch=H-pad.top-pad.bottom;
 
-  ctx.clearRect(0, 0, W, H);
+  ctx.clearRect(0,0,W,H);
 
-  // Grid lines
-  ctx.strokeStyle = '#374151';
-  ctx.lineWidth = 1;
-  [0, 25, 50, 75, 100].forEach(v => {
-    const y = pad.top + ch - (v / 100) * ch;
-    ctx.beginPath();
-    ctx.moveTo(pad.left, y);
-    ctx.lineTo(pad.left + cw, y);
-    ctx.stroke();
-    ctx.fillStyle = '#6b7280';
-    ctx.font = '11px sans-serif';
-    ctx.textAlign = 'right';
-    ctx.fillText(v + '%', pad.left - 4, y + 4);
+  // Grid
+  [0,25,50,75,100].forEach(v=>{
+    const y=pad.top+ch-(v/100)*ch;
+    ctx.strokeStyle='rgba(255,255,255,0.05)';
+    ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(pad.left,y); ctx.lineTo(pad.left+cw,y); ctx.stroke();
+    ctx.fillStyle='#6b6b80'; ctx.font='10px Inter,sans-serif'; ctx.textAlign='right';
+    ctx.fillText(v+'%',pad.left-6,y+4);
   });
 
-  if (pts.length === 1) {
-    // Single dot
-    const x = pad.left + cw / 2;
-    const y = pad.top + ch - (values[0] / 100) * ch;
-    ctx.beginPath();
-    ctx.arc(x, y, 5, 0, Math.PI * 2);
-    ctx.fillStyle = '#6366f1';
-    ctx.fill();
-  } else {
-    const step = cw / (pts.length - 1);
+  if (pts.length===0) return;
 
-    // Area fill
-    const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
-    grad.addColorStop(0, 'rgba(99,102,241,0.35)');
-    grad.addColorStop(1, 'rgba(99,102,241,0)');
-    ctx.beginPath();
-    pts.forEach((p, i) => {
-      const x = pad.left + i * step;
-      const y = pad.top + ch - (values[i] / 100) * ch;
-      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-    });
-    ctx.lineTo(pad.left + (pts.length - 1) * step, pad.top + ch);
-    ctx.lineTo(pad.left, pad.top + ch);
-    ctx.closePath();
-    ctx.fillStyle = grad;
-    ctx.fill();
+  const xs = i => pts.length===1 ? pad.left+cw/2 : pad.left+(i/(pts.length-1))*cw;
+  const ys = v => pad.top+ch-(v/100)*ch;
 
-    // Line
+  // Gradient area
+  const grad=ctx.createLinearGradient(0,pad.top,0,pad.top+ch);
+  grad.addColorStop(0,'rgba(124,111,247,0.3)');
+  grad.addColorStop(1,'rgba(124,111,247,0)');
+  ctx.beginPath();
+  pts.forEach((p,i)=> i===0 ? ctx.moveTo(xs(i),ys(p.pct)) : ctx.lineTo(xs(i),ys(p.pct)));
+  ctx.lineTo(xs(pts.length-1),pad.top+ch);
+  ctx.lineTo(xs(0),pad.top+ch);
+  ctx.closePath();
+  ctx.fillStyle=grad; ctx.fill();
+
+  // Line
+  if (pts.length>1) {
     ctx.beginPath();
-    ctx.strokeStyle = '#6366f1';
-    ctx.lineWidth = 2.5;
-    ctx.lineJoin = 'round';
-    pts.forEach((p, i) => {
-      const x = pad.left + i * step;
-      const y = pad.top + ch - (values[i] / 100) * ch;
-      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-    });
+    ctx.strokeStyle='#7c6ff7'; ctx.lineWidth=2.5; ctx.lineJoin='round';
+    pts.forEach((p,i)=> i===0 ? ctx.moveTo(xs(i),ys(p.pct)) : ctx.lineTo(xs(i),ys(p.pct)));
     ctx.stroke();
-
-    // Dots
-    pts.forEach((p, i) => {
-      const x = pad.left + i * step;
-      const y = pad.top + ch - (values[i] / 100) * ch;
-      ctx.beginPath();
-      ctx.arc(x, y, 4, 0, Math.PI * 2);
-      ctx.fillStyle = '#6366f1';
-      ctx.fill();
-      ctx.strokeStyle = '#111827';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    });
   }
 
-  // X labels (show max 6)
-  ctx.fillStyle = '#6b7280';
-  ctx.font = '10px sans-serif';
-  ctx.textAlign = 'center';
-  const step2 = pts.length > 1 ? cw / (pts.length - 1) : 0;
-  const skip = Math.ceil(pts.length / 6);
-  pts.forEach((p, i) => {
-    if (i % skip === 0 || i === pts.length - 1) {
-      const x = pts.length === 1 ? pad.left + cw / 2 : pad.left + i * step2;
-      ctx.fillText(labels[i], x, H - 6);
-    }
+  // Dots
+  pts.forEach((p,i)=>{
+    ctx.beginPath(); ctx.arc(xs(i),ys(p.pct),4.5,0,Math.PI*2);
+    ctx.fillStyle='#7c6ff7'; ctx.fill();
+    ctx.strokeStyle='#1a1a24'; ctx.lineWidth=2; ctx.stroke();
+  });
+
+  // X labels
+  ctx.fillStyle='#6b6b80'; ctx.font='10px Inter,sans-serif'; ctx.textAlign='center';
+  const skip=Math.ceil(pts.length/5);
+  pts.forEach((p,i)=>{
+    if (i%skip===0||i===pts.length-1) ctx.fillText(`${p.dist}m`,xs(i),H-6);
   });
 }
 
-function renderHistoryList(data) {
-  const el = document.getElementById('history-list');
-  if (data.length === 0) {
-    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🎯</div>Inga sessioner sparade än.<br>Slutför en träning för att se statistik här.</div>`;
+function renderList(data) {
+  const el=document.getElementById('hist-list');
+  if (data.length===0) {
+    el.innerHTML=`<div class="empty"><div class="empty-icon">🎯</div><p>Inga sessioner sparade ännu.<br>Slutför en träning för att se din statistik här.</p></div>`;
     return;
   }
-
-  el.innerHTML = data.map(e => {
-    const d = new Date(e.date);
-    const dateStr = d.toLocaleDateString('sv-SE', { day:'numeric', month:'short', year:'numeric' });
-    const timeStr = d.toLocaleTimeString('sv-SE', { hour:'2-digit', minute:'2-digit' });
-    const color = e.pct >= 70 ? 'var(--stann)' : e.pct >= 40 ? 'var(--traff)' : 'var(--miss)';
-    return `
-      <div class="history-item">
-        <div class="history-left">
-          <span class="history-dist">${e.dist}m &mdash; ${e.shots} skott</span>
-          <span class="history-date">${dateStr} ${timeStr}</span>
-          <span class="history-detail" style="margin-top:2px">
-            <span style="color:var(--miss)">●</span> ${e.miss}
-            &nbsp;<span style="color:var(--traff)">●</span> ${e.traff}
-            &nbsp;<span style="color:var(--stann)">●</span> ${e.stann}
-          </span>
-        </div>
-        <div class="history-right">
-          <div class="history-pct" style="color:${color}">${e.pct}%</div>
-        </div>
-      </div>`;
+  el.innerHTML=data.map(e=>{
+    const d=new Date(e.date);
+    const ds=d.toLocaleDateString('sv-SE',{day:'numeric',month:'short'});
+    const ts=d.toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'});
+    const col=e.pct>=70?'var(--stann)':e.pct>=40?'var(--traff)':'var(--miss)';
+    return `<div class="hist-item">
+      <div class="hist-left">
+        <span class="hist-dist">${e.dist}m &nbsp;·&nbsp; ${e.shots} skott</span>
+        <span class="hist-date">${ds} kl. ${ts}</span>
+        <span class="hist-dots">
+          <span style="color:var(--miss)">● ${e.miss}</span>&ensp;
+          <span style="color:var(--traff)">● ${e.traff}</span>&ensp;
+          <span style="color:var(--stann)">● ${e.stann}</span>
+        </span>
+      </div>
+      <div class="hist-pct" style="color:${col}">${e.pct}%</div>
+    </div>`;
   }).join('');
 }
 
-// --- INIT ---
+/* ── Init ── */
 loadSession();
-updateDistBtns();
-updateCountBtns();
-updateUI();
+refreshDistPills();
+refreshCountPills();
+refreshUI();
 </script>
 </body>
 </html>
