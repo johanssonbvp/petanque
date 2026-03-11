@@ -180,6 +180,14 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
       <div class="auth-msg" id="reset-msg"></div>
       <button onclick="showAuthTab('login')" style="background:none;border:none;color:var(--muted);font-family:inherit;font-size:0.82rem;text-decoration:underline;text-underline-offset:3px;cursor:pointer;width:100%;margin-top:10px;">← Tillbaka till inloggning</button>
     </div>
+
+    <div id="auth-new-password" style="display:none">
+      <p style="color:var(--muted);font-size:0.85rem;line-height:1.5;margin-bottom:16px;">Ange ditt nya lösenord nedan.</p>
+      <div class="field"><label>Nytt lösenord</label><input type="password" id="new-pass" placeholder="Minst 6 tecken" autocomplete="new-password"></div>
+      <div class="field"><label>Bekräfta lösenord</label><input type="password" id="new-pass2" placeholder="Upprepa lösenord" autocomplete="new-password"></div>
+      <button class="auth-btn" id="new-pass-btn" onclick="doSetNewPassword()">Spara nytt lösenord</button>
+      <div class="auth-msg" id="new-pass-msg"></div>
+    </div>
     <div id="auth-register" style="display:none">
       <div class="field"><label>E-postadress</label><input type="email" id="reg-email" placeholder="din@email.se" autocomplete="email"></div>
       <div class="field"><label>Lösenord</label><input type="password" id="reg-pass" placeholder="Minst 6 tecken" autocomplete="new-password"></div>
@@ -363,7 +371,47 @@ function showAuthTab(tab) {
   document.getElementById('auth-login').style.display = tab==='login' ? 'block' : 'none';
   document.getElementById('auth-register').style.display = tab==='register' ? 'block' : 'none';
   document.getElementById('auth-reset').style.display = tab==='reset' ? 'block' : 'none';
+  document.getElementById('auth-new-password').style.display = tab==='new-password' ? 'block' : 'none';
   document.querySelectorAll('.auth-tab').forEach((b,i) => b.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='register')));
+}
+
+// Check if user arrived via password reset link
+function checkRecoveryToken() {
+  const hash = window.location.hash;
+  if (hash && hash.includes('type=recovery')) {
+    const params = new URLSearchParams(hash.substring(1));
+    const accessToken = params.get('access_token');
+    const refreshToken = params.get('refresh_token');
+    if (accessToken) {
+      currentSession = { access_token: accessToken, refresh_token: refreshToken };
+      document.getElementById('auth-screen').style.display = 'flex';
+      showAuthTab('new-password');
+      // Clean URL
+      history.replaceState(null, '', window.location.pathname);
+      return true;
+    }
+  }
+  return false;
+}
+
+async function doSetNewPassword() {
+  const pass = document.getElementById('new-pass').value;
+  const pass2 = document.getElementById('new-pass2').value;
+  if (pass.length < 6) { setAuthMsg('new-pass-msg', 'Lösenordet måste vara minst 6 tecken.'); return; }
+  if (pass !== pass2) { setAuthMsg('new-pass-msg', 'Lösenorden matchar inte.'); return; }
+  const btn = document.getElementById('new-pass-btn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+  setAuthMsg('new-pass-msg', '');
+  const res = await fetch(SUPA_URL + '/auth/v1/user', {
+    method: 'PUT',
+    headers: { ...supa.authHeaders(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password: pass })
+  });
+  const data = await res.json();
+  btn.disabled = false; btn.innerHTML = 'Spara nytt lösenord';
+  if (data.error) { setAuthMsg('new-pass-msg', data.error.message || 'Något gick fel.'); return; }
+  setAuthMsg('new-pass-msg', '✅ Lösenordet är uppdaterat!', 'success');
+  setTimeout(() => { currentSession = null; showAuthTab('login'); }, 2000);
 }
 
 async function doResetPassword() {
@@ -621,7 +669,7 @@ function exportHistory(){
 
 /* ══ INIT ══ */
 updateOnline();
-checkExistingSession();
+if (!checkRecoveryToken()) checkExistingSession();
 </script>
 </body>
 </html>
