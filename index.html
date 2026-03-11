@@ -375,7 +375,8 @@ async function doResetPassword() {
   setAuthMsg('reset-msg', '');
   const res = await supa.post('/auth/v1/recover', {
     email,
-    gotrue_meta_security: {}
+    gotrue_meta_security: {},
+    redirect_to: 'https://johanssonbvp.github.io/skyttetraning/'
   });
   btn.disabled = false;
   btn.innerHTML = 'Skicka återställningslänk';
