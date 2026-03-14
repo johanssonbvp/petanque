@@ -3,17 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Petanque Skytteträning</title>
+<title>Petanque Träning</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Petanque">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#0a0a0f">
-<meta name="description" content="Träningsapp för petanque-skytte.">
+<meta name="theme-color" content="#080810">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script>
-const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="100" fill="#13131a"/><circle cx="256" cy="256" r="160" fill="none" stroke="#7c6ff7" stroke-width="28"/><circle cx="256" cy="256" r="100" fill="none" stroke="#7c6ff7" stroke-width="20" opacity="0.5"/><circle cx="256" cy="256" r="40" fill="#7c6ff7"/><circle cx="256" cy="256" r="16" fill="white"/></svg>`;
+const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="100" fill="#080810"/><defs><radialGradient id="boule" cx="38%" cy="32%" r="65%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/><stop offset="40%" stop-color="#e8ff47" stop-opacity="0.15"/><stop offset="100%" stop-color="#b8cc00" stop-opacity="0"/></radialGradient><radialGradient id="base" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#d4e800"/><stop offset="60%" stop-color="#a8b800"/><stop offset="100%" stop-color="#6a7500"/></radialGradient></defs><circle cx="256" cy="256" r="170" fill="url(#base)" stroke="#e8ff47" stroke-width="6" opacity="0.95"/><circle cx="256" cy="256" r="170" fill="url(#boule)"/><circle cx="204" cy="190" r="28" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="10"/><path d="M 256 86 A 170 170 0 0 1 400 190" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="10" stroke-linecap="round"/><path d="M 120 310 A 170 170 0 0 0 310 418" fill="none" stroke="rgba(0,0,0,0.15)" stroke-width="8" stroke-linecap="round"/><circle cx="220" cy="175" r="10" fill="rgba(255,255,255,0.35)"/></svg>`;
 const iconUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(iconSvg)));
-const manifest = {name:"Petanque Skytteträning",short_name:"Petanque",start_url:"./",display:"standalone",background_color:"#0a0a0f",theme_color:"#0a0a0f",orientation:"portrait",icons:[{src:iconUrl,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]};
+const manifest = {name:"Petanque Training",short_name:"Petanque",start_url:"./",display:"standalone",background_color:"#080810",theme_color:"#080810",orientation:"portrait",icons:[{src:iconUrl,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]};
 const mblob = new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
 const ml = document.createElement('link'); ml.rel='manifest'; ml.href=URL.createObjectURL(mblob);
 document.currentScript.insertAdjacentElement('afterend',ml);
@@ -21,655 +22,332 @@ const al = document.createElement('link'); al.rel='apple-touch-icon'; al.href=ic
 document.currentScript.insertAdjacentElement('afterend',al);
 </script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 :root {
-  --miss:#f87171; --traff:#fbbf24; --stann:#34d399;
-  --bg:#0a0a0f; --surface:#13131a; --card:#1a1a24;
-  --border:rgba(255,255,255,0.07); --text:#f1f1f3; --muted:#6b6b80;
-  --accent:#7c6ff7; --accent2:#a78bfa; --glow:rgba(124,111,247,0.25);
+  --bg: #080810; --bg2: #0d0d1a; --surface: #111120;
+  --card: #161628; --card2: #1c1c34;
+  --border: rgba(255,255,255,0.06); --border2: rgba(255,255,255,0.12);
+  --text: #f0f0f8; --muted: #5a5a78; --muted2: #8888aa;
+  --accent: #e8ff47; --accent-dim: rgba(232,255,71,0.12); --accent-glow: rgba(232,255,71,0.3);
+  --carreau: #3dffa0; --traff: #f5c842; --miss: #ff4d4d;
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-body: 'Barlow', sans-serif;
 }
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overscroll-behavior-y:contain;touch-action:manipulation;}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overscroll-behavior-y: contain;
+  touch-action: manipulation;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0; opacity: 0.5;
+}
 
-/* ── AUTH SCREEN ── */
-#auth-screen{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:100vh;padding:24px;}
-.auth-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:32px 24px;width:100%;max-width:400px;}
-.auth-logo{text-align:center;margin-bottom:28px;}
-.auth-logo-icon{font-size:3rem;display:block;margin-bottom:8px;}
-.auth-logo h1{font-size:1.4rem;font-weight:800;background:linear-gradient(135deg,#fff,var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.auth-logo p{font-size:0.82rem;color:var(--muted);margin-top:4px;}
-.auth-tabs{display:flex;background:var(--bg);border-radius:12px;padding:4px;margin-bottom:24px;gap:4px;}
-.auth-tab{flex:1;padding:9px;border:none;border-radius:9px;background:none;color:var(--muted);font-family:inherit;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.2s;}
-.auth-tab.active{background:var(--accent);color:white;}
-.field{margin-bottom:16px;}
-.field label{display:block;font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
-.field input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:13px 16px;color:var(--text);font-family:inherit;font-size:0.95rem;outline:none;transition:border-color 0.2s;}
-.field input:focus{border-color:var(--accent);}
-.auth-btn{width:100%;background:var(--accent);color:white;border:none;border-radius:14px;padding:15px;font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;margin-top:4px;transition:opacity 0.2s;}
-.auth-btn:active{opacity:0.85;}
-.auth-btn:disabled{opacity:0.5;cursor:not-allowed;}
-.auth-msg{font-size:0.82rem;text-align:center;margin-top:12px;min-height:20px;}
-.auth-msg.error{color:var(--miss);}
-.auth-msg.success{color:var(--stann);}
+/* LANG BAR */
+.lang-bar {
+  display: flex; justify-content: flex-end;
+  padding: 10px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: relative; z-index: 1;
+}
+.lang-btn {
+  background: none; border: 1px solid var(--border2); border-radius: 8px;
+  padding: 5px 12px; font-family: var(--font-body);
+  font-size: 0.78rem; font-weight: 600; color: var(--muted2);
+  cursor: pointer; transition: all 0.2s;
+}
+.lang-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-/* ── APP ── */
-#app-screen{display:none;}
-#offline-badge{display:none;position:fixed;top:56px;left:50%;transform:translateX(-50%);background:#374151;color:#d1d5db;font-size:0.75rem;font-weight:600;padding:5px 14px;border-radius:999px;z-index:25;}
-#offline-badge.show{display:block;}
+/* HERO */
+.hero-wrap {
+  max-width: 480px; margin: 0 auto;
+  padding: 48px 20px 20px;
+  text-align: center; position: relative; z-index: 1;
+}
+.hero-glow {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 320px; height: 320px;
+  background: radial-gradient(circle, rgba(232,255,71,0.07) 0%, transparent 65%);
+  pointer-events: none;
+}
+.hero-icon {
+  width: 72px; height: 72px; margin: 0 auto 20px;
+  animation: pulse 3s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { filter: drop-shadow(0 0 12px rgba(232,255,71,0.3)); }
+  50% { filter: drop-shadow(0 0 28px rgba(232,255,71,0.6)); }
+}
+.hero-eyebrow {
+  font-family: var(--font-display); font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 3px; text-transform: uppercase; color: var(--muted2); margin-bottom: 8px;
+}
+.hero-title {
+  font-family: var(--font-display); font-size: 3.4rem; font-weight: 900;
+  line-height: 0.95; letter-spacing: -1px; color: var(--text); margin-bottom: 14px;
+}
+.hero-title span { color: var(--accent); }
+.hero-sub {
+  font-size: 0.92rem; color: var(--muted2); line-height: 1.6;
+  max-width: 320px; margin: 0 auto 36px;
+}
 
-.tab-bar{display:flex;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20;padding:0 4px;}
-.tab-btn{flex:1;padding:15px 8px;background:none;border:none;color:var(--muted);font-family:inherit;font-size:0.85rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;transition:color 0.2s,border-color 0.2s;-webkit-tap-highlight-color:transparent;}
-.tab-btn.active{color:var(--accent2);border-bottom-color:var(--accent2);}
-.tab-content{display:none;}
-.tab-content.active{display:block;}
+/* APPS */
+.apps-wrap {
+  max-width: 480px; margin: 0 auto;
+  padding: 0 16px 100px;
+  position: relative; z-index: 1;
+}
+.section-label {
+  font-family: var(--font-display); font-size: 0.68rem; font-weight: 700;
+  letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 14px;
+}
+.app-grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 36px; }
+.app-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+  padding: 22px 20px; display: flex; align-items: center; gap: 18px;
+  cursor: pointer; text-decoration: none; color: inherit;
+  transition: transform 0.18s cubic-bezier(.4,0,.2,1), border-color 0.18s, box-shadow 0.18s;
+  position: relative; overflow: hidden; -webkit-tap-highlight-color: transparent;
+}
+.app-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  opacity: 0; transition: opacity 0.2s;
+}
+.app-card:hover { transform: translateY(-3px); border-color: var(--border2); }
+.app-card:hover::before { opacity: 1; }
+.app-card:active { transform: scale(0.98); }
 
-/* User bar */
-.user-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--border);}
-.user-email{font-size:0.78rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px;}
-.signout-btn{background:none;border:1px solid var(--border);color:var(--muted);font-family:inherit;font-size:0.75rem;padding:5px 12px;border-radius:8px;cursor:pointer;white-space:nowrap;}
+.card-shooting::before { background: linear-gradient(90deg, var(--miss), #ff8080); }
+.card-lagg::before    { background: linear-gradient(90deg, var(--carreau), #00cc80); }
+.card-taktik::before  { background: linear-gradient(90deg, #7c6ff7, #a78bfa); }
 
-/* ── TRAINING ── */
-.train-wrap{max-width:480px;margin:0 auto;padding:24px 16px 120px;}
-.hero{text-align:center;margin-bottom:28px;}
-.hero-label{font-size:0.7rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
-.hero-dist{font-size:6rem;font-weight:900;line-height:1;background:linear-gradient(135deg,#fff 30%,var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 30px var(--glow));}
-.hero-sub{font-size:0.85rem;color:var(--muted);margin-top:6px;}
-.pill-section{margin-bottom:20px;}
-.pill-label{font-size:0.68rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
-.pill-group{display:flex;gap:6px;flex-wrap:wrap;}
-.pill{background:var(--card);color:var(--muted);border:1px solid var(--border);padding:8px 18px;border-radius:999px;font-family:inherit;font-weight:700;font-size:0.9rem;cursor:pointer;transition:all 0.18s;-webkit-tap-highlight-color:transparent;}
-.pill.active{background:var(--accent);color:white;border-color:var(--accent);box-shadow:0 0 16px var(--glow);}
-.progress-section{margin:24px 0 20px;}
-.progress-track{height:6px;background:var(--card);border-radius:999px;overflow:hidden;margin-bottom:10px;}
-.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:999px;width:0%;transition:width 0.35s cubic-bezier(.4,0,.2,1);box-shadow:0 0 8px var(--glow);}
-.progress-meta{display:flex;justify-content:space-between;font-size:0.8rem;color:var(--muted);}
-.progress-meta span{font-weight:600;}
-.live-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:24px;}
-.live-chip{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 6px;text-align:center;}
-.live-chip .val{font-size:1.4rem;font-weight:800;display:block;}
-.live-chip .lbl{font-size:0.65rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
-.chip-miss .val{color:var(--miss);} .chip-traff .val{color:var(--traff);} .chip-stann .val{color:var(--stann);}
-.shot-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:20px;}
-.shot-btn{border:none;border-radius:18px;padding:22px 16px;font-family:inherit;font-size:1.15rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:transform 0.1s;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center;gap:10px;position:relative;overflow:hidden;}
-.shot-btn::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,0.08);opacity:0;transition:opacity 0.15s;}
-.shot-btn:active{transform:scale(0.97);} .shot-btn:active::before{opacity:1;}
-.btn-miss{background:linear-gradient(135deg,#dc2626,#f87171);color:white;box-shadow:0 4px 20px rgba(220,38,38,0.3);}
-.btn-traff{background:linear-gradient(135deg,#d97706,#fbbf24);color:#1a1000;box-shadow:0 4px 20px rgba(217,119,6,0.3);}
-.btn-stann{background:linear-gradient(135deg,#059669,#34d399);color:white;box-shadow:0 4px 20px rgba(5,150,105,0.3);}
-.btn-icon{font-size:1.3rem;}
-.reset-btn{display:block;width:100%;background:none;border:none;color:var(--muted);font-family:inherit;font-size:0.85rem;padding:12px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;}
+.app-icon-wrap {
+  width: 52px; height: 52px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem; flex-shrink: 0;
+}
+.card-shooting .app-icon-wrap { background: rgba(255,77,77,0.12); }
+.card-lagg .app-icon-wrap     { background: rgba(61,255,160,0.1); }
+.card-taktik .app-icon-wrap   { background: rgba(124,111,247,0.12); }
+.card-soon .app-icon-wrap     { background: rgba(90,90,120,0.18); }
 
-/* ── STATS ── */
-.stats-wrap{max-width:480px;margin:0 auto;padding:24px 16px 120px;}
-.stats-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
-.stats-top h2{font-size:1.1rem;font-weight:700;}
-.clear-btn{background:none;border:1px solid var(--border);color:var(--muted);font-family:inherit;font-size:0.75rem;padding:6px 12px;border-radius:8px;cursor:pointer;}
-.filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
-.summary-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;}
-.sum-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 8px;text-align:center;}
-.sum-card .sv{font-size:1.6rem;font-weight:800;} .sum-card .sk{font-size:0.65rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:2px;}
-.chart-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px 14px 10px;margin-bottom:20px;}
-.chart-head{font-size:0.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
-.history-list{display:flex;flex-direction:column;gap:8px;}
-.hist-item{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;}
-.hist-left{display:flex;flex-direction:column;gap:4px;}
-.hist-dist{font-size:0.95rem;font-weight:700;} .hist-date{font-size:0.75rem;color:var(--muted);} .hist-dots{font-size:0.75rem;margin-top:2px;}
-.hist-pct{font-size:1.6rem;font-weight:900;}
+.app-info { flex: 1; min-width: 0; }
+.app-name {
+  font-family: var(--font-display); font-size: 1.15rem; font-weight: 800;
+  letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px;
+  display: flex; align-items: center; gap: 8px;
+}
+.app-desc { font-size: 0.82rem; color: var(--muted2); line-height: 1.4; }
+.app-badge {
+  font-family: var(--font-display); font-size: 0.6rem; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase; padding: 3px 8px; border-radius: 6px;
+}
+.badge-live { background: rgba(61,255,160,0.15); color: var(--carreau); }
+.badge-soon { background: rgba(90,90,120,0.3); color: var(--muted2); }
+.badge-new  { background: rgba(232,255,71,0.15); color: var(--accent); }
 
-/* ── MODALS ── */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);z-index:50;justify-content:center;align-items:flex-end;padding:16px;}
-.overlay.show{display:flex;}
-.sheet{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:28px 24px;width:100%;max-width:440px;margin-bottom:env(safe-area-inset-bottom);animation:slideUp 0.28s cubic-bezier(.4,0,.2,1);}
-@keyframes slideUp{from{transform:translateY(40px);opacity:0;}to{transform:translateY(0);opacity:1;}}
-.sheet h2{font-size:1.25rem;font-weight:800;margin-bottom:6px;}
-.sheet p{color:var(--muted);font-size:0.9rem;line-height:1.5;margin-bottom:20px;}
-.sheet-stat{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);font-size:1rem;}
-.sheet-stat:last-of-type{border:none;}
-.sheet-stat .sv{font-weight:800;font-size:1.15rem;}
-.pct-display{text-align:center;padding:16px 0 4px;}
-.pct-big{font-size:3.5rem;font-weight:900;background:linear-gradient(135deg,#fff,var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.pct-label{font-size:0.8rem;color:var(--muted);margin-top:2px;}
-.sheet-actions{display:flex;flex-direction:column;gap:8px;margin-top:20px;}
-.mbtn{border:none;border-radius:14px;padding:15px;width:100%;font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;transition:opacity 0.15s,transform 0.1s;-webkit-tap-highlight-color:transparent;}
-.mbtn:active{transform:scale(0.98);opacity:0.9;}
-.mbtn-accent{background:var(--accent);color:white;}
-.mbtn-ghost{background:rgba(255,255,255,0.06);color:var(--text);}
-.mbtn-danger{background:linear-gradient(135deg,#dc2626,#f87171);color:white;}
-.empty{text-align:center;color:var(--muted);padding:60px 20px;}
-.empty-icon{font-size:3rem;margin-bottom:12px;}
-.empty p{font-size:0.9rem;line-height:1.6;}
+.app-arrow { color: var(--muted); font-size: 1.2rem; transition: transform 0.2s, color 0.2s; flex-shrink: 0; }
+.app-card:hover .app-arrow { transform: translateX(4px); color: var(--accent); }
 
-/* Install banner */
-#install-banner{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);padding:14px 16px calc(14px + env(safe-area-inset-bottom));z-index:30;flex-direction:row;align-items:center;gap:12px;}
-#install-banner.show{display:flex;}
-.install-text{flex:1;} .install-text strong{font-size:0.9rem;display:block;} .install-text span{font-size:0.78rem;color:var(--muted);}
-.install-btn{background:var(--accent);color:white;border:none;padding:8px 16px;border-radius:10px;font-family:inherit;font-size:0.85rem;font-weight:700;cursor:pointer;flex-shrink:0;}
-.install-dismiss{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:4px;flex-shrink:0;}
+/* Disabled soon-card */
+.app-card.card-soon { cursor: default; opacity: 0.6; }
+.app-card.card-soon:hover { transform: none; border-color: var(--border); }
 
-/* Spinner */
-.spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;}
-@keyframes spin{to{transform:rotate(360deg);}}
+/* STATS STRIP */
+.stats-strip {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 40px;
+}
+.strip-stat {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px 10px; text-align: center;
+}
+.strip-val {
+  font-family: var(--font-display); font-size: 1.8rem; font-weight: 900;
+  color: var(--accent); letter-spacing: -0.5px; display: block;
+}
+.strip-lbl {
+  font-family: var(--font-display); font-size: 0.6rem; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted2);
+  margin-top: 2px; display: block;
+}
+
+/* FOOTER */
+.footer { text-align: center; padding: 0 16px 40px; position: relative; z-index: 1; }
+.footer p { font-size: 0.75rem; color: var(--muted); line-height: 1.8; }
+.footer a { color: var(--muted2); text-decoration: none; }
+.footer a:hover { color: var(--accent); }
 </style>
 </head>
 <body>
 
-<!-- ══ AUTH SCREEN ══ -->
-<div id="auth-screen">
-  <div class="auth-card">
-    <div class="auth-logo">
-      <span class="auth-logo-icon">🎯</span>
-      <h1>Petanque Träning</h1>
-      <p>Logga in för att spara din statistik</p>
-    </div>
-    <div class="auth-tabs">
-      <button class="auth-tab active" onclick="showAuthTab('login')">Logga in</button>
-      <button class="auth-tab" onclick="showAuthTab('register')">Registrera</button>
-    </div>
-    <div id="auth-login">
-      <div class="field"><label>E-postadress</label><input type="email" id="login-email" placeholder="din@email.se" autocomplete="email"></div>
-      <div class="field"><label>Lösenord</label><input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"></div>
-      <button class="auth-btn" id="login-btn" onclick="doLogin()">Logga in</button>
-      <div class="auth-msg" id="login-msg"></div>
-      <button onclick="showAuthTab('reset')" style="background:none;border:none;color:var(--muted);font-family:inherit;font-size:0.82rem;text-decoration:underline;text-underline-offset:3px;cursor:pointer;width:100%;margin-top:10px;">Glömt lösenordet?</button>
-    </div>
-
-    <div id="auth-reset" style="display:none">
-      <p style="color:var(--muted);font-size:0.85rem;line-height:1.5;margin-bottom:16px;">Ange din e-postadress så skickar vi en länk för att återställa ditt lösenord.</p>
-      <div class="field"><label>E-postadress</label><input type="email" id="reset-email" placeholder="din@email.se" autocomplete="email"></div>
-      <button class="auth-btn" id="reset-btn" onclick="doResetPassword()">Skicka återställningslänk</button>
-      <div class="auth-msg" id="reset-msg"></div>
-      <button onclick="showAuthTab('login')" style="background:none;border:none;color:var(--muted);font-family:inherit;font-size:0.82rem;text-decoration:underline;text-underline-offset:3px;cursor:pointer;width:100%;margin-top:10px;">← Tillbaka till inloggning</button>
-    </div>
-
-    <div id="auth-new-password" style="display:none">
-      <p style="color:var(--muted);font-size:0.85rem;line-height:1.5;margin-bottom:16px;">Ange ditt nya lösenord nedan.</p>
-      <div class="field"><label>Nytt lösenord</label><input type="password" id="new-pass" placeholder="Minst 6 tecken" autocomplete="new-password"></div>
-      <div class="field"><label>Bekräfta lösenord</label><input type="password" id="new-pass2" placeholder="Upprepa lösenord" autocomplete="new-password"></div>
-      <button class="auth-btn" id="new-pass-btn" onclick="doSetNewPassword()">Spara nytt lösenord</button>
-      <div class="auth-msg" id="new-pass-msg"></div>
-    </div>
-    <div id="auth-register" style="display:none">
-      <div class="field"><label>E-postadress</label><input type="email" id="reg-email" placeholder="din@email.se" autocomplete="email"></div>
-      <div class="field"><label>Lösenord</label><input type="password" id="reg-pass" placeholder="Minst 6 tecken" autocomplete="new-password"></div>
-      <div class="field"><label>Bekräfta lösenord</label><input type="password" id="reg-pass2" placeholder="Upprepa lösenord" autocomplete="new-password"></div>
-      <button class="auth-btn" id="reg-btn" onclick="doRegister()">Skapa konto</button>
-      <div class="auth-msg" id="reg-msg"></div>
-    </div>
-  </div>
+<div class="lang-bar">
+  <button class="lang-btn" onclick="toggleLang()" id="langBtn">🌐 EN</button>
 </div>
 
-<!-- ══ APP SCREEN ══ -->
-<div id="app-screen">
-  <div id="offline-badge">⚡ Offline-läge</div>
-
-  <div class="user-bar">
-    <span class="user-email" id="user-email-display"></span>
-    <button class="signout-btn" onclick="doSignOut()">Logga ut</button>
+<div class="hero-wrap">
+  <div class="hero-glow"></div>
+  <div class="hero-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+      <defs>
+        <radialGradient id="boule" cx="38%" cy="32%" r="65%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/>
+          <stop offset="40%" stop-color="#e8ff47" stop-opacity="0.15"/>
+          <stop offset="100%" stop-color="#b8cc00" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="base" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#d4e800"/>
+          <stop offset="60%" stop-color="#a8b800"/>
+          <stop offset="100%" stop-color="#6a7500"/>
+        </radialGradient>
+      </defs>
+      <circle cx="256" cy="256" r="240" fill="url(#base)" stroke="#e8ff47" stroke-width="8" opacity="0.95"/>
+      <circle cx="256" cy="256" r="240" fill="url(#boule)"/>
+      <circle cx="204" cy="190" r="38" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="14"/>
+      <path d="M 256 16 A 240 240 0 0 1 456 190" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="14" stroke-linecap="round"/>
+      <circle cx="220" cy="175" r="14" fill="rgba(255,255,255,0.35)"/>
+    </svg>
   </div>
+  <p class="hero-eyebrow" data-sv="Träningsplattform" data-en="Training Platform">Träningsplattform</p>
+  <h1 class="hero-title">Petanque<br><span>Träning</span></h1>
+  <p class="hero-sub" data-sv="Välj en träningsapp nedan och börja förbättra ditt spel." data-en="Choose a training app below and start improving your game.">Välj en träningsapp nedan och börja förbättra ditt spel.</p>
+</div>
 
-  <div class="tab-bar">
-    <button class="tab-btn active" onclick="switchTab('training',this)">🎯&nbsp; Träning</button>
-    <button class="tab-btn" onclick="switchTab('stats',this)">📊&nbsp; Statistik</button>
-  </div>
+<div class="apps-wrap">
 
-  <!-- TRAINING -->
-  <div id="tab-training" class="tab-content active">
-    <div class="train-wrap">
-      <div class="hero">
-        <div class="hero-label">Aktuellt avstånd</div>
-        <div class="hero-dist" id="hero-dist">6m</div>
-        <div class="hero-sub" id="hero-sub">Redo att skjuta</div>
-      </div>
-      <div class="pill-section">
-        <div class="pill-label">Avstånd</div>
-        <div class="pill-group">
-          <button class="pill dist-pill active" onclick="setDistance(0)">6m</button>
-          <button class="pill dist-pill" onclick="setDistance(1)">7m</button>
-          <button class="pill dist-pill" onclick="setDistance(2)">8m</button>
-          <button class="pill dist-pill" onclick="setDistance(3)">9m</button>
+  <p class="section-label" data-sv="Träningsappar" data-en="Training Apps">Träningsappar</p>
+  <div class="app-grid">
+
+    <a class="app-card card-shooting" href="skjuttraning.html">
+      <div class="app-icon-wrap">🎯</div>
+      <div class="app-info">
+        <div class="app-name">
+          <span data-sv="Skjutträning" data-en="Shooting">Skjutträning</span>
+          <span class="app-badge badge-live">Live</span>
         </div>
+        <p class="app-desc" data-sv="Registrera miss, träff och carreau. Spåra precision per avstånd." data-en="Log miss, hit and carreau. Track precision per distance.">Registrera miss, träff och carreau. Spåra precision per avstånd.</p>
       </div>
-      <div class="pill-section">
-        <div class="pill-label">Antal skott</div>
-        <div class="pill-group">
-          <button class="pill count-pill" onclick="setTotal(20)">20</button>
-          <button class="pill count-pill" onclick="setTotal(30)">30</button>
-          <button class="pill count-pill" onclick="setTotal(40)">40</button>
-          <button class="pill count-pill active" onclick="setTotal(50)">50</button>
+      <span class="app-arrow">›</span>
+    </a>
+
+    <a class="app-card card-lagg" href="laggtraning.html">
+      <div class="app-icon-wrap">🪃</div>
+      <div class="app-info">
+        <div class="app-name">
+          <span data-sv="Läggträning" data-en="Pointing">Läggträning</span>
+          <span class="app-badge badge-new" data-sv="Ny" data-en="New">Ny</span>
         </div>
+        <p class="app-desc" data-sv="Träna precision och avstånd. Mät hur nära du lägger boulerna." data-en="Train precision and distance. Measure how close you point.">Träna precision och avstånd. Mät hur nära du lägger boulerna.</p>
       </div>
-      <div class="progress-section">
-        <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
-        <div class="progress-meta">
-          <span>Skott <span id="cur-shot">1</span> / <span id="tot-shot">50</span></span>
-          <span id="prog-pct">0%</span>
+      <span class="app-arrow">›</span>
+    </a>
+
+    <a class="app-card card-taktik" href="taktik.html">
+      <div class="app-icon-wrap">🧠</div>
+      <div class="app-info">
+        <div class="app-name">
+          <span data-sv="Taktikövningar" data-en="Tactics">Taktikövningar</span>
+          <span class="app-badge badge-new" data-sv="Ny" data-en="New">Ny</span>
         </div>
+        <p class="app-desc" data-sv="Situationsbaserade övningar för spelförståelse och beslut." data-en="Situation drills for game understanding and decisions.">Situationsbaserade övningar för spelförståelse och beslut.</p>
       </div>
-      <div class="live-stats">
-        <div class="live-chip chip-miss"><span class="val" id="live-miss">0</span><span class="lbl">Miss</span></div>
-        <div class="live-chip chip-traff"><span class="val" id="live-traff">0</span><span class="lbl">Träff</span></div>
-        <div class="live-chip chip-stann"><span class="val" id="live-stann">0</span><span class="lbl">Stann</span></div>
+      <span class="app-arrow">›</span>
+    </a>
+
+    <div class="app-card card-soon" style="opacity:0.55; cursor:default;">
+      <div class="app-icon-wrap">🏆</div>
+      <div class="app-info">
+        <div class="app-name">
+          <span data-sv="Tävlingssimulator" data-en="Match Simulator">Tävlingssimulator</span>
+          <span class="app-badge badge-soon" data-sv="Snart" data-en="Soon">Snart</span>
+        </div>
+        <p class="app-desc" data-sv="Simulera tävlingsmatcher och öva poängsättning." data-en="Simulate competition matches and practice scoring.">Simulera tävlingsmatcher och öva poängsättning.</p>
       </div>
-      <div class="shot-grid">
-        <button class="shot-btn btn-miss" onclick="shoot('miss')"><span class="btn-icon">✕</span> Miss</button>
-        <button class="shot-btn btn-traff" onclick="shoot('traff')"><span class="btn-icon">◎</span> Träff</button>
-        <button class="shot-btn btn-stann" onclick="shoot('stann')"><span class="btn-icon">★</span> Stann</button>
-      </div>
-      <button class="reset-btn" onclick="openModal('reset-modal')">Nollställ aktuellt resultat</button>
+    </div>
+
+  </div>
+
+  <p class="section-label" data-sv="Din träning totalt" data-en="Your Total Training">Din träning totalt</p>
+  <div class="stats-strip">
+    <div class="strip-stat">
+      <span class="strip-val" id="totalSessions">–</span>
+      <span class="strip-lbl" data-sv="Sessioner" data-en="Sessions">Sessioner</span>
+    </div>
+    <div class="strip-stat">
+      <span class="strip-val" id="totalShots">–</span>
+      <span class="strip-lbl" data-sv="Skott" data-en="Shots">Skott</span>
+    </div>
+    <div class="strip-stat">
+      <span class="strip-val" id="totalDays">–</span>
+      <span class="strip-lbl" data-sv="Träningsdagar" data-en="Training Days">Träningsdagar</span>
     </div>
   </div>
 
-  <!-- STATS -->
-  <div id="tab-stats" class="tab-content">
-    <div class="stats-wrap">
-      <div class="stats-top">
-        <h2>Historik</h2>
-        <div style="display:flex;gap:8px">
-          <button class="clear-btn" onclick="exportHistory()">↓ Exportera</button>
-          <button class="clear-btn" onclick="openModal('clear-modal')">Rensa allt</button>
-        </div>
-      </div>
-      <div class="filter-row" id="dist-filter">
-        <button class="pill active" onclick="setFilter('all',this)">Alla</button>
-        <button class="pill" onclick="setFilter(6,this)">6m</button>
-        <button class="pill" onclick="setFilter(7,this)">7m</button>
-        <button class="pill" onclick="setFilter(8,this)">8m</button>
-        <button class="pill" onclick="setFilter(9,this)">9m</button>
-      </div>
-      <div class="summary-cards" id="sum-cards" style="display:none">
-        <div class="sum-card"><div class="sv" id="sc-sessions" style="color:var(--accent2)">0</div><div class="sk">Sessioner</div></div>
-        <div class="sum-card"><div class="sv" id="sc-shots">0</div><div class="sk">Skott</div></div>
-        <div class="sum-card"><div class="sv" id="sc-avg" style="color:var(--stann)">0%</div><div class="sk">Snitt%</div></div>
-      </div>
-      <div class="chart-card" id="chart-card" style="display:none">
-        <div class="chart-head">Träff% per session</div>
-        <canvas id="chart" height="160"></canvas>
-      </div>
-      <div id="hist-list" class="history-list"></div>
-    </div>
-  </div>
 </div>
 
-<!-- Modals -->
-<div class="overlay" id="sum-modal">
-  <div class="sheet">
-    <h2 id="sum-title">Resultat</h2>
-    <p id="sum-subtitle" style="margin-bottom:0"></p>
-    <div class="pct-display"><div class="pct-big" id="sum-pct">0%</div><div class="pct-label">Total träff%</div></div>
-    <div class="sheet-stat"><span>Missar</span><span class="sv" style="color:var(--miss)" id="sum-miss">0</span></div>
-    <div class="sheet-stat"><span>Träffar</span><span class="sv" style="color:var(--traff)" id="sum-traff">0</span></div>
-    <div class="sheet-stat"><span>Stann</span><span class="sv" style="color:var(--stann)" id="sum-stann">0</span></div>
-    <div class="sheet-actions">
-      <button class="mbtn mbtn-accent" id="next-btn" onclick="nextDist()">Nästa avstånd</button>
-      <button class="mbtn mbtn-ghost" onclick="closeModal('sum-modal')">Stäng</button>
-    </div>
-  </div>
-</div>
-<div class="overlay" id="reset-modal">
-  <div class="sheet">
-    <h2>Nollställ?</h2>
-    <p>Vill du nollställa det aktuella avståndet? Resultaten sparas inte.</p>
-    <div class="sheet-actions">
-      <button class="mbtn mbtn-danger" onclick="doReset()">Ja, nollställ</button>
-      <button class="mbtn mbtn-ghost" onclick="closeModal('reset-modal')">Avbryt</button>
-    </div>
-  </div>
-</div>
-<div class="overlay" id="change-modal">
-  <div class="sheet">
-    <h2>Byta inställning?</h2>
-    <p>Du har påbörjat en serie. Vill du byta och nollställa framstegen?</p>
-    <div class="sheet-actions">
-      <button class="mbtn mbtn-danger" onclick="doChange()">Ja, byt</button>
-      <button class="mbtn mbtn-ghost" onclick="closeModal('change-modal')">Avbryt</button>
-    </div>
-  </div>
-</div>
-<div class="overlay" id="clear-modal">
-  <div class="sheet">
-    <h2>Rensa historik?</h2>
-    <p>All sparad historik tas bort permanent.</p>
-    <div class="sheet-actions">
-      <button class="mbtn mbtn-danger" onclick="doClear()">Ja, rensa allt</button>
-      <button class="mbtn mbtn-ghost" onclick="closeModal('clear-modal')">Avbryt</button>
-    </div>
-  </div>
-</div>
-
-<div id="install-banner">
-  <span style="font-size:2rem;flex-shrink:0">🎯</span>
-  <div class="install-text"><strong>Installera appen</strong><span>Lägg till på hemskärmen</span></div>
-  <button class="install-btn" onclick="installApp()">Installera</button>
-  <button class="install-dismiss" onclick="dismissBanner()">✕</button>
+<div class="footer">
+  <p><a href="https://petanquetraning.se">petanquetraning.se</a> &nbsp;·&nbsp; <span data-sv="Byggd för petanquespelare" data-en="Built for pétanque players">Byggd för petanquespelare</span></p>
 </div>
 
 <script>
-/* ══ SUPABASE CONFIG ══ */
-const SUPA_URL = 'https://ddbepuoajxosazocucyx.supabase.co';
-const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkYmVwdW9hanhvc2F6b2N1Y3l4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMyMDkyOTMsImV4cCI6MjA4ODc4NTI5M30.nibFnPj1SHm0RPQKkgdOkNrpnkxAabZUbwkSoe03I-s';
-
-const supa = {
-  headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json' },
-  authHeaders: () => ({ ...supa.headers, 'Authorization': 'Bearer ' + (currentSession?.access_token || SUPA_KEY) }),
-
-  async post(path, body, useAuth=false) {
-    const r = await fetch(SUPA_URL + path, { method:'POST', headers: useAuth ? supa.authHeaders() : supa.headers, body: JSON.stringify(body) });
-    return r.json();
-  },
-  async get(path) {
-    const r = await fetch(SUPA_URL + path, { headers: supa.authHeaders() });
-    return r.json();
-  },
-  async postAuth(path, body) { return supa.post(path, body, true); }
-};
-
-let currentSession = null;
-let currentUser = null;
-
-/* ══ AUTH ══ */
-function showAuthTab(tab) {
-  document.getElementById('auth-login').style.display = tab==='login' ? 'block' : 'none';
-  document.getElementById('auth-register').style.display = tab==='register' ? 'block' : 'none';
-  document.getElementById('auth-reset').style.display = tab==='reset' ? 'block' : 'none';
-  document.getElementById('auth-new-password').style.display = tab==='new-password' ? 'block' : 'none';
-  document.querySelectorAll('.auth-tab').forEach((b,i) => b.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='register')));
-}
-
-// Check if user arrived via password reset link
-function checkRecoveryToken() {
-  const hash = window.location.hash;
-  if (hash && hash.includes('type=recovery')) {
-    const params = new URLSearchParams(hash.substring(1));
-    const accessToken = params.get('access_token');
-    const refreshToken = params.get('refresh_token');
-    if (accessToken) {
-      currentSession = { access_token: accessToken, refresh_token: refreshToken };
-      document.getElementById('auth-screen').style.display = 'flex';
-      showAuthTab('new-password');
-      // Clean URL
-      history.replaceState(null, '', window.location.pathname);
-      return true;
-    }
-  }
-  return false;
-}
-
-async function doSetNewPassword() {
-  const pass = document.getElementById('new-pass').value;
-  const pass2 = document.getElementById('new-pass2').value;
-  if (pass.length < 6) { setAuthMsg('new-pass-msg', 'Lösenordet måste vara minst 6 tecken.'); return; }
-  if (pass !== pass2) { setAuthMsg('new-pass-msg', 'Lösenorden matchar inte.'); return; }
-  const btn = document.getElementById('new-pass-btn');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
-  setAuthMsg('new-pass-msg', '');
-  const res = await fetch(SUPA_URL + '/auth/v1/user', {
-    method: 'PUT',
-    headers: { ...supa.authHeaders(), 'Content-Type': 'application/json' },
-    body: JSON.stringify({ password: pass })
+// ── LANGUAGE ──
+let lang = localStorage.getItem('lang') || 'sv';
+function applyLang() {
+  document.querySelectorAll('[data-sv]').forEach(el => {
+    el.textContent = lang === 'sv' ? el.dataset.sv : el.dataset.en;
   });
-  const data = await res.json();
-  btn.disabled = false; btn.innerHTML = 'Spara nytt lösenord';
-  if (data.error) { setAuthMsg('new-pass-msg', data.error.message || 'Något gick fel.'); return; }
-  setAuthMsg('new-pass-msg', '✅ Lösenordet är uppdaterat!', 'success');
-  setTimeout(() => { currentSession = null; showAuthTab('login'); }, 2000);
+  document.getElementById('langBtn').textContent = lang === 'sv' ? '🌐 EN' : '🌐 SV';
+  document.documentElement.lang = lang === 'sv' ? 'sv' : 'en';
 }
-
-async function doResetPassword() {
-  const email = document.getElementById('reset-email').value.trim();
-  if (!email) { setAuthMsg('reset-msg', 'Ange din e-postadress.'); return; }
-  const btn = document.getElementById('reset-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>';
-  setAuthMsg('reset-msg', '');
-  const res = await supa.post('/auth/v1/recover', {
-    email,
-    gotrue_meta_security: {},
-    redirect_to: 'https://johanssonbvp.github.io/skyttetraning/'
-  });
-  btn.disabled = false;
-  btn.innerHTML = 'Skicka återställningslänk';
-  if (res.error) { setAuthMsg('reset-msg', res.error.message || 'Något gick fel.'); return; }
-  setAuthMsg('reset-msg', '✅ Kolla din e-post! Länken är giltig i 24 timmar.', 'success');
+function toggleLang() {
+  lang = lang === 'sv' ? 'en' : 'sv';
+  localStorage.setItem('lang', lang);
+  applyLang();
 }
+applyLang();
 
-function setAuthMsg(id, msg, type='error') {
-  const el = document.getElementById(id);
-  el.textContent = msg;
-  el.className = 'auth-msg ' + type;
-}
+// ── TOTAL STATS (aggregates all app data) ──
+function loadStats() {
+  let sessions = 0, shots = 0;
+  const days = new Set();
 
-function setBtnLoading(id, loading) {
-  const btn = document.getElementById(id);
-  btn.disabled = loading;
-  btn.innerHTML = loading ? '<span class="spinner"></span>' : (id==='login-btn' ? 'Logga in' : 'Skapa konto');
-}
-
-async function doLogin() {
-  const email = document.getElementById('login-email').value.trim();
-  const pass = document.getElementById('login-pass').value;
-  if (!email || !pass) { setAuthMsg('login-msg','Fyll i e-post och lösenord.'); return; }
-  setBtnLoading('login-btn', true);
-  setAuthMsg('login-msg','');
-  const res = await supa.post('/auth/v1/token?grant_type=password', { email, password: pass });
-  setBtnLoading('login-btn', false);
-  if (res.error) { setAuthMsg('login-msg', res.error.message || 'Fel e-post eller lösenord.'); return; }
-  currentSession = res;
-  currentUser = res.user;
-  onLoggedIn();
-}
-
-async function doRegister() {
-  const email = document.getElementById('reg-email').value.trim();
-  const pass = document.getElementById('reg-pass').value;
-  const pass2 = document.getElementById('reg-pass2').value;
-  if (!email || !pass) { setAuthMsg('reg-msg','Fyll i alla fält.'); return; }
-  if (pass.length < 6) { setAuthMsg('reg-msg','Lösenordet måste vara minst 6 tecken.'); return; }
-  if (pass !== pass2) { setAuthMsg('reg-msg','Lösenorden matchar inte.'); return; }
-  setBtnLoading('reg-btn', true);
-  setAuthMsg('reg-msg','');
-  const res = await supa.post('/auth/v1/signup', { email, password: pass });
-  setBtnLoading('reg-btn', false);
-  if (res.error) { setAuthMsg('reg-msg', res.error.message || 'Något gick fel.'); return; }
-  if (res.user && !res.session) {
-    setAuthMsg('reg-msg','✅ Konto skapat! Kontrollera din e-post för att bekräfta.','success'); return;
-  }
-  if (res.session) { currentSession=res.session; currentUser=res.user; onLoggedIn(); return; }
-  setAuthMsg('reg-msg','✅ Konto skapat! Logga in nedan.','success');
-  showAuthTab('login');
-}
-
-async function doSignOut() {
-  await supa.post('/auth/v1/logout', {}, true).catch(()=>{});
-  currentSession = null; currentUser = null;
-  localStorage.removeItem('pt_session');
-  document.getElementById('app-screen').style.display = 'none';
-  document.getElementById('auth-screen').style.display = 'flex';
-}
-
-async function checkExistingSession() {
-  // Try to restore from localStorage token
+  // Skjutträning
   try {
-    const stored = JSON.parse(localStorage.getItem('pt_auth') || 'null');
-    if (stored?.access_token) {
-      currentSession = stored;
-      const res = await fetch(SUPA_URL+'/auth/v1/user', { headers: supa.authHeaders() });
-      const user = await res.json();
-      if (user?.id) { currentUser = user; onLoggedIn(); return; }
-    }
-  } catch {}
-  document.getElementById('auth-screen').style.display = 'flex';
+    JSON.parse(localStorage.getItem('pt_history') || '[]').forEach(s => {
+      sessions++;
+      shots += (s.miss||0) + (s.traff||0) + (s.carreau||0);
+      if (s.date) days.add(s.date.split('T')[0]);
+    });
+  } catch(e){}
+
+  // Läggträning
+  try {
+    JSON.parse(localStorage.getItem('pt_lagg_history') || '[]').forEach(s => {
+      sessions++;
+      shots += (s.attempts||0);
+      if (s.date) days.add(s.date.split('T')[0]);
+    });
+  } catch(e){}
+
+  // Taktik
+  try {
+    JSON.parse(localStorage.getItem('pt_taktik_history') || '[]').forEach(s => {
+      sessions++;
+      if (s.date) days.add(s.date.split('T')[0]);
+    });
+  } catch(e){}
+
+  document.getElementById('totalSessions').textContent = sessions || '0';
+  document.getElementById('totalShots').textContent = shots || '0';
+  document.getElementById('totalDays').textContent = days.size || '0';
 }
-
-function onLoggedIn() {
-  if (currentSession) localStorage.setItem('pt_auth', JSON.stringify(currentSession));
-  document.getElementById('auth-screen').style.display = 'none';
-  document.getElementById('app-screen').style.display = 'block';
-  document.getElementById('user-email-display').textContent = currentUser?.email || '';
-  loadSession(); refreshDistPills(); refreshCountPills(); refreshUI();
-}
-
-/* ══ PWA ══ */
-const SW_CODE = `const C='petanque-v1';self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll([self.location.href])));self.skipWaiting();});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))));self.clients.claim();});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(cached=>{if(cached)return cached;return fetch(e.request).then(res=>{if(res&&res.status===200&&e.request.method==='GET'){const cl=res.clone();caches.open(C).then(c=>c.put(e.request,cl));}return res;}).catch(()=>cached);}));});`;
-if ('serviceWorker' in navigator) {
-  const swBlob = new Blob([SW_CODE],{type:'application/javascript'});
-  navigator.serviceWorker.register(URL.createObjectURL(swBlob),{scope:'./'}).catch(()=>{});
-}
-let deferredPrompt=null;
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;if(!localStorage.getItem('install_dismissed'))document.getElementById('install-banner').classList.add('show');});
-window.addEventListener('appinstalled',()=>{document.getElementById('install-banner').classList.remove('show');deferredPrompt=null;});
-function installApp(){if(!deferredPrompt)return;deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;document.getElementById('install-banner').classList.remove('show');});}
-function dismissBanner(){document.getElementById('install-banner').classList.remove('show');localStorage.setItem('install_dismissed','1');}
-function updateOnline(){document.getElementById('offline-badge').classList.toggle('show',!navigator.onLine);}
-window.addEventListener('online',updateOnline);window.addEventListener('offline',updateOnline);
-
-/* ══ APP STATE ══ */
-const DISTS=[6,7,8,9];
-let distIdx=0,shotCount=0,total=50,stats={miss:0,traff:0,stann:0};
-let pendingFn=null,activeFilter='all';
-
-const ls={get:k=>{try{return JSON.parse(localStorage.getItem(k));}catch{return null;}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}}};
-function loadSession(){const s=ls.get('pt_s');if(s){distIdx=s.d??0;shotCount=s.n??0;total=s.t??50;stats=s.stats??{miss:0,traff:0,stann:0};}}
-function saveSession(){ls.set('pt_s',{d:distIdx,n:shotCount,t:total,stats});}
-
-/* History – saves to Supabase + localStorage fallback */
-function getHistory(){return ls.get('pt_h')||[];}
-function saveHistory(h){ls.set('pt_h',h);}
-async function pushHistory(){
-  const entry={dist:DISTS[distIdx],shots:total,miss:stats.miss,traff:stats.traff,stann:stats.stann,pct:+((( stats.traff+stats.stann)/total)*100).toFixed(1),date:new Date().toISOString()};
-  const h=getHistory(); h.unshift(entry); saveHistory(h);
-  // Save to Supabase if logged in
-  if (currentUser) {
-    await supa.postAuth('/rest/v1/sessions', {
-      user_id: currentUser.id, dist: entry.dist, shots: entry.shots,
-      miss: entry.miss, traff: entry.traff, stann: entry.stann,
-      pct: entry.pct, played_at: entry.date
-    }).catch(()=>{});
-  }
-}
-
-/* ══ TABS ══ */
-function switchTab(name,btn){
-  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('tab-'+name).classList.add('active');
-  btn.classList.add('active');
-  if(name==='stats')renderStats();
-}
-
-/* ══ TRAINING ══ */
-function setDistance(idx){if(shotCount>0){pendingFn=()=>_setDist(idx);openModal('change-modal');return;}_setDist(idx);}
-function _setDist(idx){distIdx=idx;refreshDistPills();refreshUI();}
-function setTotal(n){if(shotCount>0){pendingFn=()=>_setTotal(n);openModal('change-modal');return;}_setTotal(n);}
-function _setTotal(n){total=n;refreshCountPills();refreshUI();}
-
-function shoot(type){
-  if(shotCount>=total)return;
-  stats[type]++;shotCount++;saveSession();refreshUI();
-  if(window.navigator.vibrate)navigator.vibrate(30);
-  if(shotCount===total){pushHistory();showSummary();}
-}
-
-function refreshDistPills(){document.querySelectorAll('.dist-pill').forEach((b,i)=>b.classList.toggle('active',i===distIdx));document.getElementById('hero-dist').innerText=DISTS[distIdx]+'m';}
-function refreshCountPills(){document.querySelectorAll('.count-pill').forEach(b=>b.classList.toggle('active',parseInt(b.innerText)===total));}
-function refreshUI(){
-  document.getElementById('hero-dist').innerText=DISTS[distIdx]+'m';
-  document.getElementById('cur-shot').innerText=shotCount<total?shotCount+1:total;
-  document.getElementById('tot-shot').innerText=total;
-  const pct=Math.round(shotCount/total*100);
-  document.getElementById('prog-fill').style.width=pct+'%';
-  document.getElementById('prog-pct').innerText=pct+'%';
-  document.getElementById('live-miss').innerText=stats.miss;
-  document.getElementById('live-traff').innerText=stats.traff;
-  document.getElementById('live-stann').innerText=stats.stann;
-  const hits=stats.traff+stats.stann;
-  document.getElementById('hero-sub').innerText=shotCount===0?'Redo att skjuta':shotCount<total?`${hits} träffar av ${shotCount} skott`:'Serien klar!';
-}
-
-function doReset(){closeModal('reset-modal');_reset();}
-function _reset(){shotCount=0;stats={miss:0,traff:0,stann:0};saveSession();refreshUI();}
-function doChange(){closeModal('change-modal');if(pendingFn){pendingFn();pendingFn=null;}}
-
-function showSummary(){
-  document.getElementById('sum-title').innerText=`${DISTS[distIdx]}m – ${total} skott`;
-  document.getElementById('sum-subtitle').innerText=new Date().toLocaleDateString('sv-SE',{weekday:'long',day:'numeric',month:'long'});
-  document.getElementById('sum-miss').innerText=stats.miss;
-  document.getElementById('sum-traff').innerText=stats.traff;
-  document.getElementById('sum-stann').innerText=stats.stann;
-  document.getElementById('sum-pct').innerText=((stats.traff+stats.stann)/total*100).toFixed(1)+'%';
-  document.getElementById('next-btn').innerText=distIdx<DISTS.length-1?`Nästa avstånd (${DISTS[distIdx+1]}m)`:'Börja om från 6m';
-  openModal('sum-modal');
-}
-function nextDist(){distIdx=distIdx<DISTS.length-1?distIdx+1:0;refreshDistPills();_reset();closeModal('sum-modal');}
-
-/* ══ MODALS ══ */
-function openModal(id){document.getElementById(id).classList.add('show');}
-function closeModal(id){document.getElementById(id).classList.remove('show');}
-function doClear(){saveHistory([]);closeModal('clear-modal');renderStats();}
-document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show');}));
-
-/* ══ STATS ══ */
-function setFilter(val,btn){activeFilter=val;document.querySelectorAll('#dist-filter .pill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderStats();}
-
-function renderStats(){
-  const all=getHistory();
-  const data=activeFilter==='all'?all:all.filter(e=>e.dist===activeFilter);
-  const has=data.length>0;
-  document.getElementById('sum-cards').style.display=has?'grid':'none';
-  document.getElementById('chart-card').style.display=has?'block':'none';
-  if(has){
-    document.getElementById('sc-sessions').innerText=data.length;
-    document.getElementById('sc-shots').innerText=data.reduce((a,e)=>a+e.shots,0);
-    document.getElementById('sc-avg').innerText=(data.reduce((a,e)=>a+e.pct,0)/data.length).toFixed(1)+'%';
-    drawChart(data);
-  }
-  renderList(data);
-}
-
-function drawChart(data){
-  const canvas=document.getElementById('chart'),ctx=canvas.getContext('2d');
-  const pts=[...data].reverse();
-  const W=canvas.offsetWidth||400,H=160,dpr=window.devicePixelRatio||1;
-  canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.scale(dpr,dpr);
-  const pad={top:16,right:12,bottom:28,left:38},cw=W-pad.left-pad.right,ch=H-pad.top-pad.bottom;
-  ctx.clearRect(0,0,W,H);
-  [0,25,50,75,100].forEach(v=>{const y=pad.top+ch-(v/100)*ch;ctx.strokeStyle='rgba(255,255,255,0.05)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cw,y);ctx.stroke();ctx.fillStyle='#6b6b80';ctx.font='10px Inter,sans-serif';ctx.textAlign='right';ctx.fillText(v+'%',pad.left-6,y+4);});
-  if(!pts.length)return;
-  const xs=i=>pts.length===1?pad.left+cw/2:pad.left+(i/(pts.length-1))*cw;
-  const ys=v=>pad.top+ch-(v/100)*ch;
-  const grad=ctx.createLinearGradient(0,pad.top,0,pad.top+ch);
-  grad.addColorStop(0,'rgba(124,111,247,0.3)');grad.addColorStop(1,'rgba(124,111,247,0)');
-  ctx.beginPath();pts.forEach((p,i)=>i===0?ctx.moveTo(xs(i),ys(p.pct)):ctx.lineTo(xs(i),ys(p.pct)));
-  ctx.lineTo(xs(pts.length-1),pad.top+ch);ctx.lineTo(xs(0),pad.top+ch);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
-  if(pts.length>1){ctx.beginPath();ctx.strokeStyle='#7c6ff7';ctx.lineWidth=2.5;ctx.lineJoin='round';pts.forEach((p,i)=>i===0?ctx.moveTo(xs(i),ys(p.pct)):ctx.lineTo(xs(i),ys(p.pct)));ctx.stroke();}
-  pts.forEach((p,i)=>{ctx.beginPath();ctx.arc(xs(i),ys(p.pct),4.5,0,Math.PI*2);ctx.fillStyle='#7c6ff7';ctx.fill();ctx.strokeStyle='#1a1a24';ctx.lineWidth=2;ctx.stroke();});
-  ctx.fillStyle='#6b6b80';ctx.font='10px Inter,sans-serif';ctx.textAlign='center';
-  const skip=Math.ceil(pts.length/5);
-  pts.forEach((p,i)=>{if(i%skip===0||i===pts.length-1)ctx.fillText(`${p.dist}m`,xs(i),H-6);});
-}
-
-function renderList(data){
-  const el=document.getElementById('hist-list');
-  if(!data.length){el.innerHTML=`<div class="empty"><div class="empty-icon">🎯</div><p>Inga sessioner sparade ännu.<br>Slutför en träning för att se din statistik här.</p></div>`;return;}
-  el.innerHTML=data.map(e=>{
-    const d=new Date(e.date),ds=d.toLocaleDateString('sv-SE',{day:'numeric',month:'short'}),ts=d.toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'});
-    const col=e.pct>=70?'var(--stann)':e.pct>=40?'var(--traff)':'var(--miss)';
-    return `<div class="hist-item"><div class="hist-left"><span class="hist-dist">${e.dist}m &nbsp;·&nbsp; ${e.shots} skott</span><span class="hist-date">${ds} kl. ${ts}</span><span class="hist-dots"><span style="color:var(--miss)">● ${e.miss}</span>&ensp;<span style="color:var(--traff)">● ${e.traff}</span>&ensp;<span style="color:var(--stann)">● ${e.stann}</span></span></div><div class="hist-pct" style="color:${col}">${e.pct}%</div></div>`;
-  }).join('');
-}
-
-function exportHistory(){
-  const data=getHistory();
-  if(!data.length){alert('Ingen historik att exportera ännu.');return;}
-  const rows=[['Datum','Tid','Avstånd (m)','Antal skott','Miss','Träff','Stann','Träff%']];
-  data.forEach(e=>{const d=new Date(e.date);rows.push([d.toLocaleDateString('sv-SE'),d.toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'}),e.dist,e.shots,e.miss,e.traff,e.stann,e.pct]);});
-  const csv=rows.map(r=>r.join(';')).join('\n');
-  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`petanque-historik-${new Date().toISOString().slice(0,10)}.csv`;a.click();
-}
-
-/* ══ INIT ══ */
-updateOnline();
-if (!checkRecoveryToken()) checkExistingSession();
+loadStats();
 </script>
 </body>
 </html>
