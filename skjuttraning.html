@@ -3,24 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Petanque Träning</title>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Petanque">
-<meta name="mobile-web-app-capable" content="yes">
+<title>Skjutträning – Petanque</title>
 <meta name="theme-color" content="#080810">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script>
-const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="100" fill="#080810"/><defs><radialGradient id="boule" cx="38%" cy="32%" r="65%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/><stop offset="40%" stop-color="#e8ff47" stop-opacity="0.15"/><stop offset="100%" stop-color="#b8cc00" stop-opacity="0"/></radialGradient><radialGradient id="base" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#d4e800"/><stop offset="60%" stop-color="#a8b800"/><stop offset="100%" stop-color="#6a7500"/></radialGradient></defs><circle cx="256" cy="256" r="170" fill="url(#base)" stroke="#e8ff47" stroke-width="6" opacity="0.95"/><circle cx="256" cy="256" r="170" fill="url(#boule)"/><circle cx="204" cy="190" r="28" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="10"/><path d="M 256 86 A 170 170 0 0 1 400 190" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="10" stroke-linecap="round"/><path d="M 120 310 A 170 170 0 0 0 310 418" fill="none" stroke="rgba(0,0,0,0.15)" stroke-width="8" stroke-linecap="round"/><circle cx="220" cy="175" r="10" fill="rgba(255,255,255,0.35)"/></svg>`;
-const iconUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(iconSvg)));
-const manifest = {name:"Petanque Training",short_name:"Petanque",start_url:"./",display:"standalone",background_color:"#080810",theme_color:"#080810",orientation:"portrait",icons:[{src:iconUrl,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]};
-const mblob = new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
-const ml = document.createElement('link'); ml.rel='manifest'; ml.href=URL.createObjectURL(mblob);
-document.currentScript.insertAdjacentElement('afterend',ml);
-const al = document.createElement('link'); al.rel='apple-touch-icon'; al.href=iconUrl;
-document.currentScript.insertAdjacentElement('afterend',al);
-</script>
 <style>
 :root {
   --miss: #ff4d4d;
@@ -66,13 +52,32 @@ body::before {
 /* ── LANG BAR ── */
 .lang-bar {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   padding: 10px 16px;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   position: relative;
   z-index: 1;
 }
+.back-link {
+  background: none;
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted2);
+  text-decoration: none;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.back-link:hover { border-color: var(--accent); color: var(--accent); }
 .lang-btn {
   background: none;
   border: 1px solid var(--border2);
@@ -136,58 +141,14 @@ body::before {
   background: radial-gradient(circle, rgba(232,255,71,0.08) 0%, transparent 70%);
   pointer-events: none;
 }
-.hero-label {
-  font-family: var(--font-display);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--muted2);
-  margin-bottom: 8px;
-}
-.hero-dist {
-  font-family: var(--font-display);
-  font-size: 7rem;
-  font-weight: 900;
-  line-height: 1;
-  color: var(--accent);
-  text-shadow: 0 0 60px rgba(232,255,71,0.4);
-  letter-spacing: -2px;
-  transition: all 0.3s cubic-bezier(.4,0,.2,1);
-}
-.hero-sub {
-  font-size: 0.85rem;
-  color: var(--muted2);
-  margin-top: 10px;
-  font-weight: 500;
-  min-height: 20px;
-}
+.hero-label { font-family: var(--font-display); font-size: 0.7rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--muted2); margin-bottom: 8px; }
+.hero-dist { font-family: var(--font-display); font-size: 7rem; font-weight: 900; line-height: 1; color: var(--accent); text-shadow: 0 0 60px rgba(232,255,71,0.4); letter-spacing: -2px; transition: all 0.3s cubic-bezier(.4,0,.2,1); }
+.hero-sub { font-size: 0.85rem; color: var(--muted2); margin-top: 10px; font-weight: 500; min-height: 20px; }
 
 .pill-section { margin-bottom: 20px; }
-.pill-label {
-  font-family: var(--font-display);
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 10px;
-}
+.pill-label { font-family: var(--font-display); font-size: 0.68rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
 .pill-group { display: flex; gap: 8px; flex-wrap: wrap; }
-.pill {
-  background: var(--card);
-  color: var(--muted2);
-  border: 1px solid var(--border2);
-  padding: 9px 20px;
-  border-radius: 999px;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: 0.5px;
-  cursor: pointer;
-  transition: all 0.18s;
-  -webkit-tap-highlight-color: transparent;
-}
+.pill { background: var(--card); color: var(--muted2); border: 1px solid var(--border2); padding: 9px 20px; border-radius: 999px; font-family: var(--font-display); font-weight: 700; font-size: 1rem; letter-spacing: 0.5px; cursor: pointer; transition: all 0.18s; -webkit-tap-highlight-color: transparent; }
 .pill:hover { border-color: var(--accent); color: var(--text); }
 .pill.active { background: var(--accent); color: #080810; border-color: var(--accent); box-shadow: 0 0 20px rgba(232,255,71,0.3); }
 
@@ -197,15 +158,7 @@ body::before {
 .progress-meta { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--muted2); font-weight: 600; font-family: var(--font-display); letter-spacing: 0.5px; }
 
 .live-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 24px; }
-.live-chip {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 14px 6px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
+.live-chip { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 6px; text-align: center; position: relative; overflow: hidden; }
 .live-chip::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
 .chip-miss::before { background: var(--miss); }
 .chip-traff::before { background: var(--traff); }
@@ -217,15 +170,7 @@ body::before {
 .chip-carreau .val { color: var(--carreau); }
 
 .shot-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 20px; }
-.shot-btn {
-  border: none; border-radius: 18px; padding: 24px 16px;
-  font-family: var(--font-display); font-size: 1.3rem; font-weight: 800;
-  letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
-  transition: transform 0.12s cubic-bezier(.4,0,.2,1), box-shadow 0.12s;
-  -webkit-tap-highlight-color: transparent;
-  display: flex; align-items: center; justify-content: center; gap: 12px;
-  position: relative; overflow: hidden;
-}
+.shot-btn { border: none; border-radius: 18px; padding: 24px 16px; font-family: var(--font-display); font-size: 1.3rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: transform 0.12s cubic-bezier(.4,0,.2,1), box-shadow 0.12s; -webkit-tap-highlight-color: transparent; display: flex; align-items: center; justify-content: center; gap: 12px; position: relative; overflow: hidden; }
 .shot-btn::after { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,0); transition: background 0.15s; }
 .shot-btn:active { transform: scale(0.97) translateY(2px); }
 .shot-btn:active::after { background: rgba(255,255,255,0.08); }
@@ -236,7 +181,6 @@ body::before {
 .btn-traff:hover { box-shadow: 0 8px 32px rgba(245,200,66,0.5),inset 0 1px 0 rgba(255,255,255,0.2); }
 .btn-carreau { background: linear-gradient(160deg,#004d2e,#00884f 50%,#3dffa0); color: #001a0f; box-shadow: 0 6px 24px rgba(61,255,160,0.3),inset 0 1px 0 rgba(255,255,255,0.2); }
 .btn-carreau:hover { box-shadow: 0 8px 32px rgba(61,255,160,0.45),inset 0 1px 0 rgba(255,255,255,0.2); }
-
 .reset-btn { display: block; width: 100%; background: none; border: none; color: var(--muted); font-family: var(--font-body); font-size: 0.82rem; padding: 12px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; transition: color 0.2s; }
 .reset-btn:hover { color: var(--muted2); }
 
@@ -251,7 +195,6 @@ body::before {
 .stats-nav { display: flex; background: var(--card); border-radius: 14px; padding: 4px; margin-bottom: 24px; gap: 3px; border: 1px solid var(--border); }
 .stats-nav-btn { flex: 1; padding: 9px 4px; border: none; border-radius: 10px; background: none; color: var(--muted2); font-family: var(--font-display); font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
 .stats-nav-btn.active { background: var(--accent); color: #080810; }
-
 .stats-section { display: none; }
 .stats-section.active { display: block; animation: fadeUp 0.25s ease; }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -305,50 +248,14 @@ body::before {
 .hist-dots { font-size: 0.75rem; margin-top: 2px; }
 .hist-pct { font-family: var(--font-display); font-size: 1.8rem; font-weight: 900; letter-spacing: -1px; }
 
-
-/* ── SYNC INFO BANNER ── */
-.sync-info {
-  background: var(--card);
-  border: 1px solid var(--border2);
-  border-left: 3px solid var(--accent);
-  border-radius: 12px;
-  padding: 14px 16px;
-  margin-bottom: 20px;
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-}
+.sync-info { background: var(--card); border: 1px solid var(--border2); border-left: 3px solid var(--accent); border-radius: 12px; padding: 14px 16px; margin-bottom: 20px; display: flex; gap: 12px; align-items: flex-start; }
 .sync-info-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
 .sync-info-text { flex: 1; }
-.sync-info-text strong {
-  font-family: var(--font-display);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--accent);
-  display: block;
-  margin-bottom: 5px;
-}
-.sync-info-text p {
-  font-size: 0.8rem;
-  color: var(--muted2);
-  line-height: 1.6;
-  margin: 0;
-}
-.sync-info-close {
-  background: none;
-  border: none;
-  color: var(--muted);
-  font-size: 1rem;
-  cursor: pointer;
-  padding: 0;
-  flex-shrink: 0;
-  line-height: 1;
-  transition: color 0.2s;
-}
+.sync-info-text strong { font-family: var(--font-display); font-size: 0.78rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 5px; }
+.sync-info-text p { font-size: 0.8rem; color: var(--muted2); line-height: 1.6; margin: 0; }
+.sync-info-close { background: none; border: none; color: var(--muted); font-size: 1rem; cursor: pointer; padding: 0; flex-shrink: 0; line-height: 1; transition: color 0.2s; }
 .sync-info-close:hover { color: var(--text); }
-/* ── MODALS ── */
+
 .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); backdrop-filter: blur(12px); z-index: 50; justify-content: center; align-items: flex-end; padding: 16px; }
 .overlay.show { display: flex; }
 .sheet { background: var(--card); border: 1px solid var(--border2); border-radius: 24px; padding: 28px 24px; width: 100%; max-width: 440px; margin-bottom: env(safe-area-inset-bottom); animation: slideUp 0.3s cubic-bezier(.4,0,.2,1); box-shadow: 0 -20px 60px rgba(0,0,0,0.5); }
@@ -367,30 +274,16 @@ body::before {
 .mbtn-accent { background: var(--accent); color: #080810; box-shadow: 0 4px 20px rgba(232,255,71,0.3); }
 .mbtn-ghost { background: rgba(255,255,255,0.06); color: var(--text); border: 1px solid var(--border2); }
 .mbtn-danger { background: linear-gradient(135deg,#8b0000,#ff4d4d); color: white; box-shadow: 0 4px 20px rgba(255,77,77,0.3); }
-
 .empty { text-align: center; color: var(--muted2); padding: 60px 20px; }
 .empty-icon { font-size: 3rem; margin-bottom: 14px; opacity: 0.6; }
 .empty p { font-size: 0.9rem; line-height: 1.7; }
-
-#install-banner { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 1px solid var(--border2); padding: 14px 16px calc(14px + env(safe-area-inset-bottom)); z-index: 30; flex-direction: row; align-items: center; gap: 12px; }
-#install-banner.show { display: flex; }
-.install-text { flex: 1; }
-.install-text strong { font-family: var(--font-display); font-size: 0.9rem; font-weight: 700; display: block; letter-spacing: 0.5px; }
-.install-text span { font-size: 0.78rem; color: var(--muted2); }
-.install-btn { background: var(--accent); color: #080810; border: none; padding: 9px 18px; border-radius: 10px; font-family: var(--font-display); font-size: 0.85rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; flex-shrink: 0; }
-.install-dismiss { background: none; border: none; color: var(--muted); font-size: 1.2rem; cursor: pointer; padding: 4px; flex-shrink: 0; }
-
-/* Ko-fi */
 .kofi-link { display: block; text-align: center; margin-top: 16px; color: var(--muted2); font-size: 0.82rem; font-weight: 600; text-decoration: none; padding: 10px; border-radius: 10px; transition: color 0.2s, background 0.2s; letter-spacing: 0.3px; }
 .kofi-link:hover { color: var(--accent); background: var(--accent-dim); }
 .kofi-link-lg { font-size: 0.9rem; padding: 14px 24px; border: 1px solid var(--border2); display: inline-block; }
-
-/* Animations */
 @keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.3); } 100% { transform: scale(1); } }
 .bump { animation: bump 0.25s cubic-bezier(.4,0,.2,1); }
 @keyframes ripple { from { transform: scale(0); opacity: 0.5; } to { transform: scale(4); opacity: 0; } }
 .ripple-effect { position: absolute; border-radius: 50%; width: 60px; height: 60px; background: rgba(255,255,255,0.25); animation: ripple 0.5s ease-out forwards; pointer-events: none; }
-
 #offline-badge { display: none; position: fixed; top: 56px; left: 50%; transform: translateX(-50%); background: #2a2a40; color: var(--muted2); font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 5px 16px; border-radius: 999px; z-index: 25; border: 1px solid var(--border2); }
 #offline-badge.show { display: block; }
 </style>
@@ -400,6 +293,7 @@ body::before {
 <div id="offline-badge" data-i18n="offline">⚡ Offline-läge</div>
 
 <div class="lang-bar">
+  <a class="back-link" href="index.html">← <span data-i18n="home">Hem</span></a>
   <button class="lang-btn" onclick="toggleLang()">
     <span id="lang-flag">🇬🇧</span>
     <span id="lang-label">English</span>
@@ -476,7 +370,6 @@ body::before {
       <button class="stats-nav-btn" onclick="switchStatsTab('calendar',this)" data-i18n="calendar">Kalender</button>
       <button class="stats-nav-btn" onclick="switchStatsTab('history',this)" data-i18n="history">Historik</button>
     </div>
-
     <div class="sync-info" id="sync-info">
       <span class="sync-info-icon">💡</span>
       <div class="sync-info-text">
@@ -498,17 +391,14 @@ body::before {
       </div>
       <div id="ov-empty" class="empty" style="display:none"><div class="empty-icon">🟡</div><p data-i18n="noSessionsYet">Inga sessioner sparade ännu.</p></div>
     </div>
-
     <div id="stats-records" class="stats-section">
       <div class="records-grid" id="records-grid"></div>
       <div id="rec-empty" class="empty" style="display:none"><div class="empty-icon">🏆</div><p data-i18n="noRecords">Inga rekord ännu.</p></div>
     </div>
-
     <div id="stats-charts" class="stats-section">
       <div id="dist-charts"></div>
       <div id="charts-empty" class="empty" style="display:none"><div class="empty-icon">📈</div><p data-i18n="noCharts">Inga data ännu.</p></div>
     </div>
-
     <div id="stats-calendar" class="stats-section">
       <div class="calendar-wrap">
         <div class="cal-header">
@@ -524,7 +414,6 @@ body::before {
         </div>
       </div>
     </div>
-
     <div id="stats-history" class="stats-section">
       <div class="filter-row" id="dist-filter">
         <button class="pill active" onclick="setFilter('all',this)" data-i18n="all">Alla</button>
@@ -535,7 +424,6 @@ body::before {
       </div>
       <div id="hist-list" class="history-list"></div>
     </div>
-
     <div style="text-align:center;padding:32px 0 8px;">
       <a href="https://ko-fi.com/petanqueapp" target="_blank" rel="noopener" class="kofi-link kofi-link-lg">☕ <span data-i18n="kofiText">Gillar du appen? Bjud på en kaffe</span></a>
     </div>
@@ -558,7 +446,6 @@ body::before {
     <a href="https://ko-fi.com/petanqueapp" target="_blank" rel="noopener" class="kofi-link">☕ <span data-i18n="kofiText">Gillar du appen? Bjud på en kaffe</span></a>
   </div>
 </div>
-
 <div class="overlay" id="reset-modal">
   <div class="sheet">
     <h2 data-i18n="resetTitle">Nollställ?</h2>
@@ -569,7 +456,6 @@ body::before {
     </div>
   </div>
 </div>
-
 <div class="overlay" id="change-modal">
   <div class="sheet">
     <h2 data-i18n="changeTitle">Byta inställning?</h2>
@@ -580,7 +466,6 @@ body::before {
     </div>
   </div>
 </div>
-
 <div class="overlay" id="clear-modal">
   <div class="sheet">
     <h2 data-i18n="clearTitle">Rensa historik?</h2>
@@ -591,7 +476,6 @@ body::before {
     </div>
   </div>
 </div>
-
 <div class="overlay" id="import-modal">
   <div class="sheet">
     <h2 data-i18n="importTitle">Importera data</h2>
@@ -600,38 +484,16 @@ body::before {
       <button class="mbtn mbtn-accent" onclick="triggerImport()" data-i18n="chooseFile">Välj fil</button>
       <button class="mbtn mbtn-ghost" onclick="closeModal('import-modal')" data-i18n="cancel">Avbryt</button>
     </div>
-    <div class="auth-msg" id="import-msg" style="margin-top:12px;"></div>
+    <div id="import-msg" style="margin-top:12px;"></div>
   </div>
 </div>
 <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
 
-<div id="install-banner">
-  <span style="font-size:2rem;flex-shrink:0">🟡</span>
-  <div class="install-text"><strong data-i18n="installApp">Installera appen</strong><span id="install-sub" data-i18n="installSub">Lägg till på hemskärmen</span></div>
-  <button class="install-btn" id="install-action-btn">Installera</button>
-  <button class="install-dismiss" onclick="dismissBanner()">✕</button>
-</div>
-
-<div class="overlay" id="ios-modal">
-  <div class="sheet">
-    <h2>📲 <span data-i18n="iosInstallTitle">Installera på iPhone</span></h2>
-    <p data-i18n="iosInstallDesc">Följ dessa steg:</p>
-    <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:8px;">
-      <div style="display:flex;align-items:flex-start;gap:12px;"><span style="font-size:1.5rem;flex-shrink:0">1️⃣</span><span style="font-size:0.9rem;color:#d1d5db;line-height:1.5;" data-i18n="iosStep1">Öppna i <strong style="color:white">Safari</strong>.</span></div>
-      <div style="display:flex;align-items:flex-start;gap:12px;"><span style="font-size:1.5rem;flex-shrink:0">2️⃣</span><span style="font-size:0.9rem;color:#d1d5db;line-height:1.5;" data-i18n="iosStep2">Tryck på <strong style="color:white">dela-ikonen</strong> &#x2197; längst ner.</span></div>
-      <div style="display:flex;align-items:flex-start;gap:12px;"><span style="font-size:1.5rem;flex-shrink:0">3️⃣</span><span style="font-size:0.9rem;color:#d1d5db;line-height:1.5;" data-i18n="iosStep3">Tryck <strong style="color:white">"Lägg till på hemskärmen"</strong>.</span></div>
-      <div style="display:flex;align-items:flex-start;gap:12px;"><span style="font-size:1.5rem;flex-shrink:0">4️⃣</span><span style="font-size:0.9rem;color:#d1d5db;line-height:1.5;" data-i18n="iosStep4">Tryck <strong style="color:white">"Lägg till"</strong> – klart! 🎉</span></div>
-    </div>
-    <div class="sheet-actions"><button class="mbtn mbtn-ghost" onclick="closeModal('ios-modal');dismissBanner();" data-i18n="close">Stäng</button></div>
-  </div>
-</div>
-
 <script>
-/* ══ TRANSLATIONS ══ */
 const i18n = {
   sv: {
-    appName:'Petanque Träning',
-    tabTraining:'Träning', tabStats:'Statistik',
+    home:'Hem',
+    appName:'Petanque Träning', tabTraining:'Träning', tabStats:'Statistik',
     currentDistance:'Aktuellt avstånd', readyToShoot:'Redo att skjuta',
     distance:'Avstånd', numberOfShots:'Antal skott', shot:'Skott',
     miss:'Miss', hit:'Träff', resetCurrent:'Nollställ aktuellt resultat',
@@ -646,7 +508,7 @@ const i18n = {
     yesReset:'Ja, nollställ', cancel:'Avbryt', changeTitle:'Byta inställning?',
     changeDesc:'Du har påbörjat en serie. Vill du byta och nollställa framstegen?',
     yesChange:'Ja, byt', clearTitle:'Rensa historik?', clearDesc:'All sparad historik tas bort permanent.',
-    yesClear:'Ja, rensa allt', installApp:'Installera appen', installSub:'Lägg till på hemskärmen',
+    yesClear:'Ja, rensa allt',
     offline:'⚡ Offline-läge', nextDistance:'Nästa avstånd', restartFrom:'Börja om från 6m',
     hitsOf:'träffar av', seriesDone:'Serien klar!',
     bestSession:'Bästa session', avgLabel:'Snitt', sessionsLabel:'sessioner',
@@ -655,19 +517,14 @@ const i18n = {
     importTitle:'Importera data', importDesc:'Välj en tidigare exporterad JSON-fil för att importera din träningshistorik.',
     chooseFile:'Välj fil', importSuccess:'✅ Importerade', importSessions:'sessioner!',
     importError:'❌ Ogiltig fil. Välj en JSON-fil exporterad från appen.',
-    iosInstallTitle:'Installera på iPhone', iosInstallDesc:'Följ dessa steg:',
-    iosStep1:'Öppna i <strong style="color:white">Safari</strong>.',
-    iosStep2:'Tryck på <strong style="color:white">dela-ikonen</strong> &#x2197; längst ner.',
-    iosStep3:'Tryck <strong style="color:white">"Lägg till på hemskärmen"</strong>.',
-    iosStep4:'Tryck <strong style="color:white">"Lägg till"</strong> – klart! 🎉',
     langFlag:'🇬🇧', langLabel:'English',
     months:['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December'],
     days:['Mån','Tis','Ons','Tor','Fre','Lör','Sön'],
     exportCols:['Datum','Tid','Avstånd (m)','Antal skott','Miss','Träff','Carreau','Träff%'],
   },
   en: {
-    appName:'Petanque Training',
-    tabTraining:'Training', tabStats:'Statistics',
+    home:'Home',
+    appName:'Petanque Training', tabTraining:'Training', tabStats:'Statistics',
     currentDistance:'Current distance', readyToShoot:'Ready to shoot',
     distance:'Distance', numberOfShots:'Number of shots', shot:'Shot',
     miss:'Miss', hit:'Hit', resetCurrent:'Reset current result',
@@ -682,7 +539,7 @@ const i18n = {
     yesReset:'Yes, reset', cancel:'Cancel', changeTitle:'Change setting?',
     changeDesc:'You have started a series. Do you want to change and reset progress?',
     yesChange:'Yes, change', clearTitle:'Clear history?', clearDesc:'All saved history will be permanently deleted.',
-    yesClear:'Yes, clear all', installApp:'Install app', installSub:'Add to home screen',
+    yesClear:'Yes, clear all',
     offline:'⚡ Offline mode', nextDistance:'Next distance', restartFrom:'Restart from 6m',
     hitsOf:'hits out of', seriesDone:'Series complete!',
     bestSession:'Best session', avgLabel:'Avg', sessionsLabel:'sessions',
@@ -691,11 +548,6 @@ const i18n = {
     importTitle:'Import data', importDesc:'Choose a previously exported JSON file to import your training history.',
     chooseFile:'Choose file', importSuccess:'✅ Imported', importSessions:'sessions!',
     importError:'❌ Invalid file. Please choose a JSON file exported from the app.',
-    iosInstallTitle:'Install on iPhone', iosInstallDesc:'Follow these steps:',
-    iosStep1:'Open in <strong style="color:white">Safari</strong>.',
-    iosStep2:'Tap the <strong style="color:white">share icon</strong> &#x2197; at the bottom.',
-    iosStep3:'Tap <strong style="color:white">"Add to Home Screen"</strong>.',
-    iosStep4:'Tap <strong style="color:white">"Add"</strong> – done! 🎉',
     langFlag:'🇸🇪', langLabel:'Svenska',
     months:['January','February','March','April','May','June','July','August','September','October','November','December'],
     days:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
@@ -705,7 +557,6 @@ const i18n = {
 
 let lang = localStorage.getItem('pt_lang') || 'sv';
 function t(key) { return i18n[lang][key] || i18n['sv'][key] || key; }
-
 function applyTranslations() {
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
@@ -713,19 +564,12 @@ function applyTranslations() {
     if (val.includes('\n')) el.innerHTML = val.replace(/\n/g,'<br>');
     else el.textContent = val;
   });
-  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
-    el.placeholder = t(el.getAttribute('data-i18n-ph'));
-  });
   const flagEl = document.getElementById('lang-flag');
   const labelEl = document.getElementById('lang-label');
   if (flagEl) flagEl.textContent = t('langFlag');
   if (labelEl) labelEl.textContent = t('langLabel');
-  ['iosStep1','iosStep2','iosStep3','iosStep4'].forEach(key => {
-    document.querySelectorAll(`[data-i18n="${key}"]`).forEach(el => el.innerHTML = t(key));
-  });
   refreshUI();
 }
-
 function toggleLang() {
   lang = lang === 'sv' ? 'en' : 'sv';
   localStorage.setItem('pt_lang', lang);
@@ -733,42 +577,9 @@ function toggleLang() {
   if (document.getElementById('tab-stats').classList.contains('active')) renderStats();
 }
 
-/* ══ PWA ══ */
-const SW_CODE=`const C='petanque-v5';self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll([self.location.href])));self.skipWaiting();});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))));self.clients.claim();});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(cached=>{if(cached)return cached;return fetch(e.request).then(res=>{if(res&&res.status===200&&e.request.method==='GET'){const cl=res.clone();caches.open(C).then(c=>c.put(e.request,cl));}return res;}).catch(()=>cached);}));});`;
-if('serviceWorker'in navigator){const b=new Blob([SW_CODE],{type:'application/javascript'});navigator.serviceWorker.register(URL.createObjectURL(b),{scope:'./'}).catch(()=>{});}
-
-const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
-const isStandalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone;
-let deferredPrompt=null;
-
-function showInstallBanner(){
-  if(isStandalone||localStorage.getItem('install_dismissed'))return;
-  const banner=document.getElementById('install-banner');
-  if(isIOS){
-    document.getElementById('install-sub').textContent=lang==='sv'?'Tryck här för instruktioner':'Tap here for instructions';
-    const btn=document.getElementById('install-action-btn');
-    btn.textContent=lang==='sv'?'Visa hur':'Show how';
-    btn.onclick=()=>openModal('ios-modal');
-    banner.classList.add('show');
-  }
-}
-window.addEventListener('beforeinstallprompt',e=>{
-  e.preventDefault();deferredPrompt=e;
-  if(!localStorage.getItem('install_dismissed')&&!isStandalone){
-    document.getElementById('install-sub').textContent=t('installSub');
-    const btn=document.getElementById('install-action-btn');
-    btn.textContent=lang==='sv'?'Installera':'Install';
-    btn.onclick=installApp;
-    document.getElementById('install-banner').classList.add('show');
-  }
-});
-window.addEventListener('appinstalled',()=>{document.getElementById('install-banner').classList.remove('show');deferredPrompt=null;});
-function installApp(){if(!deferredPrompt)return;deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;document.getElementById('install-banner').classList.remove('show');});}
-function dismissBanner(){document.getElementById('install-banner').classList.remove('show');localStorage.setItem('install_dismissed','1');}
 function updateOnline(){document.getElementById('offline-badge').classList.toggle('show',!navigator.onLine);}
 window.addEventListener('online',updateOnline);window.addEventListener('offline',updateOnline);
 
-/* ══ APP STATE ══ */
 const DISTS=[6,7,8,9];
 let distIdx=0,shotCount=0,total=50,stats={miss:0,traff:0,carreau:0},pendingFn=null,activeFilter='all';
 let calYear=new Date().getFullYear(),calMonth=new Date().getMonth();
@@ -784,20 +595,17 @@ function loadSession(){
   if(stats.stann!==undefined){stats.carreau=stats.stann;delete stats.stann;}}
 }
 function saveSession(){ls.set('pt_s',{d:distIdx,n:shotCount,t:total,stats});}
-
 function getHistory(){
   const h=ls.get('pt_h')||[];
   return h.map(e=>{if(e.stann!==undefined){e.carreau=e.stann;delete e.stann;}return e;});
 }
 function saveHistory(h){ls.set('pt_h',h);}
-
 function pushHistory(){
   const entry={dist:DISTS[distIdx],shots:total,miss:stats.miss,traff:stats.traff,carreau:stats.carreau,
     pct:+((( stats.traff+stats.carreau)/total)*100).toFixed(1),date:new Date().toISOString()};
   const h=getHistory();h.unshift(entry);saveHistory(h);
 }
 
-/* ══ TABS ══ */
 function switchTab(name,btn){
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
@@ -810,7 +618,6 @@ function switchStatsTab(name,btn){
   document.getElementById('stats-'+name).classList.add('active');btn.classList.add('active');
 }
 
-/* ══ TRAINING ══ */
 function setDistance(idx){if(shotCount>0){pendingFn=()=>_setDist(idx);openModal('change-modal');return;}_setDist(idx);}
 function _setDist(idx){distIdx=idx;refreshDistPills();refreshUI();}
 function setTotal(n){if(shotCount>0){pendingFn=()=>_setTotal(n);openModal('change-modal');return;}_setTotal(n);}
@@ -845,7 +652,6 @@ function refreshDistPills(){
   setTimeout(()=>{distEl.innerText=DISTS[distIdx]+'m';distEl.style.transform='';distEl.style.opacity='';},120);
 }
 function refreshCountPills(){document.querySelectorAll('.count-pill').forEach(b=>b.classList.toggle('active',parseInt(b.innerText)===total));}
-
 function refreshUI(){
   document.getElementById('hero-dist').innerText=DISTS[distIdx]+'m';
   document.getElementById('cur-shot').innerText=shotCount<total?shotCount+1:total;
@@ -857,8 +663,8 @@ function refreshUI(){
   document.getElementById('live-traff').innerText=stats.traff;
   document.getElementById('live-carreau').innerText=stats.carreau;
   const hits=stats.traff+stats.carreau;
-  if(shotCount===0) document.getElementById('hero-sub').textContent=t('readyToShoot');
-  else if(shotCount<total) document.getElementById('hero-sub').textContent=`${hits} ${t('hitsOf')} ${shotCount} ${t('shot').toLowerCase()}`;
+  if(shotCount===0)document.getElementById('hero-sub').textContent=t('readyToShoot');
+  else if(shotCount<total)document.getElementById('hero-sub').textContent=`${hits} ${t('hitsOf')} ${shotCount} ${t('shot').toLowerCase()}`;
   else document.getElementById('hero-sub').textContent=t('seriesDone');
 }
 
@@ -881,13 +687,11 @@ function showSummary(){
 }
 function nextDist(){distIdx=distIdx<DISTS.length-1?distIdx+1:0;refreshDistPills();_reset();closeModal('sum-modal');}
 
-/* ══ MODALS ══ */
 function openModal(id){document.getElementById(id).classList.add('show');}
 function closeModal(id){document.getElementById(id).classList.remove('show');}
 function doClear(){saveHistory([]);closeModal('clear-modal');renderStats();}
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show');}));
 
-/* ══ EXPORT / IMPORT ══ */
 function exportHistory(){
   const data=getHistory();
   if(!data.length){alert(t('noSessionsYet'));return;}
@@ -897,25 +701,15 @@ function exportHistory(){
   a.download=`petanque-backup-${new Date().toISOString().slice(0,10)}.json`;
   a.click();
 }
-
-function importHistory(){
-  openModal('import-modal');
-  document.getElementById('import-msg').textContent='';
-}
-
-function triggerImport(){
-  document.getElementById('import-file').click();
-}
-
+function importHistory(){openModal('import-modal');document.getElementById('import-msg').textContent='';}
+function triggerImport(){document.getElementById('import-file').click();}
 function handleImport(event){
-  const file=event.target.files[0];
-  if(!file)return;
+  const file=event.target.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=e=>{
     try{
       const imported=JSON.parse(e.target.result);
       if(!Array.isArray(imported)||!imported[0]?.dist||!imported[0]?.date)throw new Error('invalid');
-      // Merge with existing, deduplicate by date+dist+shots
       const existing=getHistory();
       const key=entry=>entry.date.slice(0,19)+'_'+entry.dist+'_'+entry.shots;
       const existingKeys=new Set(existing.map(key));
@@ -932,16 +726,13 @@ function handleImport(event){
       msg.style.color='var(--miss)';
     }
   };
-  reader.readAsText(file);
-  event.target.value='';
+  reader.readAsText(file);event.target.value='';
 }
 
-/* ══ STATS ══ */
 function renderStats(){
   const all=getHistory();
   renderOverview(all);renderRecords(all);renderDistCharts(all);renderCalendar(all);renderList(all);
 }
-
 function renderOverview(data){
   const has=data.length>0;
   document.getElementById('ov-empty').style.display=has?'none':'block';
@@ -953,38 +744,30 @@ function renderOverview(data){
   document.getElementById('ov-worst').innerText=Math.min(...data.map(e=>e.pct))+'%';
   document.getElementById('ov-days').innerText=new Set(data.map(e=>e.date.slice(0,10))).size;
 }
-
 function renderRecords(data){
-  const grid=document.getElementById('records-grid');
-  const recEmpty=document.getElementById('rec-empty');
+  const grid=document.getElementById('records-grid'),recEmpty=document.getElementById('rec-empty');
   const distColors=['rec-6m','rec-7m','rec-8m','rec-9m'];
   let html='',hasAny=false;
   DISTS.forEach((d,i)=>{
-    const sessions=data.filter(e=>e.dist===d);
-    if(!sessions.length)return;
-    hasAny=true;
+    const sessions=data.filter(e=>e.dist===d);if(!sessions.length)return;hasAny=true;
     const best=Math.max(...sessions.map(e=>e.pct));
     const avg=(sessions.reduce((a,e)=>a+e.pct,0)/sessions.length).toFixed(1);
     const col=best>=70?'var(--carreau)':best>=40?'var(--traff)':'var(--miss)';
     html+=`<div class="record-card ${distColors[i]}"><div class="record-dist">${d}m</div><div class="record-pct" style="color:${col}">${best}%</div><div class="record-detail">${t('bestSession')}</div><div class="record-detail" style="margin-top:6px">${t('avgLabel')}: ${avg}% · ${sessions.length} ${t('sessionsLabel')}</div></div>`;
   });
-  grid.innerHTML=html;
-  recEmpty.style.display=hasAny?'none':'block';
+  grid.innerHTML=html;recEmpty.style.display=hasAny?'none':'block';
 }
-
 function renderDistCharts(data){
   const wrap=document.getElementById('dist-charts'),empty=document.getElementById('charts-empty');
   if(!data.length){wrap.innerHTML='';empty.style.display='block';return;}
   empty.style.display='none';
   const distColors=['#a78bfa','#3dffa0','#f5c842','#ff4d4d'];
   wrap.innerHTML=DISTS.map((d,i)=>{
-    const sessions=data.filter(e=>e.dist===d);
-    if(!sessions.length)return'';
+    const sessions=data.filter(e=>e.dist===d);if(!sessions.length)return'';
     return`<div class="chart-card"><div class="chart-head">${d}m – ${sessions.length} ${t('sessionsLabel')}</div><canvas id="chart-${d}" height="120"></canvas></div>`;
   }).join('');
   DISTS.forEach((d,i)=>{const sessions=data.filter(e=>e.dist===d);if(!sessions.length)return;const canvas=document.getElementById('chart-'+d);if(canvas)drawDistChart(canvas,sessions,distColors[i]);});
 }
-
 function drawDistChart(canvas,data,color){
   const ctx=canvas.getContext('2d'),pts=[...data].reverse();
   const W=canvas.offsetWidth||400,H=120,dpr=window.devicePixelRatio||1;
@@ -995,8 +778,7 @@ function drawDistChart(canvas,data,color){
     const y=pad.top+ch-(v/100)*ch;
     ctx.strokeStyle=v===0||v===100?'rgba(255,255,255,0.08)':'rgba(255,255,255,0.04)';
     ctx.lineWidth=1;ctx.setLineDash(v===0||v===100?[]:[4,4]);
-    ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cw,y);ctx.stroke();
-    ctx.setLineDash([]);
+    ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cw,y);ctx.stroke();ctx.setLineDash([]);
     ctx.fillStyle=v===50?'rgba(255,255,255,0.35)':'rgba(255,255,255,0.2)';
     ctx.font=`${v===50?'600':'500'} 10px Barlow,sans-serif`;
     ctx.textAlign='right';ctx.fillText(v+'%',pad.left-5,y+4);
@@ -1023,10 +805,8 @@ function drawDistChart(canvas,data,color){
   pts.forEach((p,i)=>{if(i%skip===0||i===pts.length-1)ctx.fillText(new Date(p.date).toLocaleDateString(locale,{day:'numeric',month:'short'}),xs(i),H-4);});
 }
 
-/* ══ CALENDAR ══ */
 function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar(getHistory());}
 function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar(getHistory());}
-
 function renderCalendar(data){
   const months=t('months'),days=t('days');
   document.getElementById('cal-month').innerText=`${months[calMonth]} ${calYear}`;
@@ -1047,9 +827,7 @@ function renderCalendar(data){
   document.getElementById('cal-grid').innerHTML=html;
 }
 
-/* ══ HISTORY ══ */
 function setFilter(val,btn){activeFilter=val;document.querySelectorAll('#dist-filter .pill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderList(getHistory());}
-
 function renderList(allData){
   const data=activeFilter==='all'?allData:allData.filter(e=>e.dist===activeFilter);
   const el=document.getElementById('hist-list');
@@ -1067,16 +845,14 @@ function dismissSyncInfo(){
   localStorage.setItem('pt_sync_info_dismissed','1');
 }
 
-/* ══ INIT ══ */
+// INIT
 updateOnline();
 loadSession();
 refreshDistPills();
 refreshCountPills();
 applyTranslations();
-showInstallBanner();
 if(localStorage.getItem('pt_sync_info_dismissed')){
-  const el=document.getElementById('sync-info');
-  if(el)el.style.display='none';
+  const el=document.getElementById('sync-info');if(el)el.style.display='none';
 }
 </script>
 </body>
