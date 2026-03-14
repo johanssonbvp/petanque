@@ -126,7 +126,7 @@ body::before {
 
 .card-shooting::before { background: linear-gradient(90deg, var(--miss), #ff8080); }
 .card-lagg::before    { background: linear-gradient(90deg, var(--carreau), #00cc80); }
-.card-taktik::before  { background: linear-gradient(90deg, #7c6ff7, #a78bfa); }
+.card-dagbok::before  { background: linear-gradient(90deg, var(--accent), #c8dd00); }
 .card-tavling::before { background: linear-gradient(90deg, var(--traff), #ff8c00); }
 
 .app-icon-wrap {
@@ -136,7 +136,7 @@ body::before {
 }
 .app-card.card-shooting .app-icon-wrap { background: rgba(255,77,77,0.12); }
 .app-card.card-lagg .app-icon-wrap     { background: rgba(61,255,160,0.1); }
-.app-card.card-taktik .app-icon-wrap   { background: rgba(124,111,247,0.12); }
+.app-card.card-dagbok .app-icon-wrap   { background: rgba(232,255,71,0.1); }
 .app-card.card-tavling .app-icon-wrap  { background: rgba(245,200,66,0.12); }
 
 .app-info { flex: 1; min-width: 0; }
@@ -245,26 +245,26 @@ body::before {
       <span class="app-arrow">›</span>
     </a>
 
-    <a class="app-card card-taktik" href="taktik.html">
-      <div class="app-icon-wrap">🧠</div>
-      <div class="app-info">
-        <div class="app-name">
-          <span data-sv="Taktikövningar" data-en="Tactics">Taktikövningar</span>
-          <span class="app-badge badge-new" data-sv="Ny" data-en="New">Ny</span>
-        </div>
-        <p class="app-desc" data-sv="Situationsbaserade övningar för spelförståelse och beslut." data-en="Situation drills for game understanding and decisions.">Situationsbaserade övningar för spelförståelse och beslut.</p>
-      </div>
-      <span class="app-arrow">›</span>
-    </a>
-
     <a class="app-card card-tavling" href="tavlingssimulator.html">
       <div class="app-icon-wrap">🏆</div>
       <div class="app-info">
         <div class="app-name">
-          <span data-sv="Tävlingssimulator" data-en="Match Simulator">Tävlingssimulator</span>
+          <span data-sv="Poängräknare" data-en="Scoreboard">Poängräknare</span>
           <span class="app-badge badge-new" data-sv="Ny" data-en="New">Ny</span>
         </div>
-        <p class="app-desc" data-sv="Spela match mot datorn. Välj svårighetsgrad och tävla till 13." data-en="Play a match against the CPU. Choose difficulty and race to 13.">Spela match mot datorn. Välj svårighetsgrad och tävla till 13.</p>
+        <p class="app-desc" data-sv="Digital poängräknare för singel och lag. Spela mot en kompis." data-en="Digital scoreboard for singles and teams. Play against a friend.">Digital poängräknare för singel och lag. Spela mot en kompis.</p>
+      </div>
+      <span class="app-arrow">›</span>
+    </a>
+
+    <a class="app-card card-dagbok" href="dagbok.html">
+      <div class="app-icon-wrap">📖</div>
+      <div class="app-info">
+        <div class="app-name">
+          <span data-sv="Träningsdagbok" data-en="Training Journal">Träningsdagbok</span>
+          <span class="app-badge badge-new" data-sv="Ny" data-en="New">Ny</span>
+        </div>
+        <p class="app-desc" data-sv="Logga dina pass, känsla och anteckningar. Se historiken i kalender." data-en="Log your sessions, mood and notes. View history in calendar.">Logga dina pass, känsla och anteckningar. Se historiken i kalender.</p>
       </div>
       <span class="app-arrow">›</span>
     </a>
