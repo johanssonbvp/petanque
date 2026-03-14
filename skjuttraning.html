@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Petanque Träning</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Petanque">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#080810">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="100" fill="#080810"/><defs><radialGradient id="boule" cx="38%" cy="32%" r="65%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/><stop offset="40%" stop-color="#e8ff47" stop-opacity="0.15"/><stop offset="100%" stop-color="#b8cc00" stop-opacity="0"/></radialGradient><radialGradient id="base" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#d4e800"/><stop offset="60%" stop-color="#a8b800"/><stop offset="100%" stop-color="#6a7500"/></radialGradient></defs><circle cx="256" cy="256" r="170" fill="url(#base)" stroke="#e8ff47" stroke-width="6" opacity="0.95"/><circle cx="256" cy="256" r="170" fill="url(#boule)"/><circle cx="204" cy="190" r="28" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="10"/><path d="M 256 86 A 170 170 0 0 1 400 190" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="10" stroke-linecap="round"/><path d="M 120 310 A 170 170 0 0 0 310 418" fill="none" stroke="rgba(0,0,0,0.15)" stroke-width="8" stroke-linecap="round"/><circle cx="220" cy="175" r="10" fill="rgba(255,255,255,0.35)"/></svg>`;
+const iconUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(iconSvg)));
+const manifest = {name:"Petanque Training",short_name:"Petanque",start_url:"./",display:"standalone",background_color:"#080810",theme_color:"#080810",orientation:"portrait",icons:[{src:iconUrl,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]};
+const mblob = new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
+const ml = document.createElement('link'); ml.rel='manifest'; ml.href=URL.createObjectURL(mblob);
+document.currentScript.insertAdjacentElement('afterend',ml);
+const al = document.createElement('link'); al.rel='apple-touch-icon'; al.href=iconUrl;
+document.currentScript.insertAdjacentElement('afterend',al);
+</script>
+<style>
+:root {
+  --miss: #ff4d4d;
+  --traff: #f5c842;
+  --carreau: #3dffa0;
+  --bg: #080810;
+  --bg2: #0d0d1a;
+  --surface: #111120;
+  --card: #161628;
+  --card2: #1c1c34;
+  --border: rgba(255,255,255,0.06);
+  --border2: rgba(255,255,255,0.12);
+  --text: #f0f0f8;
+  --muted: #5a5a78;
+  --muted2: #8888aa;
+  --accent: #e8ff47;
+  --accent-dim: rgba(232,255,71,0.15);
+  --accent-glow: rgba(232,255,71,0.3);
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-body: 'Barlow', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overscroll-behavior-y: contain;
+  touch-action: manipulation;
+  position: relative;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+/* ── LANG BAR ── */
+.lang-bar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  z-index: 1;
+}
+.lang-btn {
+  background: none;
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted2);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.lang-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── TAB BAR ── */
+.tab-bar {
+  display: flex;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+.tab-btn {
+  flex: 1;
+  padding: 16px 8px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ── TRAINING ── */
+.train-wrap { max-width: 480px; margin: 0 auto; padding: 28px 16px 120px; }
+
+.hero {
+  text-align: center;
+  margin-bottom: 32px;
+  position: relative;
+  padding: 28px 0 20px;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%; transform: translateX(-50%);
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(232,255,71,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-label {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted2);
+  margin-bottom: 8px;
+}
+.hero-dist {
+  font-family: var(--font-display);
+  font-size: 7rem;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--accent);
+  text-shadow: 0 0 60px rgba(232,255,71,0.4);
+  letter-spacing: -2px;
+  transition: all 0.3s cubic-bezier(.4,0,.2,1);
+}
+.hero-sub {
+  font-size: 0.85rem;
+  color: var(--muted2);
+  margin-top: 10px;
+  font-weight: 500;
+  min-height: 20px;
+}
+
+.pill-section { margin-bottom: 20px; }
+.pill-label {
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.pill-group { display: flex; gap: 8px; flex-wrap: wrap; }
+.pill {
+  background: var(--card);
+  color: var(--muted2);
+  border: 1px solid var(--border2);
+  padding: 9px 20px;
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.18s;
+  -webkit-tap-highlight-color: transparent;
+}
+.pill:hover { border-color: var(--accent); color: var(--text); }
+.pill.active { background: var(--accent); color: #080810; border-color: var(--accent); box-shadow: 0 0 20px rgba(232,255,71,0.3); }
+
+.progress-section { margin: 24px 0 20px; }
+.progress-track { height: 4px; background: var(--card2); border-radius: 999px; overflow: hidden; margin-bottom: 10px; }
+.progress-fill { height: 100%; background: var(--accent); border-radius: 999px; width: 0%; transition: width 0.4s cubic-bezier(.4,0,.2,1); box-shadow: 0 0 8px var(--accent-glow); }
+.progress-meta { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--muted2); font-weight: 600; font-family: var(--font-display); letter-spacing: 0.5px; }
+
+.live-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 24px; }
+.live-chip {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 6px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.live-chip::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+.chip-miss::before { background: var(--miss); }
+.chip-traff::before { background: var(--traff); }
+.chip-carreau::before { background: var(--carreau); }
+.live-chip .val { font-family: var(--font-display); font-size: 2rem; font-weight: 900; display: block; letter-spacing: -1px; transition: transform 0.15s; }
+.live-chip .lbl { font-family: var(--font-display); font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted2); margin-top: 2px; display: block; }
+.chip-miss .val { color: var(--miss); }
+.chip-traff .val { color: var(--traff); }
+.chip-carreau .val { color: var(--carreau); }
+
+.shot-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 20px; }
+.shot-btn {
+  border: none; border-radius: 18px; padding: 24px 16px;
+  font-family: var(--font-display); font-size: 1.3rem; font-weight: 800;
+  letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+  transition: transform 0.12s cubic-bezier(.4,0,.2,1), box-shadow 0.12s;
+  -webkit-tap-highlight-color: transparent;
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  position: relative; overflow: hidden;
+}
+.shot-btn::after { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,0); transition: background 0.15s; }
+.shot-btn:active { transform: scale(0.97) translateY(2px); }
+.shot-btn:active::after { background: rgba(255,255,255,0.08); }
+.btn-icon { font-size: 1.4rem; }
+.btn-miss { background: linear-gradient(160deg,#8b0000,#cc1111 50%,#ff4d4d); color: white; box-shadow: 0 6px 24px rgba(255,77,77,0.35),inset 0 1px 0 rgba(255,255,255,0.15); }
+.btn-miss:hover { box-shadow: 0 8px 32px rgba(255,77,77,0.5),inset 0 1px 0 rgba(255,255,255,0.15); }
+.btn-traff { background: linear-gradient(160deg,#7a5500,#c48800 50%,#f5c842); color: #1a0f00; box-shadow: 0 6px 24px rgba(245,200,66,0.35),inset 0 1px 0 rgba(255,255,255,0.2); }
+.btn-traff:hover { box-shadow: 0 8px 32px rgba(245,200,66,0.5),inset 0 1px 0 rgba(255,255,255,0.2); }
+.btn-carreau { background: linear-gradient(160deg,#004d2e,#00884f 50%,#3dffa0); color: #001a0f; box-shadow: 0 6px 24px rgba(61,255,160,0.3),inset 0 1px 0 rgba(255,255,255,0.2); }
+.btn-carreau:hover { box-shadow: 0 8px 32px rgba(61,255,160,0.45),inset 0 1px 0 rgba(255,255,255,0.2); }
+
+.reset-btn { display: block; width: 100%; background: none; border: none; color: var(--muted); font-family: var(--font-body); font-size: 0.82rem; padding: 12px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; transition: color 0.2s; }
+.reset-btn:hover { color: var(--muted2); }
+
+/* ── STATS ── */
+.stats-wrap { max-width: 480px; margin: 0 auto; padding: 24px 16px 120px; }
+.stats-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.stats-top h2 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+.stats-top-btns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.clear-btn { background: none; border: 1px solid var(--border2); color: var(--muted2); font-family: var(--font-body); font-size: 0.72rem; font-weight: 600; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+.clear-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.stats-nav { display: flex; background: var(--card); border-radius: 14px; padding: 4px; margin-bottom: 24px; gap: 3px; border: 1px solid var(--border); }
+.stats-nav-btn { flex: 1; padding: 9px 4px; border: none; border-radius: 10px; background: none; color: var(--muted2); font-family: var(--font-display); font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.stats-nav-btn.active { background: var(--accent); color: #080810; }
+
+.stats-section { display: none; }
+.stats-section.active { display: block; animation: fadeUp 0.25s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.overview-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 10px; }
+.ov-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px 8px; text-align: center; }
+.ov-card .sv { font-family: var(--font-display); font-size: 1.8rem; font-weight: 900; letter-spacing: -0.5px; display: block; }
+.ov-card .sk { font-family: var(--font-display); font-size: 0.6rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted2); margin-top: 3px; display: block; }
+
+.records-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 20px; }
+.record-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px 16px; position: relative; overflow: hidden; transition: transform 0.2s, border-color 0.2s; }
+.record-card:hover { transform: translateY(-2px); border-color: var(--border2); }
+.record-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.rec-6m::before { background: linear-gradient(90deg,#7c6ff7,#a78bfa); }
+.rec-7m::before { background: linear-gradient(90deg,var(--carreau),#00cc6a); }
+.rec-8m::before { background: linear-gradient(90deg,var(--traff),#ff8c00); }
+.rec-9m::before { background: linear-gradient(90deg,var(--miss),#cc0000); }
+.record-dist { font-family: var(--font-display); font-size: 0.7rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted2); margin-bottom: 8px; }
+.record-pct { font-family: var(--font-display); font-size: 2.4rem; font-weight: 900; letter-spacing: -1px; line-height: 1; }
+.record-detail { font-size: 0.72rem; color: var(--muted2); margin-top: 6px; font-weight: 500; }
+
+.chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px 14px 12px; margin-bottom: 12px; }
+.chart-head { font-family: var(--font-display); font-size: 0.7rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted2); margin-bottom: 14px; }
+
+.calendar-wrap { margin-bottom: 20px; }
+.cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.cal-nav { background: var(--card); border: 1px solid var(--border2); color: var(--text); font-size: 1.1rem; width: 38px; height: 38px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.cal-nav:hover { border-color: var(--accent); color: var(--accent); }
+.cal-month { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+.cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
+.cal-day-label { text-align: center; font-family: var(--font-display); font-size: 0.65rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); padding: 4px 0; }
+.cal-day { aspect-ratio: 1; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 0.82rem; font-weight: 700; }
+.cal-day.empty { background: none; }
+.cal-day.no-session { background: var(--card); color: var(--muted); }
+.cal-day.has-session { color: #080810; font-weight: 900; }
+.cal-day.great { background: var(--carreau); box-shadow: 0 2px 8px rgba(61,255,160,0.3); }
+.cal-day.good { background: var(--traff); box-shadow: 0 2px 8px rgba(245,200,66,0.3); }
+.cal-day.poor { background: var(--miss); box-shadow: 0 2px 8px rgba(255,77,77,0.3); }
+.cal-day.today { box-shadow: 0 0 0 2px var(--accent); }
+.cal-legend { display: flex; gap: 14px; margin-top: 14px; justify-content: center; flex-wrap: wrap; }
+.cal-legend-item { display: flex; align-items: center; gap: 6px; font-family: var(--font-display); font-size: 0.7rem; font-weight: 600; color: var(--muted2); }
+.cal-legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+
+.filter-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+.history-list { display: flex; flex-direction: column; gap: 8px; }
+.hist-item { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; transition: border-color 0.2s, transform 0.15s; }
+.hist-item:hover { border-color: var(--border2); transform: translateX(2px); }
+.hist-left { display: flex; flex-direction: column; gap: 4px; }
+.hist-dist { font-family: var(--font-display); font-size: 1rem; font-weight: 700; letter-spacing: 0.5px; }
+.hist-date { font-size: 0.75rem; color: var(--muted2); font-weight: 500; }
+.hist-dots { font-size: 0.75rem; margin-top: 2px; }
+.hist-pct { font-family: var(--font-display); font-size: 1.8rem; font-weight: 900; letter-spacing: -1px; }
+
+
+/* ── SYNC INFO BANNER ── */
+.sync-info {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-left: 3px solid var(--accent);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.sync-info-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+.sync-info-text { flex: 1; }
+.sync-info-text strong {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 5px;
+}
+.sync-info-text p {
+  font-size: 0.8rem;
+  color: var(--muted2);
+  line-height: 1.6;
+  margin: 0;
+}
+.sync-info-close {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  line-height: 1;
+  transition: color 0.2s;
+}
+.sync-info-close:hover { color: var(--text); }
+/* ── MODALS ── */
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); backdrop-filter: blur(12px); z-index: 50; justify-content: center; align-items: flex-end; padding: 16px; }
+.overlay.show { display: flex; }
+.sheet { background: var(--card); border: 1px solid var(--border2); border-radius: 24px; padding: 28px 24px; width: 100%; max-width: 440px; margin-bottom: env(safe-area-inset-bottom); animation: slideUp 0.3s cubic-bezier(.4,0,.2,1); box-shadow: 0 -20px 60px rgba(0,0,0,0.5); }
+@keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.sheet h2 { font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+.sheet p { color: var(--muted2); font-size: 0.9rem; line-height: 1.6; margin-bottom: 20px; }
+.sheet-stat { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 1rem; font-weight: 500; }
+.sheet-stat:last-of-type { border: none; }
+.sheet-stat .sv { font-family: var(--font-display); font-weight: 800; font-size: 1.2rem; letter-spacing: 0.5px; }
+.pct-display { text-align: center; padding: 16px 0 4px; }
+.pct-big { font-family: var(--font-display); font-size: 4rem; font-weight: 900; color: var(--accent); text-shadow: 0 0 40px var(--accent-glow); letter-spacing: -2px; }
+.pct-label { font-family: var(--font-display); font-size: 0.72rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted2); margin-top: 4px; }
+.sheet-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
+.mbtn { border: none; border-radius: 14px; padding: 15px; width: 100%; font-family: var(--font-display); font-size: 1rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: opacity 0.15s, transform 0.1s; -webkit-tap-highlight-color: transparent; }
+.mbtn:active { transform: scale(0.98); opacity: 0.9; }
+.mbtn-accent { background: var(--accent); color: #080810; box-shadow: 0 4px 20px rgba(232,255,71,0.3); }
+.mbtn-ghost { background: rgba(255,255,255,0.06); color: var(--text); border: 1px solid var(--border2); }
+.mbtn-danger { background: linear-gradient(135deg,#8b0000,#ff4d4d); color: white; box-shadow: 0 4px 20px rgba(255,77,77,0.3); }
+
+.empty { text-align: center; color: var(--muted2); padding: 60px 20px; }
+.empty-icon { font-size: 3rem; margin-bottom: 14px; opacity: 0.6; }
+.empty p { font-size: 0.9rem; line-height: 1.7; }
+
+#install-banner { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 1px solid var(--border2); padding: 14px 16px calc(14px + env(safe-area-inset-bottom)); z-index: 30; flex-direction: row; align-items: center; gap: 12px; }
+#install-banner.show { display: flex; }
+.install-text { flex: 1; }
+.install-text strong { font-family: var(--font-display); font-size: 0.9rem; font-weight: 700; display: block; letter-spacing: 0.5px; }
+.install-text span { font-size: 0.78rem; color: var(--muted2); }
+.install-btn { background: var(--accent); color: #080810; border: none; padding: 9px 18px; border-radius: 10px; font-family: var(--font-display); font-size: 0.85rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; flex-shrink: 0; }
+.install-dismiss { background: none; border: none; color: var(--muted); font-size: 1.2rem; cursor: pointer; padding: 4px; flex-shrink: 0; }
+
+/* Ko-fi */
+.kofi-link { display: block; text-align: center; margin-top: 16px; color: var(--muted2); font-size: 0.82rem; font-weight: 600; text-decoration: none; padding: 10px; border-radius: 10px; transition: color 0.2s, background 0.2s; letter-spacing: 0.3px; }
+.kofi-link:hover { color: var(--accent); background: var(--accent-dim); }
+.kofi-link-lg { font-size: 0.9rem; padding: 14px 24px; border: 1px solid var(--border2); display: inline-block; }
+
+/* Animations */
+@keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.3); } 100% { transform: scale(1); } }
+.bump { animation: bump 0.25s cubic-bezier(.4,0,.2,1); }
+@keyframes ripple { from { transform: scale(0); opacity: 0.5; } to { transform: scale(4); opacity: 0; } }
+.ripple-effect { position: absolute; border-radius: 50%; width: 60px; height: 60px; background: rgba(255,255,255,0.25); animation: ripple 0.5s ease-out forwards; pointer-events: none; }
+
+#offline-badge { display: none; position: fixed; top: 56px; left: 50%; transform: translateX(-50%); background: #2a2a40; color: var(--muted2); font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 5px 16px; border-radius: 999px; z-index: 25; border: 1px solid var(--border2); }
+#offline-badge.show { display: block; }
+</style>
+</head>
+<body>
+
+<div id="offline-badge" data-i18n="offline">⚡ Offline-läge</div>
+
+<div class="lang-bar">
+  <button class="lang-btn" onclick="toggleLang()">
+    <span id="lang-flag">🇬🇧</span>
+    <span id="lang-label">English</span>
+  </button>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('training',this)">🟡&nbsp; <span data-i18n="tabTraining">Träning</span></button>
+  <button class="tab-btn" onclick="switchTab('stats',this)">📊&nbsp; <span data-i18n="tabStats">Statistik</span></button>
+</div>
+
+<!-- TRAINING -->
+<div id="tab-training" class="tab-content active">
+  <div class="train-wrap">
+    <div class="hero">
+      <div class="hero-label" data-i18n="currentDistance">Aktuellt avstånd</div>
+      <div class="hero-dist" id="hero-dist">6m</div>
+      <div class="hero-sub" id="hero-sub" data-i18n="readyToShoot">Redo att skjuta</div>
+    </div>
+    <div class="pill-section">
+      <div class="pill-label" data-i18n="distance">Avstånd</div>
+      <div class="pill-group">
+        <button class="pill dist-pill active" onclick="setDistance(0)">6m</button>
+        <button class="pill dist-pill" onclick="setDistance(1)">7m</button>
+        <button class="pill dist-pill" onclick="setDistance(2)">8m</button>
+        <button class="pill dist-pill" onclick="setDistance(3)">9m</button>
+      </div>
+    </div>
+    <div class="pill-section">
+      <div class="pill-label" data-i18n="numberOfShots">Antal skott</div>
+      <div class="pill-group">
+        <button class="pill count-pill" onclick="setTotal(20)">20</button>
+        <button class="pill count-pill" onclick="setTotal(30)">30</button>
+        <button class="pill count-pill" onclick="setTotal(40)">40</button>
+        <button class="pill count-pill active" onclick="setTotal(50)">50</button>
+      </div>
+    </div>
+    <div class="progress-section">
+      <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+      <div class="progress-meta">
+        <span><span data-i18n="shot">Skott</span> <span id="cur-shot">1</span> / <span id="tot-shot">50</span></span>
+        <span id="prog-pct">0%</span>
+      </div>
+    </div>
+    <div class="live-stats">
+      <div class="live-chip chip-miss"><span class="val" id="live-miss">0</span><span class="lbl" data-i18n="miss">Miss</span></div>
+      <div class="live-chip chip-traff"><span class="val" id="live-traff">0</span><span class="lbl" data-i18n="hit">Träff</span></div>
+      <div class="live-chip chip-carreau"><span class="val" id="live-carreau">0</span><span class="lbl">Carreau</span></div>
+    </div>
+    <div class="shot-grid">
+      <button class="shot-btn btn-miss" onclick="shoot('miss',event)"><span class="btn-icon">✕</span> <span data-i18n="miss">Miss</span></button>
+      <button class="shot-btn btn-traff" onclick="shoot('traff',event)"><span class="btn-icon">◎</span> <span data-i18n="hit">Träff</span></button>
+      <button class="shot-btn btn-carreau" onclick="shoot('carreau',event)"><span class="btn-icon">★</span> Carreau</button>
+    </div>
+    <button class="reset-btn" onclick="openModal('reset-modal')" data-i18n="resetCurrent">Nollställ aktuellt resultat</button>
+  </div>
+</div>
+
+<!-- STATS -->
+<div id="tab-stats" class="tab-content">
+  <div class="stats-wrap">
+    <div class="stats-top">
+      <h2 data-i18n="statistics">Statistik</h2>
+      <div class="stats-top-btns">
+        <button class="clear-btn" onclick="importHistory()" data-i18n="import">↑ Importera</button>
+        <button class="clear-btn" onclick="exportHistory()" data-i18n="export">↓ Exportera</button>
+        <button class="clear-btn" onclick="openModal('clear-modal')" data-i18n="clearAll">Rensa allt</button>
+      </div>
+    </div>
+    <div class="stats-nav">
+      <button class="stats-nav-btn active" onclick="switchStatsTab('overview',this)" data-i18n="overview">Översikt</button>
+      <button class="stats-nav-btn" onclick="switchStatsTab('records',this)" data-i18n="records">Rekord</button>
+      <button class="stats-nav-btn" onclick="switchStatsTab('charts',this)" data-i18n="charts">Grafer</button>
+      <button class="stats-nav-btn" onclick="switchStatsTab('calendar',this)" data-i18n="calendar">Kalender</button>
+      <button class="stats-nav-btn" onclick="switchStatsTab('history',this)" data-i18n="history">Historik</button>
+    </div>
+
+    <div class="sync-info" id="sync-info">
+      <span class="sync-info-icon">💡</span>
+      <div class="sync-info-text">
+        <strong data-i18n="syncInfoTitle">Flytta data mellan enheter</strong>
+        <p data-i18n="syncInfoDesc">Exportera din data som en JSON-fil på den här enheten. Öppna sedan appen på en annan enhet och importera filen via ↑ Importera-knappen ovan.</p>
+      </div>
+      <button class="sync-info-close" onclick="dismissSyncInfo()">✕</button>
+    </div>
+    <div id="stats-overview" class="stats-section active">
+      <div class="overview-cards">
+        <div class="ov-card"><div class="sv" id="ov-sessions" style="color:var(--accent)">0</div><div class="sk" data-i18n="sessions">Sessioner</div></div>
+        <div class="ov-card"><div class="sv" id="ov-shots">0</div><div class="sk" data-i18n="shots">Skott</div></div>
+        <div class="ov-card"><div class="sv" id="ov-avg" style="color:var(--carreau)">0%</div><div class="sk" data-i18n="average">Snitt%</div></div>
+      </div>
+      <div class="overview-cards" style="margin-bottom:20px;">
+        <div class="ov-card"><div class="sv" id="ov-best" style="color:var(--carreau)">–</div><div class="sk" data-i18n="best">Bästa%</div></div>
+        <div class="ov-card"><div class="sv" id="ov-worst" style="color:var(--miss)">–</div><div class="sk" data-i18n="worst">Sämsta%</div></div>
+        <div class="ov-card"><div class="sv" id="ov-days" style="color:var(--accent)">0</div><div class="sk" data-i18n="trainingDays">Träningsdagar</div></div>
+      </div>
+      <div id="ov-empty" class="empty" style="display:none"><div class="empty-icon">🟡</div><p data-i18n="noSessionsYet">Inga sessioner sparade ännu.</p></div>
+    </div>
+
+    <div id="stats-records" class="stats-section">
+      <div class="records-grid" id="records-grid"></div>
+      <div id="rec-empty" class="empty" style="display:none"><div class="empty-icon">🏆</div><p data-i18n="noRecords">Inga rekord ännu.</p></div>
+    </div>
+
+    <div id="stats-charts" class="stats-section">
+      <div id="dist-charts"></div>
+      <div id="charts-empty" class="empty" style="display:none"><div class="empty-icon">📈</div><p data-i18n="noCharts">Inga data ännu.</p></div>
+    </div>
+
+    <div id="stats-calendar" class="stats-section">
+      <div class="calendar-wrap">
+        <div class="cal-header">
+          <button class="cal-nav" onclick="calPrev()">‹</button>
+          <span class="cal-month" id="cal-month"></span>
+          <button class="cal-nav" onclick="calNext()">›</button>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+        <div class="cal-legend">
+          <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--carreau)"></div>≥70%</div>
+          <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--traff)"></div>40–69%</div>
+          <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--miss)"></div>&lt;40%</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="stats-history" class="stats-section">
+      <div class="filter-row" id="dist-filter">
+        <button class="pill active" onclick="setFilter('all',this)" data-i18n="all">Alla</button>
+        <button class="pill" onclick="setFilter(6,this)">6m</button>
+        <button class="pill" onclick="setFilter(7,this)">7m</button>
+        <button class="pill" onclick="setFilter(8,this)">8m</button>
+        <button class="pill" onclick="setFilter(9,this)">9m</button>
+      </div>
+      <div id="hist-list" class="history-list"></div>
+    </div>
+
+    <div style="text-align:center;padding:32px 0 8px;">
+      <a href="https://ko-fi.com/petanqueapp" target="_blank" rel="noopener" class="kofi-link kofi-link-lg">☕ <span data-i18n="kofiText">Gillar du appen? Bjud på en kaffe</span></a>
+    </div>
+  </div>
+</div>
+
+<!-- Modals -->
+<div class="overlay" id="sum-modal">
+  <div class="sheet">
+    <h2 id="sum-title">Resultat</h2>
+    <p id="sum-subtitle" style="margin-bottom:0"></p>
+    <div class="pct-display"><div class="pct-big" id="sum-pct">0%</div><div class="pct-label" data-i18n="totalHitPct">Total träff%</div></div>
+    <div class="sheet-stat"><span data-i18n="misses">Missar</span><span class="sv" style="color:var(--miss)" id="sum-miss">0</span></div>
+    <div class="sheet-stat"><span data-i18n="hits">Träffar</span><span class="sv" style="color:var(--traff)" id="sum-traff">0</span></div>
+    <div class="sheet-stat"><span>Carreau</span><span class="sv" style="color:var(--carreau)" id="sum-carreau">0</span></div>
+    <div class="sheet-actions">
+      <button class="mbtn mbtn-accent" id="next-btn" onclick="nextDist()">Nästa avstånd</button>
+      <button class="mbtn mbtn-ghost" onclick="closeModal('sum-modal')" data-i18n="close">Stäng</button>
+    </div>
+    <a href="https://ko-fi.com/petanqueapp" target="_blank" rel="noopener" class="kofi-link">☕ <span data-i18n="kofiText">Gillar du appen? Bjud på en kaffe</span></a>
+  </div>
+</div>
+
+<div class="overlay" id="reset-modal">
+  <div class="sheet">
+    <h2 data-i18n="resetTitle">Nollställ?</h2>
+    <p data-i18n="resetDesc2">Vill du nollställa det aktuella avståndet? Resultaten sparas inte.</p>
+    <div class="sheet-actions">
+      <button class="mbtn mbtn-danger" onclick="doReset()" data-i18n="yesReset">Ja, nollställ</button>
+      <button class="mbtn mbtn-ghost" onclick="closeModal('reset-modal')" data-i18n="cancel">Avbryt</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="change-modal">
+  <div class="sheet">
+    <h2 data-i18n="changeTitle">Byta inställning?</h2>
+    <p data-i18n="changeDesc">Du har påbörjat en serie. Vill du byta och nollställa framstegen?</p>
+    <div class="sheet-actions">
+      <button class="mbtn mbtn-danger" onclick="doChange()" data-i18n="yesChange">Ja, byt</button>
+      <button class="mbtn mbtn-ghost" onclick="closeModal('change-modal')" data-i18n="cancel">Avbryt</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="clear-modal">
+  <div class="sheet">
+    <h2 data-i18n="clearTitle">Rensa historik?</h2>
+    <p data-i18n="clearDesc">All sparad historik tas bort permanent.</p>
+    <div class="sheet-actions">
+      <button class="mbtn mbtn-danger" onclick="doClear()" data-i18n="yesClear">Ja, rensa allt</button>
+      <button class="mbtn mbtn-ghost" onclick="closeModal('clear-modal')" data-i18n="cancel">Avbryt</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="import-modal">
+  <div class="sheet">
+    <h2 data-i18n="importTitle">Importera data</h2>
+    <p data-i18n="importDesc">Välj en tidigare exporterad JSON-fil för att importera din träningshistorik.</p>
+    <div class="sheet-actions">
+      <button class="mbtn mbtn-accent" onclick="triggerImport()" data-i18n="chooseFile">Välj fil</button>
+      <button class="mbtn mbtn-ghost" onclick="closeModal('import-modal')" data-i18n="cancel">Avbryt</button>
+    </div>
+    <div class="auth-msg" id="import-msg" style="margin-top:12px;"></div>
+  </div>
+</div>
+<input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<div id="install-banner">
+  <span style="font-size:2rem;flex-shrink:0">🟡</span>
+  <div class="install-text"><strong data-i18n="installApp">Installera appen</strong><span id="install-sub" data-i18n="installSub">Lägg till på hemskärmen</span></div>
+  <button class="install-btn" id="install-action-btn">Installera</button>
+  <button class="install-dismiss" onclick="dismissBanner()">✕</button>
+</div>
+
+<div class="overlay" id="ios-modal">
+  <div class="sheet">
+    <h2>📲 <span data-i18n="iosInstallTitle">Installera på iPhone</span></h2>
+    <p data-i18n="iosInstallDesc">Följ dessa steg:</p>
+    <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:8px;">
+      <div style="display:flex;align-items:flex-start;gap:12px;"><span style="font-size:1.5rem;flex-shrink:0">1️⃣</span><span style="font-size:0.9rem;color:#d1d5db;line-height:1.5;" data-i18n="iosStep1">Öppna i <strong style="color:white">Safari</strong>.</span></div>
+      <div style="display:flex;align-items:flex-start;gap:12px;"><span style="font-size:1.5rem;flex-shrink:0">2️⃣</span><span style="font-size:0.9rem;color:#d1d5db;line-height:1.5;" data-i18n="iosStep2">Tryck på <strong style="color:white">dela-ikonen</strong> &#x2197; längst ner.</span></div>
+      <div style="display:flex;align-items:flex-start;gap:12px;"><span style="font-size:1.5rem;flex-shrink:0">3️⃣</span><span style="font-size:0.9rem;color:#d1d5db;line-height:1.5;" data-i18n="iosStep3">Tryck <strong style="color:white">"Lägg till på hemskärmen"</strong>.</span></div>
+      <div style="display:flex;align-items:flex-start;gap:12px;"><span style="font-size:1.5rem;flex-shrink:0">4️⃣</span><span style="font-size:0.9rem;color:#d1d5db;line-height:1.5;" data-i18n="iosStep4">Tryck <strong style="color:white">"Lägg till"</strong> – klart! 🎉</span></div>
+    </div>
+    <div class="sheet-actions"><button class="mbtn mbtn-ghost" onclick="closeModal('ios-modal');dismissBanner();" data-i18n="close">Stäng</button></div>
+  </div>
+</div>
+
+<script>
+/* ══ TRANSLATIONS ══ */
+const i18n = {
+  sv: {
+    appName:'Petanque Träning',
+    tabTraining:'Träning', tabStats:'Statistik',
+    currentDistance:'Aktuellt avstånd', readyToShoot:'Redo att skjuta',
+    distance:'Avstånd', numberOfShots:'Antal skott', shot:'Skott',
+    miss:'Miss', hit:'Träff', resetCurrent:'Nollställ aktuellt resultat',
+    statistics:'Statistik', export:'↓ Exportera', import:'↑ Importera', clearAll:'Rensa allt',
+    overview:'Översikt', records:'Rekord', charts:'Grafer', calendar:'Kalender', history:'Historik',
+    sessions:'Sessioner', shots:'Skott', average:'Snitt%', best:'Bästa%', worst:'Sämsta%', trainingDays:'Träningsdagar',
+    noSessionsYet:'Inga sessioner sparade ännu.\nSlutför en träning för att se din statistik här.',
+    noRecords:'Inga rekord ännu.\nSlutför träningar för att sätta rekord!',
+    noCharts:'Inga data ännu.\nSlutför träningar för att se grafer!',
+    all:'Alla', totalHitPct:'Total träff%', misses:'Missar', hits:'Träffar',
+    close:'Stäng', resetTitle:'Nollställ?', resetDesc2:'Vill du nollställa det aktuella avståndet? Resultaten sparas inte.',
+    yesReset:'Ja, nollställ', cancel:'Avbryt', changeTitle:'Byta inställning?',
+    changeDesc:'Du har påbörjat en serie. Vill du byta och nollställa framstegen?',
+    yesChange:'Ja, byt', clearTitle:'Rensa historik?', clearDesc:'All sparad historik tas bort permanent.',
+    yesClear:'Ja, rensa allt', installApp:'Installera appen', installSub:'Lägg till på hemskärmen',
+    offline:'⚡ Offline-läge', nextDistance:'Nästa avstånd', restartFrom:'Börja om från 6m',
+    hitsOf:'träffar av', seriesDone:'Serien klar!',
+    bestSession:'Bästa session', avgLabel:'Snitt', sessionsLabel:'sessioner',
+    kofiText:'Gillar du appen? Bjud på en kaffe',
+    syncInfoTitle:'Flytta data mellan enheter', syncInfoDesc:'Exportera din data som en JSON-fil på den här enheten. Öppna sedan appen på en annan enhet och importera filen via ↑ Importera-knappen ovan.',
+    importTitle:'Importera data', importDesc:'Välj en tidigare exporterad JSON-fil för att importera din träningshistorik.',
+    chooseFile:'Välj fil', importSuccess:'✅ Importerade', importSessions:'sessioner!',
+    importError:'❌ Ogiltig fil. Välj en JSON-fil exporterad från appen.',
+    iosInstallTitle:'Installera på iPhone', iosInstallDesc:'Följ dessa steg:',
+    iosStep1:'Öppna i <strong style="color:white">Safari</strong>.',
+    iosStep2:'Tryck på <strong style="color:white">dela-ikonen</strong> &#x2197; längst ner.',
+    iosStep3:'Tryck <strong style="color:white">"Lägg till på hemskärmen"</strong>.',
+    iosStep4:'Tryck <strong style="color:white">"Lägg till"</strong> – klart! 🎉',
+    langFlag:'🇬🇧', langLabel:'English',
+    months:['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December'],
+    days:['Mån','Tis','Ons','Tor','Fre','Lör','Sön'],
+    exportCols:['Datum','Tid','Avstånd (m)','Antal skott','Miss','Träff','Carreau','Träff%'],
+  },
+  en: {
+    appName:'Petanque Training',
+    tabTraining:'Training', tabStats:'Statistics',
+    currentDistance:'Current distance', readyToShoot:'Ready to shoot',
+    distance:'Distance', numberOfShots:'Number of shots', shot:'Shot',
+    miss:'Miss', hit:'Hit', resetCurrent:'Reset current result',
+    statistics:'Statistics', export:'↓ Export', import:'↑ Import', clearAll:'Clear all',
+    overview:'Overview', records:'Records', charts:'Charts', calendar:'Calendar', history:'History',
+    sessions:'Sessions', shots:'Shots', average:'Avg%', best:'Best%', worst:'Worst%', trainingDays:'Training days',
+    noSessionsYet:'No sessions saved yet.\nComplete a training to see your statistics here.',
+    noRecords:'No records yet.\nComplete trainings to set records!',
+    noCharts:'No data yet.\nComplete trainings to see charts!',
+    all:'All', totalHitPct:'Total hit%', misses:'Misses', hits:'Hits',
+    close:'Close', resetTitle:'Reset?', resetDesc2:'Reset the current distance? Results will not be saved.',
+    yesReset:'Yes, reset', cancel:'Cancel', changeTitle:'Change setting?',
+    changeDesc:'You have started a series. Do you want to change and reset progress?',
+    yesChange:'Yes, change', clearTitle:'Clear history?', clearDesc:'All saved history will be permanently deleted.',
+    yesClear:'Yes, clear all', installApp:'Install app', installSub:'Add to home screen',
+    offline:'⚡ Offline mode', nextDistance:'Next distance', restartFrom:'Restart from 6m',
+    hitsOf:'hits out of', seriesDone:'Series complete!',
+    bestSession:'Best session', avgLabel:'Avg', sessionsLabel:'sessions',
+    kofiText:'Enjoying the app? Buy me a coffee',
+    syncInfoTitle:'Move data between devices', syncInfoDesc:'Export your data as a JSON file on this device. Then open the app on another device and import the file using the ↑ Import button above.',
+    importTitle:'Import data', importDesc:'Choose a previously exported JSON file to import your training history.',
+    chooseFile:'Choose file', importSuccess:'✅ Imported', importSessions:'sessions!',
+    importError:'❌ Invalid file. Please choose a JSON file exported from the app.',
+    iosInstallTitle:'Install on iPhone', iosInstallDesc:'Follow these steps:',
+    iosStep1:'Open in <strong style="color:white">Safari</strong>.',
+    iosStep2:'Tap the <strong style="color:white">share icon</strong> &#x2197; at the bottom.',
+    iosStep3:'Tap <strong style="color:white">"Add to Home Screen"</strong>.',
+    iosStep4:'Tap <strong style="color:white">"Add"</strong> – done! 🎉',
+    langFlag:'🇸🇪', langLabel:'Svenska',
+    months:['January','February','March','April','May','June','July','August','September','October','November','December'],
+    days:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+    exportCols:['Date','Time','Distance (m)','Shots','Miss','Hit','Carreau','Hit%'],
+  }
+};
+
+let lang = localStorage.getItem('pt_lang') || 'sv';
+function t(key) { return i18n[lang][key] || i18n['sv'][key] || key; }
+
+function applyTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const val = t(key);
+    if (val.includes('\n')) el.innerHTML = val.replace(/\n/g,'<br>');
+    else el.textContent = val;
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    el.placeholder = t(el.getAttribute('data-i18n-ph'));
+  });
+  const flagEl = document.getElementById('lang-flag');
+  const labelEl = document.getElementById('lang-label');
+  if (flagEl) flagEl.textContent = t('langFlag');
+  if (labelEl) labelEl.textContent = t('langLabel');
+  ['iosStep1','iosStep2','iosStep3','iosStep4'].forEach(key => {
+    document.querySelectorAll(`[data-i18n="${key}"]`).forEach(el => el.innerHTML = t(key));
+  });
+  refreshUI();
+}
+
+function toggleLang() {
+  lang = lang === 'sv' ? 'en' : 'sv';
+  localStorage.setItem('pt_lang', lang);
+  applyTranslations();
+  if (document.getElementById('tab-stats').classList.contains('active')) renderStats();
+}
+
+/* ══ PWA ══ */
+const SW_CODE=`const C='petanque-v5';self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll([self.location.href])));self.skipWaiting();});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))));self.clients.claim();});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(cached=>{if(cached)return cached;return fetch(e.request).then(res=>{if(res&&res.status===200&&e.request.method==='GET'){const cl=res.clone();caches.open(C).then(c=>c.put(e.request,cl));}return res;}).catch(()=>cached);}));});`;
+if('serviceWorker'in navigator){const b=new Blob([SW_CODE],{type:'application/javascript'});navigator.serviceWorker.register(URL.createObjectURL(b),{scope:'./'}).catch(()=>{});}
+
+const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+const isStandalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone;
+let deferredPrompt=null;
+
+function showInstallBanner(){
+  if(isStandalone||localStorage.getItem('install_dismissed'))return;
+  const banner=document.getElementById('install-banner');
+  if(isIOS){
+    document.getElementById('install-sub').textContent=lang==='sv'?'Tryck här för instruktioner':'Tap here for instructions';
+    const btn=document.getElementById('install-action-btn');
+    btn.textContent=lang==='sv'?'Visa hur':'Show how';
+    btn.onclick=()=>openModal('ios-modal');
+    banner.classList.add('show');
+  }
+}
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferredPrompt=e;
+  if(!localStorage.getItem('install_dismissed')&&!isStandalone){
+    document.getElementById('install-sub').textContent=t('installSub');
+    const btn=document.getElementById('install-action-btn');
+    btn.textContent=lang==='sv'?'Installera':'Install';
+    btn.onclick=installApp;
+    document.getElementById('install-banner').classList.add('show');
+  }
+});
+window.addEventListener('appinstalled',()=>{document.getElementById('install-banner').classList.remove('show');deferredPrompt=null;});
+function installApp(){if(!deferredPrompt)return;deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;document.getElementById('install-banner').classList.remove('show');});}
+function dismissBanner(){document.getElementById('install-banner').classList.remove('show');localStorage.setItem('install_dismissed','1');}
+function updateOnline(){document.getElementById('offline-badge').classList.toggle('show',!navigator.onLine);}
+window.addEventListener('online',updateOnline);window.addEventListener('offline',updateOnline);
+
+/* ══ APP STATE ══ */
+const DISTS=[6,7,8,9];
+let distIdx=0,shotCount=0,total=50,stats={miss:0,traff:0,carreau:0},pendingFn=null,activeFilter='all';
+let calYear=new Date().getFullYear(),calMonth=new Date().getMonth();
+
+const ls={
+  get:k=>{try{return JSON.parse(localStorage.getItem(k));}catch{return null;}},
+  set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+};
+
+function loadSession(){
+  const s=ls.get('pt_s');
+  if(s){distIdx=s.d??0;shotCount=s.n??0;total=s.t??50;stats=s.stats??{miss:0,traff:0,carreau:0};
+  if(stats.stann!==undefined){stats.carreau=stats.stann;delete stats.stann;}}
+}
+function saveSession(){ls.set('pt_s',{d:distIdx,n:shotCount,t:total,stats});}
+
+function getHistory(){
+  const h=ls.get('pt_h')||[];
+  return h.map(e=>{if(e.stann!==undefined){e.carreau=e.stann;delete e.stann;}return e;});
+}
+function saveHistory(h){ls.set('pt_h',h);}
+
+function pushHistory(){
+  const entry={dist:DISTS[distIdx],shots:total,miss:stats.miss,traff:stats.traff,carreau:stats.carreau,
+    pct:+((( stats.traff+stats.carreau)/total)*100).toFixed(1),date:new Date().toISOString()};
+  const h=getHistory();h.unshift(entry);saveHistory(h);
+}
+
+/* ══ TABS ══ */
+function switchTab(name,btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');
+  if(name==='stats')renderStats();
+}
+function switchStatsTab(name,btn){
+  document.querySelectorAll('.stats-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.stats-nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('stats-'+name).classList.add('active');btn.classList.add('active');
+}
+
+/* ══ TRAINING ══ */
+function setDistance(idx){if(shotCount>0){pendingFn=()=>_setDist(idx);openModal('change-modal');return;}_setDist(idx);}
+function _setDist(idx){distIdx=idx;refreshDistPills();refreshUI();}
+function setTotal(n){if(shotCount>0){pendingFn=()=>_setTotal(n);openModal('change-modal');return;}_setTotal(n);}
+function _setTotal(n){total=n;refreshCountPills();refreshUI();}
+
+function shoot(type,event){
+  if(shotCount>=total)return;
+  stats[type]++;shotCount++;saveSession();
+  if(window.navigator.vibrate)navigator.vibrate(type==='carreau'?[30,20,30]:30);
+  if(event){
+    const btn=event.currentTarget;
+    const rect=btn.getBoundingClientRect();
+    const x=(event.touches?event.touches[0].clientX:event.clientX)-rect.left;
+    const y=(event.touches?event.touches[0].clientY:event.clientY)-rect.top;
+    const ripple=document.createElement('span');
+    ripple.className='ripple-effect';
+    ripple.style.left=(x-30)+'px';ripple.style.top=(y-30)+'px';
+    btn.appendChild(ripple);
+    setTimeout(()=>ripple.remove(),500);
+  }
+  const chipMap={miss:'live-miss',traff:'live-traff',carreau:'live-carreau'};
+  const el=document.getElementById(chipMap[type]);
+  el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump');
+  refreshUI();
+  if(shotCount===total){pushHistory();setTimeout(showSummary,200);}
+}
+
+function refreshDistPills(){
+  document.querySelectorAll('.dist-pill').forEach((b,i)=>b.classList.toggle('active',i===distIdx));
+  const distEl=document.getElementById('hero-dist');
+  distEl.style.transform='scale(0.85)';distEl.style.opacity='0.5';
+  setTimeout(()=>{distEl.innerText=DISTS[distIdx]+'m';distEl.style.transform='';distEl.style.opacity='';},120);
+}
+function refreshCountPills(){document.querySelectorAll('.count-pill').forEach(b=>b.classList.toggle('active',parseInt(b.innerText)===total));}
+
+function refreshUI(){
+  document.getElementById('hero-dist').innerText=DISTS[distIdx]+'m';
+  document.getElementById('cur-shot').innerText=shotCount<total?shotCount+1:total;
+  document.getElementById('tot-shot').innerText=total;
+  const pct=Math.round(shotCount/total*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-pct').innerText=pct+'%';
+  document.getElementById('live-miss').innerText=stats.miss;
+  document.getElementById('live-traff').innerText=stats.traff;
+  document.getElementById('live-carreau').innerText=stats.carreau;
+  const hits=stats.traff+stats.carreau;
+  if(shotCount===0) document.getElementById('hero-sub').textContent=t('readyToShoot');
+  else if(shotCount<total) document.getElementById('hero-sub').textContent=`${hits} ${t('hitsOf')} ${shotCount} ${t('shot').toLowerCase()}`;
+  else document.getElementById('hero-sub').textContent=t('seriesDone');
+}
+
+function doReset(){closeModal('reset-modal');_reset();}
+function _reset(){shotCount=0;stats={miss:0,traff:0,carreau:0};saveSession();refreshUI();}
+function doChange(){closeModal('change-modal');if(pendingFn){pendingFn();pendingFn=null;}}
+
+function showSummary(){
+  const hitPct=((stats.traff+stats.carreau)/total*100).toFixed(1);
+  document.getElementById('sum-title').innerText=`${DISTS[distIdx]}m – ${total} ${t('shot').toLowerCase()}`;
+  document.getElementById('sum-subtitle').innerText=new Date().toLocaleDateString(lang==='sv'?'sv-SE':'en-GB',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('sum-miss').innerText=stats.miss;
+  document.getElementById('sum-traff').innerText=stats.traff;
+  document.getElementById('sum-carreau').innerText=stats.carreau;
+  document.getElementById('sum-pct').innerText=hitPct+'%';
+  const pctEl=document.getElementById('sum-pct');
+  pctEl.style.color=hitPct>=70?'var(--carreau)':hitPct>=40?'var(--traff)':'var(--miss)';
+  document.getElementById('next-btn').innerText=distIdx<DISTS.length-1?`${t('nextDistance')} (${DISTS[distIdx+1]}m)`:t('restartFrom');
+  openModal('sum-modal');
+}
+function nextDist(){distIdx=distIdx<DISTS.length-1?distIdx+1:0;refreshDistPills();_reset();closeModal('sum-modal');}
+
+/* ══ MODALS ══ */
+function openModal(id){document.getElementById(id).classList.add('show');}
+function closeModal(id){document.getElementById(id).classList.remove('show');}
+function doClear(){saveHistory([]);closeModal('clear-modal');renderStats();}
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show');}));
+
+/* ══ EXPORT / IMPORT ══ */
+function exportHistory(){
+  const data=getHistory();
+  if(!data.length){alert(t('noSessionsYet'));return;}
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`petanque-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+}
+
+function importHistory(){
+  openModal('import-modal');
+  document.getElementById('import-msg').textContent='';
+}
+
+function triggerImport(){
+  document.getElementById('import-file').click();
+}
+
+function handleImport(event){
+  const file=event.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const imported=JSON.parse(e.target.result);
+      if(!Array.isArray(imported)||!imported[0]?.dist||!imported[0]?.date)throw new Error('invalid');
+      // Merge with existing, deduplicate by date+dist+shots
+      const existing=getHistory();
+      const key=entry=>entry.date.slice(0,19)+'_'+entry.dist+'_'+entry.shots;
+      const existingKeys=new Set(existing.map(key));
+      const toAdd=imported.filter(entry=>!existingKeys.has(key(entry)));
+      const merged=[...existing,...toAdd].sort((a,b)=>new Date(b.date)-new Date(a.date));
+      saveHistory(merged);
+      const msg=document.getElementById('import-msg');
+      msg.textContent=`${t('importSuccess')} ${toAdd.length} ${t('importSessions')}`;
+      msg.style.color='var(--carreau)';
+      setTimeout(()=>{closeModal('import-modal');renderStats();},1500);
+    }catch{
+      const msg=document.getElementById('import-msg');
+      msg.textContent=t('importError');
+      msg.style.color='var(--miss)';
+    }
+  };
+  reader.readAsText(file);
+  event.target.value='';
+}
+
+/* ══ STATS ══ */
+function renderStats(){
+  const all=getHistory();
+  renderOverview(all);renderRecords(all);renderDistCharts(all);renderCalendar(all);renderList(all);
+}
+
+function renderOverview(data){
+  const has=data.length>0;
+  document.getElementById('ov-empty').style.display=has?'none':'block';
+  if(!has){['ov-sessions','ov-shots','ov-avg','ov-best','ov-worst','ov-days'].forEach(id=>document.getElementById(id).innerText='–');return;}
+  document.getElementById('ov-sessions').innerText=data.length;
+  document.getElementById('ov-shots').innerText=data.reduce((a,e)=>a+e.shots,0);
+  document.getElementById('ov-avg').innerText=(data.reduce((a,e)=>a+e.pct,0)/data.length).toFixed(1)+'%';
+  document.getElementById('ov-best').innerText=Math.max(...data.map(e=>e.pct))+'%';
+  document.getElementById('ov-worst').innerText=Math.min(...data.map(e=>e.pct))+'%';
+  document.getElementById('ov-days').innerText=new Set(data.map(e=>e.date.slice(0,10))).size;
+}
+
+function renderRecords(data){
+  const grid=document.getElementById('records-grid');
+  const recEmpty=document.getElementById('rec-empty');
+  const distColors=['rec-6m','rec-7m','rec-8m','rec-9m'];
+  let html='',hasAny=false;
+  DISTS.forEach((d,i)=>{
+    const sessions=data.filter(e=>e.dist===d);
+    if(!sessions.length)return;
+    hasAny=true;
+    const best=Math.max(...sessions.map(e=>e.pct));
+    const avg=(sessions.reduce((a,e)=>a+e.pct,0)/sessions.length).toFixed(1);
+    const col=best>=70?'var(--carreau)':best>=40?'var(--traff)':'var(--miss)';
+    html+=`<div class="record-card ${distColors[i]}"><div class="record-dist">${d}m</div><div class="record-pct" style="color:${col}">${best}%</div><div class="record-detail">${t('bestSession')}</div><div class="record-detail" style="margin-top:6px">${t('avgLabel')}: ${avg}% · ${sessions.length} ${t('sessionsLabel')}</div></div>`;
+  });
+  grid.innerHTML=html;
+  recEmpty.style.display=hasAny?'none':'block';
+}
+
+function renderDistCharts(data){
+  const wrap=document.getElementById('dist-charts'),empty=document.getElementById('charts-empty');
+  if(!data.length){wrap.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  const distColors=['#a78bfa','#3dffa0','#f5c842','#ff4d4d'];
+  wrap.innerHTML=DISTS.map((d,i)=>{
+    const sessions=data.filter(e=>e.dist===d);
+    if(!sessions.length)return'';
+    return`<div class="chart-card"><div class="chart-head">${d}m – ${sessions.length} ${t('sessionsLabel')}</div><canvas id="chart-${d}" height="120"></canvas></div>`;
+  }).join('');
+  DISTS.forEach((d,i)=>{const sessions=data.filter(e=>e.dist===d);if(!sessions.length)return;const canvas=document.getElementById('chart-'+d);if(canvas)drawDistChart(canvas,sessions,distColors[i]);});
+}
+
+function drawDistChart(canvas,data,color){
+  const ctx=canvas.getContext('2d'),pts=[...data].reverse();
+  const W=canvas.offsetWidth||400,H=120,dpr=window.devicePixelRatio||1;
+  canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.scale(dpr,dpr);
+  const pad={top:14,right:12,bottom:28,left:40},cw=W-pad.left-pad.right,ch=H-pad.top-pad.bottom;
+  ctx.clearRect(0,0,W,H);
+  [0,25,50,75,100].forEach(v=>{
+    const y=pad.top+ch-(v/100)*ch;
+    ctx.strokeStyle=v===0||v===100?'rgba(255,255,255,0.08)':'rgba(255,255,255,0.04)';
+    ctx.lineWidth=1;ctx.setLineDash(v===0||v===100?[]:[4,4]);
+    ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cw,y);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle=v===50?'rgba(255,255,255,0.35)':'rgba(255,255,255,0.2)';
+    ctx.font=`${v===50?'600':'500'} 10px Barlow,sans-serif`;
+    ctx.textAlign='right';ctx.fillText(v+'%',pad.left-5,y+4);
+  });
+  if(!pts.length)return;
+  const xs=i=>pts.length===1?pad.left+cw/2:pad.left+(i/(pts.length-1))*cw;
+  const ys=v=>pad.top+ch-(v/100)*ch;
+  const grad=ctx.createLinearGradient(0,pad.top,0,pad.top+ch);
+  grad.addColorStop(0,color+'44');grad.addColorStop(0.6,color+'11');grad.addColorStop(1,color+'00');
+  ctx.beginPath();pts.forEach((p,i)=>i===0?ctx.moveTo(xs(i),ys(p.pct)):ctx.lineTo(xs(i),ys(p.pct)));
+  ctx.lineTo(xs(pts.length-1),pad.top+ch);ctx.lineTo(xs(0),pad.top+ch);ctx.closePath();
+  ctx.fillStyle=grad;ctx.fill();
+  if(pts.length>1){
+    ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.lineCap='round';
+    pts.forEach((p,i)=>i===0?ctx.moveTo(xs(i),ys(p.pct)):ctx.lineTo(xs(i),ys(p.pct)));ctx.stroke();
+  }
+  pts.forEach((p,i)=>{
+    ctx.beginPath();ctx.arc(xs(i),ys(p.pct),i===pts.length-1?5:3.5,0,Math.PI*2);
+    ctx.fillStyle=color;ctx.fill();ctx.strokeStyle='#161628';ctx.lineWidth=2;ctx.stroke();
+  });
+  ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font='10px Barlow,sans-serif';ctx.textAlign='center';
+  const skip=Math.ceil(pts.length/5);
+  const locale=lang==='sv'?'sv-SE':'en-GB';
+  pts.forEach((p,i)=>{if(i%skip===0||i===pts.length-1)ctx.fillText(new Date(p.date).toLocaleDateString(locale,{day:'numeric',month:'short'}),xs(i),H-4);});
+}
+
+/* ══ CALENDAR ══ */
+function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar(getHistory());}
+function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar(getHistory());}
+
+function renderCalendar(data){
+  const months=t('months'),days=t('days');
+  document.getElementById('cal-month').innerText=`${months[calMonth]} ${calYear}`;
+  const dateMap={};
+  data.forEach(e=>{const d=e.date.slice(0,10);if(!dateMap[d])dateMap[d]=[];dateMap[d].push(e.pct);});
+  const firstDay=new Date(calYear,calMonth,1);
+  let startDow=firstDay.getDay()-1;if(startDow<0)startDow=6;
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const today=new Date().toISOString().slice(0,10);
+  let html=days.map(d=>`<div class="cal-day-label">${d}</div>`).join('');
+  for(let i=0;i<startDow;i++)html+=`<div class="cal-day empty"></div>`;
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday=ds===today,sessions=dateMap[ds];
+    if(sessions){const avg=sessions.reduce((a,b)=>a+b,0)/sessions.length;const cls=avg>=70?'great':avg>=40?'good':'poor';html+=`<div class="cal-day has-session ${cls}${isToday?' today':''}">${d}</div>`;}
+    else html+=`<div class="cal-day no-session${isToday?' today':''}">${d}</div>`;
+  }
+  document.getElementById('cal-grid').innerHTML=html;
+}
+
+/* ══ HISTORY ══ */
+function setFilter(val,btn){activeFilter=val;document.querySelectorAll('#dist-filter .pill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderList(getHistory());}
+
+function renderList(allData){
+  const data=activeFilter==='all'?allData:allData.filter(e=>e.dist===activeFilter);
+  const el=document.getElementById('hist-list');
+  if(!data.length){el.innerHTML=`<div class="empty"><div class="empty-icon">🟡</div><p>${t('noSessionsYet').replace('\n','<br>')}</p></div>`;return;}
+  const locale=lang==='sv'?'sv-SE':'en-GB';
+  el.innerHTML=data.map(e=>{
+    const d=new Date(e.date),ds=d.toLocaleDateString(locale,{day:'numeric',month:'short'}),ts=d.toLocaleTimeString(locale,{hour:'2-digit',minute:'2-digit'});
+    const col=e.pct>=70?'var(--carreau)':e.pct>=40?'var(--traff)':'var(--miss)';
+    return`<div class="hist-item"><div class="hist-left"><span class="hist-dist">${e.dist}m &nbsp;·&nbsp; ${e.shots} ${t('shot').toLowerCase()}</span><span class="hist-date">${ds} ${ts}</span><span class="hist-dots"><span style="color:var(--miss)">● ${e.miss}</span>&ensp;<span style="color:var(--traff)">● ${e.traff}</span>&ensp;<span style="color:var(--carreau)">● ${e.carreau||0}</span></span></div><div class="hist-pct" style="color:${col}">${e.pct}%</div></div>`;
+  }).join('');
+}
+
+function dismissSyncInfo(){
+  document.getElementById('sync-info').style.display='none';
+  localStorage.setItem('pt_sync_info_dismissed','1');
+}
+
+/* ══ INIT ══ */
+updateOnline();
+loadSession();
+refreshDistPills();
+refreshCountPills();
+applyTranslations();
+showInstallBanner();
+if(localStorage.getItem('pt_sync_info_dismissed')){
+  const el=document.getElementById('sync-info');
+  if(el)el.style.display='none';
+}
+</script>
+</body>
+</html>
