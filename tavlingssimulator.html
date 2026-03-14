@@ -615,9 +615,12 @@ function renderScoringUI() {
     : `Round ${match.round} – How many points did you score?`;
 
   grid.innerHTML = '';
-  // 0 pts (lost round), 1…boules pts (won round)
-  // First show: player wins options
-  for (let i=1; i<=match.boules; i++) {
+  // Cap points so a team cannot exceed the target in a single round
+  const playerMax = Math.min(match.boules, match.target - match.playerPts);
+  const cpuMax    = Math.min(match.boules, match.target - match.cpuPts);
+
+  // Player wins options
+  for (let i=1; i<=playerMax; i++) {
     const btn = document.createElement('div');
     btn.className = 'pts-btn player-pts';
     btn.innerHTML = `<span class="pts-num" style="color:var(--player)">${i}</span><span class="pts-lbl" style="color:var(--player)">${lang==='sv'?'poäng':'pts'}</span>`;
@@ -625,7 +628,7 @@ function renderScoringUI() {
     grid.appendChild(btn);
   }
   // CPU wins options
-  for (let i=1; i<=match.boules; i++) {
+  for (let i=1; i<=cpuMax; i++) {
     const btn = document.createElement('div');
     btn.className = 'pts-btn cpu-pts';
     btn.innerHTML = `<span class="pts-num" style="color:var(--cpu)">${i}</span><span class="pts-lbl" style="color:var(--cpu)">${lang==='sv'?'mot dig':'to CPU'}</span>`;
@@ -685,9 +688,10 @@ function clearTimer() {
 }
 
 function timeExpired() {
-  // Auto-submit: CPU wins this round with random score
-  const cpuPts = cpuScore(match.boules);
-  submitRound('cpu', cpuPts, true);
+  // Auto-submit: CPU wins this round with random score, capped at remaining points needed
+  const maxCpu = Math.min(match.boules, match.target - match.cpuPts);
+  const pts = Math.min(cpuScore(match.boules), maxCpu);
+  submitRound('cpu', pts, true);
 }
 
 // ══════════════════════════════════════════
