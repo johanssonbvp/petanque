@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Tävlingssimulator – Petanque</title>
+<title>Poängräknare – Petanque</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#080810">
@@ -15,8 +15,9 @@
   --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.12);
   --text:#f0f0f8;--muted:#5a5a78;--muted2:#8888aa;
   --accent:#e8ff47;--accent-glow:rgba(232,255,71,0.3);
-  --ok:#3dffa0;--fail:#ff4d4d;--mid:#f5c842;--purple:#a78bfa;
-  --player:#3dffa0;--cpu:#ff4d4d;
+  --a:#3dffa0;--a-dim:rgba(61,255,160,0.12);
+  --b:#60a5fa;--b-dim:rgba(96,165,250,0.12);
+  --mid:#f5c842;--fail:#ff4d4d;
   --font-display:'Barlow Condensed',sans-serif;
   --font-body:'Barlow',sans-serif;
 }
@@ -24,7 +25,6 @@
 body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;overscroll-behavior-y:contain;touch-action:manipulation;}
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:0.5;}
 
-/* TOP BAR */
 .top-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20;}
 .back-btn{background:none;border:1px solid var(--border2);border-radius:10px;padding:7px 14px;color:var(--muted2);font-family:var(--font-display);font-size:0.82rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:6px;transition:all 0.2s;}
 .back-btn:hover{border-color:var(--accent);color:var(--accent);}
@@ -32,7 +32,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .lang-btn{background:none;border:1px solid var(--border2);border-radius:8px;padding:5px 10px;font-family:var(--font-body);font-size:0.75rem;font-weight:600;color:var(--muted2);cursor:pointer;transition:all 0.2s;}
 .lang-btn:hover{border-color:var(--accent);color:var(--accent);}
 
-/* TABS */
 .tab-bar{display:flex;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:57px;z-index:19;}
 .tab-btn{flex:1;padding:15px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);font-family:var(--font-display);font-size:0.85rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:color 0.2s,border-color 0.2s;-webkit-tap-highlight-color:transparent;}
 .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
@@ -42,15 +41,28 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .wrap{max-width:480px;margin:0 auto;padding:24px 16px 120px;position:relative;z-index:1;}
 .section-label{font-family:var(--font-display);font-size:0.68rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
 
-/* ── SETUP ── */
-.difficulty-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:28px;}
-.diff-card{background:var(--card);border:2px solid var(--border);border-radius:16px;padding:18px 10px;text-align:center;cursor:pointer;transition:all 0.18s;-webkit-tap-highlight-color:transparent;}
-.diff-card:hover{border-color:var(--border2);}
-.diff-card.selected{border-color:var(--accent);background:rgba(232,255,71,0.05);}
-.diff-card:active{transform:scale(0.97);}
-.diff-icon{font-size:1.6rem;margin-bottom:8px;}
-.diff-name{font-family:var(--font-display);font-size:0.9rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
-.diff-desc{font-size:0.72rem;color:var(--muted2);line-height:1.3;}
+/* SETUP */
+.format-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px;}
+.format-card{background:var(--card);border:2px solid var(--border);border-radius:16px;padding:18px 12px;text-align:center;cursor:pointer;transition:all 0.18s;-webkit-tap-highlight-color:transparent;}
+.format-card:hover{border-color:var(--border2);}
+.format-card.selected{border-color:var(--accent);background:rgba(232,255,71,0.05);}
+.format-card:active{transform:scale(0.97);}
+.format-icon{font-size:1.8rem;margin-bottom:8px;}
+.format-name{font-family:var(--font-display);font-size:1rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.format-desc{font-size:0.72rem;color:var(--muted2);}
+
+.player-inputs{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+.player-row{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;}
+.player-row-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.player-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dot-a{background:var(--a);}
+.dot-b{background:var(--b);}
+.player-label{font-family:var(--font-display);font-size:0.7rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted2);}
+.name-input{width:100%;background:var(--card2);border:1px solid var(--border2);border-radius:10px;padding:10px 14px;font-family:var(--font-body);font-size:1rem;color:var(--text);outline:none;transition:border-color 0.2s;}
+.name-input:focus{border-color:var(--accent);}
+.name-input::placeholder{color:var(--muted);}
+.extra-players{display:none;flex-direction:column;gap:10px;margin-top:10px;}
+.extra-players.show{display:flex;}
 
 .settings-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px;}
 .setting-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;}
@@ -59,83 +71,80 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .ctrl-btn{background:var(--card2);border:1px solid var(--border2);border-radius:8px;width:32px;height:32px;color:var(--text);font-size:1.1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;-webkit-tap-highlight-color:transparent;}
 .ctrl-btn:hover{border-color:var(--accent);color:var(--accent);}
 .ctrl-val{font-family:var(--font-display);font-size:1.4rem;font-weight:900;color:var(--accent);min-width:32px;text-align:center;}
-.toggle-row{display:flex;align-items:center;justify-content:space-between;}
-.toggle-lbl{font-size:0.85rem;color:var(--text);font-weight:500;}
-.toggle{position:relative;width:44px;height:24px;}
-.toggle input{opacity:0;width:0;height:0;}
-.toggle-slider{position:absolute;inset:0;background:var(--card2);border-radius:999px;cursor:pointer;transition:background 0.2s;}
-.toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:var(--muted2);border-radius:50%;transition:transform 0.2s,background 0.2s;}
-input:checked+.toggle-slider{background:rgba(232,255,71,0.2);}
-input:checked+.toggle-slider::before{transform:translateX(20px);background:var(--accent);}
-
-.name-input{width:100%;background:var(--card2);border:1px solid var(--border2);border-radius:10px;padding:10px 14px;font-family:var(--font-body);font-size:1rem;color:var(--text);margin-top:6px;outline:none;transition:border-color 0.2s;}
-.name-input:focus{border-color:var(--accent);}
-
 .start-btn{display:block;width:100%;background:var(--accent);color:#080810;border:none;border-radius:16px;padding:18px;font-family:var(--font-display);font-size:1.2rem;font-weight:900;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:opacity 0.15s,transform 0.1s,box-shadow 0.2s;-webkit-tap-highlight-color:transparent;box-shadow:0 4px 24px rgba(232,255,71,0.3);}
 .start-btn:hover{box-shadow:0 6px 32px rgba(232,255,71,0.45);}
 .start-btn:active{transform:scale(0.98);}
 
-/* ── SCOREBOARD ── */
-.scoreboard{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:20px;margin-bottom:20px;position:relative;overflow:hidden;}
-.scoreboard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--player),var(--cpu));}
-.score-row{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;}
-.score-side{text-align:center;}
-.score-name{font-family:var(--font-display);font-size:0.7rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted2);margin-bottom:6px;}
-.score-pts{font-family:var(--font-display);font-size:4.5rem;font-weight:900;line-height:1;letter-spacing:-2px;transition:all 0.3s cubic-bezier(.4,0,.2,1);}
-.score-pts.player{color:var(--player);}
-.score-pts.cpu{color:var(--cpu);}
-.score-sep{font-family:var(--font-display);font-size:1.5rem;font-weight:800;color:var(--muted);text-align:center;}
-.score-target{font-family:var(--font-display);font-size:0.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);text-align:center;margin-top:10px;}
+/* SCOREBOARD */
+.scoreboard{border-radius:22px;overflow:hidden;margin-bottom:16px;}
+.score-halves{display:grid;grid-template-columns:1fr 1fr;min-height:190px;}
+.score-half{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 12px;position:relative;}
+.score-half-a{background:linear-gradient(160deg,rgba(61,255,160,0.1),rgba(61,255,160,0.04));}
+.score-half-b{background:linear-gradient(160deg,rgba(96,165,250,0.1),rgba(96,165,250,0.04));}
+.score-half-a::after{content:'';position:absolute;top:0;bottom:0;right:0;width:1px;background:var(--border2);}
+.score-team{font-family:var(--font-display);font-size:0.68rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;}
+.score-team-a{color:var(--a);}
+.score-team-b{color:var(--b);}
+.score-pts{font-family:var(--font-display);font-size:5.5rem;font-weight:900;line-height:1;letter-spacing:-3px;transition:all 0.25s cubic-bezier(.4,0,.2,1);}
+.score-pts-a{color:var(--a);text-shadow:0 0 40px rgba(61,255,160,0.3);}
+.score-pts-b{color:var(--b);text-shadow:0 0 40px rgba(96,165,250,0.3);}
+.score-pts.bump{animation:bump 0.3s cubic-bezier(.4,0,.2,1);}
+@keyframes bump{0%{transform:scale(1);}50%{transform:scale(1.2);}100%{transform:scale(1);}}
+.score-target-bar{background:var(--card);border:1px solid var(--border);border-top:none;border-radius:0 0 22px 22px;padding:9px 16px;display:flex;justify-content:space-between;align-items:center;}
+.score-target-txt{font-family:var(--font-display);font-size:0.68rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted2);}
+.round-badge{font-family:var(--font-display);font-size:0.75rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);}
 
-/* ROUND INFO */
-.round-info{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
-.round-badge{background:var(--card);border:1px solid var(--border2);border-radius:10px;padding:7px 14px;font-family:var(--font-display);font-size:0.8rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2);}
-.round-badge span{color:var(--accent);}
-.dist-badge{background:rgba(232,255,71,0.1);border:1px solid rgba(232,255,71,0.2);border-radius:10px;padding:7px 14px;font-family:var(--font-display);font-size:0.8rem;font-weight:700;letter-spacing:1px;color:var(--accent);}
+/* PROGRESS */
+.progress-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:20px;}
+.prog-side{display:flex;flex-direction:column;gap:4px;}
+.prog-track{height:6px;background:var(--card2);border-radius:999px;overflow:hidden;}
+.prog-fill-a{height:100%;background:var(--a);border-radius:999px;transition:width 0.4s cubic-bezier(.4,0,.2,1);box-shadow:0 0 6px rgba(61,255,160,0.4);}
+.prog-fill-b{height:100%;background:var(--b);border-radius:999px;transition:width 0.4s cubic-bezier(.4,0,.2,1);box-shadow:0 0 6px rgba(96,165,250,0.4);}
+.prog-label{font-family:var(--font-display);font-size:0.62rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);}
 
-/* TIMER */
-.timer-wrap{margin-bottom:20px;}
-.timer-bar-track{height:6px;background:var(--card2);border-radius:999px;overflow:hidden;margin-bottom:6px;}
-.timer-bar-fill{height:100%;border-radius:999px;transition:width 0.1s linear,background 0.3s;}
-.timer-meta{display:flex;justify-content:space-between;font-size:0.75rem;color:var(--muted2);font-family:var(--font-display);font-weight:700;}
+/* ROUND INPUT */
+.round-input-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:20px 16px;margin-bottom:16px;}
+.round-input-label{font-family:var(--font-display);font-size:0.68rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted2);text-align:center;margin-bottom:16px;}
+.winner-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.winner-btn{border:2px solid var(--border2);border-radius:16px;padding:16px 10px;text-align:center;cursor:pointer;transition:all 0.18s;-webkit-tap-highlight-color:transparent;background:var(--card2);}
+.winner-btn:active{transform:scale(0.96);}
+.winner-btn.selected-a{border-color:var(--a);background:var(--a-dim);}
+.winner-btn.selected-b{border-color:var(--b);background:var(--b-dim);}
+.winner-btn-name{font-family:var(--font-display);font-size:0.95rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.winner-btn-name-a{color:var(--a);}
+.winner-btn-name-b{color:var(--b);}
+.winner-btn-sub{font-size:0.72rem;color:var(--muted2);}
 
-/* BOULE COUNTERS */
-.boule-counters{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
-.boule-side{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;}
-.boule-side-label{font-family:var(--font-display);font-size:0.62rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
-.boule-side-label.player{color:var(--player);}
-.boule-side-label.cpu{color:var(--cpu);}
-.boule-dots{display:flex;gap:6px;flex-wrap:wrap;}
-.bdot{width:20px;height:20px;border-radius:50%;border:2px solid var(--border2);background:var(--card2);transition:all 0.2s;}
-.bdot.used{opacity:0.25;}
-.bdot.player-dot{background:var(--player);border-color:var(--player);box-shadow:0 0 8px rgba(61,255,160,0.4);}
-.bdot.cpu-dot{background:var(--cpu);border-color:var(--cpu);box-shadow:0 0 8px rgba(255,77,77,0.35);}
+.pts-label{font-family:var(--font-display);font-size:0.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted2);margin-bottom:12px;text-align:center;}
+.pts-row{display:flex;justify-content:center;align-items:center;gap:16px;margin-bottom:18px;}
+.pts-minus,.pts-plus{background:var(--card2);border:1px solid var(--border2);border-radius:14px;width:52px;height:52px;font-size:1.6rem;font-weight:700;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;-webkit-tap-highlight-color:transparent;}
+.pts-minus:hover,.pts-plus:hover{border-color:var(--accent);color:var(--accent);}
+.pts-minus:active,.pts-plus:active{transform:scale(0.92);}
+.pts-val{font-family:var(--font-display);font-size:4rem;font-weight:900;color:var(--accent);min-width:64px;text-align:center;letter-spacing:-2px;}
 
-/* WHO HAS POINT */
-.who-has{text-align:center;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:16px;font-family:var(--font-display);font-size:0.8rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.confirm-btn{display:block;width:100%;background:var(--accent);color:#080810;border:none;border-radius:14px;padding:16px;font-family:var(--font-display);font-size:1.1rem;font-weight:900;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.15s;-webkit-tap-highlight-color:transparent;box-shadow:0 4px 20px rgba(232,255,71,0.25);}
+.confirm-btn:active{transform:scale(0.98);}
+.confirm-btn:disabled{opacity:0.3;cursor:not-allowed;box-shadow:none;}
 
-/* ROUND SCORING */
-.round-scoring{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px 16px;margin-bottom:16px;}
-.scoring-label{font-family:var(--font-display);font-size:0.68rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted2);margin-bottom:14px;text-align:center;}
-.scoring-question{font-family:var(--font-display);font-size:1.1rem;font-weight:800;text-align:center;margin-bottom:16px;line-height:1.3;}
-.pts-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
-.pts-btn{background:var(--card2);border:2px solid var(--border2);border-radius:14px;padding:16px 8px;text-align:center;cursor:pointer;transition:all 0.15s;-webkit-tap-highlight-color:transparent;}
-.pts-btn:hover{border-color:var(--border2);}
-.pts-btn:active{transform:scale(0.95);}
-.pts-btn.player-pts{border-color:rgba(61,255,160,0.4);background:rgba(61,255,160,0.08);}
-.pts-btn.cpu-pts{border-color:rgba(255,77,77,0.4);background:rgba(255,77,77,0.08);}
-.pts-num{font-family:var(--font-display);font-size:1.6rem;font-weight:900;display:block;}
-.pts-lbl{font-family:var(--font-display);font-size:0.6rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);margin-top:2px;display:block;}
+/* ROUNDS LIST */
+.rounds-wrap{margin-bottom:8px;}
+.rounds-list{display:flex;flex-direction:column;gap:6px;}
+.round-row{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;}
+.round-row-left{display:flex;align-items:center;gap:10px;}
+.round-num{font-family:var(--font-display);font-size:0.7rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);min-width:24px;}
+.round-winner{font-family:var(--font-display);font-size:0.9rem;font-weight:800;}
+.round-winner-a{color:var(--a);}
+.round-winner-b{color:var(--b);}
+.round-pts-badge{font-family:var(--font-display);font-size:0.75rem;font-weight:800;padding:3px 10px;border-radius:6px;}
+.badge-a{background:var(--a-dim);color:var(--a);}
+.badge-b{background:var(--b-dim);color:var(--b);}
+.round-score-after{font-family:var(--font-display);font-size:0.85rem;font-weight:700;color:var(--muted2);}
+.undo-btn{display:block;width:100%;background:none;border:none;color:var(--muted);font-family:var(--font-body);font-size:0.82rem;padding:10px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;transition:color 0.2s;margin-top:4px;}
+.undo-btn:hover{color:var(--muted2);}
 
-/* ROUND HISTORY STRIP */
-.rounds-strip{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:20px;}
-.round-chip{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-family:var(--font-display);font-size:0.72rem;font-weight:700;white-space:nowrap;}
-.round-chip.player-won{border-color:rgba(61,255,160,0.3);color:var(--ok);}
-.round-chip.cpu-won{border-color:rgba(255,77,77,0.3);color:var(--fail);}
-
-/* STATS PAGE */
+/* STATS */
 .stats-nav{display:flex;background:var(--card);border-radius:14px;padding:4px;margin-bottom:24px;gap:3px;border:1px solid var(--border);}
-.snav-btn{flex:1;padding:9px 4px;border:none;border-radius:10px;background:none;color:var(--muted2);font-family:var(--font-display);font-size:0.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.snav-btn{flex:1;padding:9px 4px;border:none;border-radius:10px;background:none;color:var(--muted2);font-family:var(--font-display);font-size:0.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
 .snav-btn.active{background:var(--accent);color:#080810;}
 .stats-section{display:none;}
 .stats-section.active{display:block;animation:fadeUp 0.25s ease;}
@@ -149,19 +158,17 @@ input:checked+.toggle-slider::before{transform:translateX(20px);background:var(-
 .match-history{display:flex;flex-direction:column;gap:10px;}
 .match-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px 18px;position:relative;overflow:hidden;}
 .match-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
-.match-win::before{background:linear-gradient(90deg,var(--ok),#00cc80);}
-.match-loss::before{background:linear-gradient(90deg,var(--fail),#cc0000);}
+.match-card-a::before{background:linear-gradient(90deg,var(--a),#00cc80);}
+.match-card-b::before{background:linear-gradient(90deg,var(--b),#3b82f6);}
 .match-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
-.match-result{font-family:var(--font-display);font-size:1.4rem;font-weight:900;letter-spacing:-0.5px;}
-.match-result.win{color:var(--ok);}
-.match-result.loss{color:var(--fail);}
+.match-result{font-family:var(--font-display);font-size:1.5rem;font-weight:900;letter-spacing:-0.5px;}
+.match-winner-name{font-size:0.82rem;font-weight:600;margin-top:2px;}
 .match-date{font-size:0.75rem;color:var(--muted2);}
-.match-meta{font-size:0.8rem;color:var(--muted2);display:flex;gap:12px;flex-wrap:wrap;}
-.match-meta span{display:flex;align-items:center;gap:4px;}
+.match-meta{display:flex;gap:12px;font-size:0.78rem;color:var(--muted2);flex-wrap:wrap;}
 
-.empty-state{text-align:center;padding:48px 20px;color:var(--muted2);}
+.empty-state{text-align:center;padding:48px 20px;}
 .empty-icon{font-size:2.5rem;margin-bottom:12px;}
-.empty-text{font-family:var(--font-display);font-size:1rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;color:var(--muted2);}
+.empty-text{font-family:var(--font-display);font-size:1rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);margin-bottom:6px;}
 .empty-sub{font-size:0.82rem;color:var(--muted);}
 
 /* MODALS */
@@ -171,11 +178,11 @@ input:checked+.toggle-slider::before{transform:translateX(20px);background:var(-
 @keyframes slideUp{from{transform:translateY(50px);opacity:0;}to{transform:translateY(0);opacity:1;}}
 .sheet h2{font-family:var(--font-display);font-size:1.5rem;font-weight:900;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
 .sheet-sub{color:var(--muted2);font-size:0.88rem;line-height:1.5;margin-bottom:18px;}
-.result-score-big{text-align:center;padding:16px 0 8px;}
-.result-score-big .score-big{font-family:var(--font-display);font-size:4rem;font-weight:900;letter-spacing:-2px;}
-.result-score-big .score-big.win{color:var(--ok);}
-.result-score-big .score-big.loss{color:var(--fail);}
-.result-score-big .score-detail{font-family:var(--font-display);font-size:1rem;font-weight:700;letter-spacing:1px;color:var(--muted2);margin-top:4px;}
+.win-score{text-align:center;padding:14px 0 16px;}
+.win-score-big{font-family:var(--font-display);font-size:4.5rem;font-weight:900;letter-spacing:-2px;line-height:1;}
+.win-score-a{color:var(--a);text-shadow:0 0 40px rgba(61,255,160,0.4);}
+.win-score-b{color:var(--b);text-shadow:0 0 40px rgba(96,165,250,0.4);}
+.win-name{font-family:var(--font-display);font-size:0.9rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);margin-top:6px;}
 .sheet-stat{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:0.9rem;font-weight:500;}
 .sheet-stat:last-of-type{border:none;}
 .sheet-stat .sv{font-family:var(--font-display);font-weight:800;font-size:1.05rem;}
@@ -185,35 +192,23 @@ input:checked+.toggle-slider::before{transform:translateX(20px);background:var(-
 .mbtn-accent{background:var(--accent);color:#080810;box-shadow:0 4px 20px rgba(232,255,71,0.3);}
 .mbtn-ghost{background:rgba(255,255,255,0.06);color:var(--text);border:1px solid var(--border2);}
 .mbtn-danger{background:linear-gradient(135deg,#8b0000,#cc1111);color:white;}
-
-/* ROUND RESULT POPUP */
-.round-result-overlay{display:none;position:fixed;inset:0;z-index:40;justify-content:center;align-items:center;pointer-events:none;}
-.round-result-overlay.show{display:flex;}
-.round-result-pill{background:var(--card);border:2px solid var(--border2);border-radius:999px;padding:14px 28px;font-family:var(--font-display);font-size:1.1rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;animation:popIn 0.3s cubic-bezier(.4,0,.2,1);box-shadow:0 8px 32px rgba(0,0,0,0.5);}
-@keyframes popIn{from{transform:scale(0.7);opacity:0;}to{transform:scale(1);opacity:1;}}
-
-/* STATS TOP */
 .stats-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
 .stats-top h2{font-family:var(--font-display);font-size:1.3rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;}
 .clear-btn{background:none;border:1px solid var(--border2);color:var(--muted2);font-family:var(--font-body);font-size:0.72rem;font-weight:600;padding:6px 12px;border-radius:8px;cursor:pointer;transition:all 0.2s;}
 .clear-btn:hover{border-color:var(--fail);color:var(--fail);}
-
-/* PRESSURE FLASH */
-@keyframes pressure{0%,100%{opacity:1;}50%{opacity:0.4;}}
-.pressure{animation:pressure 0.5s ease-in-out 3;}
 </style>
 </head>
 <body>
 
 <div class="top-bar">
-  <a class="back-btn" href="index.html">← <span data-sv="Hem" data-en="Home">Hem</span></a>
-  <span class="top-title" data-sv="Tävling" data-en="Match">Tävling</span>
+  <a class="back-btn" id="backBtn" href="index.html">← <span data-sv="Hem" data-en="Home">Hem</span></a>
+  <span class="top-title" data-sv="Poängräknare" data-en="Scoreboard">Poängräknare</span>
   <button class="lang-btn" onclick="toggleLang()" id="langBtn">🌐 EN</button>
 </div>
 
 <div class="tab-bar">
   <button class="tab-btn active" onclick="switchTab('match')" id="tab-match" data-sv="Match" data-en="Match">Match</button>
-  <button class="tab-btn" onclick="switchTab('stats')" id="tab-stats" data-sv="Statistik" data-en="Stats">Statistik</button>
+  <button class="tab-btn" onclick="switchTab('stats')" id="tab-stats" data-sv="Historik" data-en="History">Historik</button>
 </div>
 
 <!-- ═══ MATCH TAB ═══ -->
@@ -222,26 +217,69 @@ input:checked+.toggle-slider::before{transform:translateX(20px);background:var(-
 
   <!-- SETUP -->
   <div id="setupView">
-    <p class="section-label" data-sv="Svårighetsgrad" data-en="Difficulty">Svårighetsgrad</p>
-    <div class="difficulty-grid">
-      <div class="diff-card" data-diff="easy" onclick="selectDiff(this)">
-        <div class="diff-icon">🌱</div>
-        <div class="diff-name" data-sv="Lätt" data-en="Easy">Lätt</div>
-        <div class="diff-desc" data-sv="Motståndaren gör många misstag" data-en="Opponent makes many mistakes">Motståndaren gör många misstag</div>
+    <p class="section-label" data-sv="Spelformat" data-en="Format">Spelformat</p>
+    <div class="format-grid">
+      <div class="format-card selected" data-fmt="singles" onclick="selectFormat(this)">
+        <div class="format-icon">👤</div>
+        <div class="format-name" data-sv="Singel" data-en="Singles">Singel</div>
+        <div class="format-desc" data-sv="1 mot 1" data-en="1 vs 1">1 mot 1</div>
       </div>
-      <div class="diff-card selected" data-diff="medium" onclick="selectDiff(this)">
-        <div class="diff-icon">⚡</div>
-        <div class="diff-name" data-sv="Medel" data-en="Medium">Medel</div>
-        <div class="diff-desc" data-sv="Jämn match, realistisk motståndare" data-en="Even match, realistic opponent">Jämn match, realistisk motståndare</div>
-      </div>
-      <div class="diff-card" data-diff="hard" onclick="selectDiff(this)">
-        <div class="diff-icon">🔥</div>
-        <div class="diff-name" data-sv="Svår" data-en="Hard">Svår</div>
-        <div class="diff-desc" data-sv="Hård motståndare, litet utrymme för fel" data-en="Tough opponent, little room for error">Hård motståndare, litet utrymme för fel</div>
+      <div class="format-card" data-fmt="doubles" onclick="selectFormat(this)">
+        <div class="format-icon">👥</div>
+        <div class="format-name" data-sv="Lag" data-en="Teams">Lag</div>
+        <div class="format-desc" data-sv="2 mot 2 / 3 mot 3" data-en="2 vs 2 / 3 vs 3">2 mot 2 / 3 mot 3</div>
       </div>
     </div>
 
-    <div class="settings-row">
+    <p class="section-label" data-sv="Spelare / Lag 1" data-en="Player / Team 1">Spelare / Lag 1</p>
+    <div class="player-inputs">
+      <div class="player-row">
+        <div class="player-row-top">
+          <div class="player-dot dot-a"></div>
+          <span class="player-label" data-sv="NAMN" data-en="NAME">NAMN</span>
+        </div>
+        <input class="name-input" id="nameA1" type="text" maxlength="20" data-placeholder-sv="Spelare 1" data-placeholder-en="Player 1" placeholder="Spelare 1">
+      </div>
+      <div class="extra-players" id="extraA">
+        <div class="player-row">
+          <div class="player-row-top">
+            <div class="player-dot dot-a"></div>
+            <span class="player-label" data-sv="LAGKAMRAT" data-en="TEAMMATE">LAGKAMRAT</span>
+          </div>
+          <input class="name-input" id="nameA2" type="text" maxlength="20" data-placeholder-sv="Spelare 2" data-placeholder-en="Player 2" placeholder="Spelare 2">
+        </div>
+      </div>
+    </div>
+
+    <p class="section-label" style="margin-top:20px;" data-sv="Spelare / Lag 2" data-en="Player / Team 2">Spelare / Lag 2</p>
+    <div class="player-inputs">
+      <div class="player-row">
+        <div class="player-row-top">
+          <div class="player-dot dot-b"></div>
+          <span class="player-label" data-sv="NAMN" data-en="NAME">NAMN</span>
+        </div>
+        <input class="name-input" id="nameB1" type="text" maxlength="20" data-placeholder-sv="Spelare 2" data-placeholder-en="Player 2" placeholder="Spelare 2">
+      </div>
+      <div class="extra-players" id="extraB">
+        <div class="player-row">
+          <div class="player-row-top">
+            <div class="player-dot dot-b"></div>
+            <span class="player-label" data-sv="LAGKAMRAT" data-en="TEAMMATE">LAGKAMRAT</span>
+          </div>
+          <input class="name-input" id="nameB2" type="text" maxlength="20" data-placeholder-sv="Spelare 3" data-placeholder-en="Player 3" placeholder="Spelare 3">
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-row" style="margin-top:24px;">
+      <div class="setting-box">
+        <div class="setting-label" data-sv="Bollar per spelare" data-en="Balls per player">Bollar per spelare</div>
+        <div class="setting-ctrl">
+          <button class="ctrl-btn" onclick="adjBoules(-1)">−</button>
+          <span class="ctrl-val" id="boulesVal">3</span>
+          <button class="ctrl-btn" onclick="adjBoules(1)">+</button>
+        </div>
+      </div>
       <div class="setting-box">
         <div class="setting-label" data-sv="Mål (poäng)" data-en="Target (pts)">Mål (poäng)</div>
         <div class="setting-ctrl">
@@ -249,23 +287,6 @@ input:checked+.toggle-slider::before{transform:translateX(20px);background:var(-
           <span class="ctrl-val" id="targetVal">13</span>
           <button class="ctrl-btn" onclick="adjTarget(1)">+</button>
         </div>
-      </div>
-      <div class="setting-box">
-        <div class="setting-label" data-sv="Boules per lag" data-en="Boules per team">Boules per lag</div>
-        <div class="setting-ctrl">
-          <button class="ctrl-btn" onclick="adjBoules(-1)">−</button>
-          <span class="ctrl-val" id="boulesVal">3</span>
-          <button class="ctrl-btn" onclick="adjBoules(1)">+</button>
-        </div>
-      </div>
-    </div>
-
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:28px;">
-      <div class="section-label" style="margin-bottom:10px;" data-sv="Ditt namn" data-en="Your name">Ditt namn</div>
-      <input class="name-input" id="playerName" type="text" maxlength="20" placeholder="Spelare 1">
-      <div style="margin-top:14px;" class="toggle-row">
-        <span class="toggle-lbl" data-sv="⏱ Tidspress per kast" data-en="⏱ Time pressure per throw">⏱ Tidspress per kast</span>
-        <label class="toggle"><input type="checkbox" id="timePressure" checked><span class="toggle-slider"></span></label>
       </div>
     </div>
 
@@ -275,67 +296,66 @@ input:checked+.toggle-slider::before{transform:translateX(20px);background:var(-
   <!-- MATCH VIEW -->
   <div id="matchView" style="display:none;">
 
-    <!-- SCOREBOARD -->
     <div class="scoreboard">
-      <div class="score-row">
-        <div class="score-side">
-          <div class="score-name" id="playerLabel">DU</div>
-          <div class="score-pts player" id="playerScore">0</div>
+      <div class="score-halves">
+        <div class="score-half score-half-a">
+          <div class="score-team score-team-a" id="teamALabel">LAG A</div>
+          <div class="score-pts score-pts-a" id="scoreA">0</div>
         </div>
-        <div class="score-sep">–</div>
-        <div class="score-side">
-          <div class="score-name" data-sv="DATOR" data-en="CPU">DATOR</div>
-          <div class="score-pts cpu" id="cpuScore">0</div>
+        <div class="score-half score-half-b">
+          <div class="score-team score-team-b" id="teamBLabel">LAG B</div>
+          <div class="score-pts score-pts-b" id="scoreB">0</div>
         </div>
       </div>
-      <div class="score-target" id="scoreTarget">Först till 13 poäng</div>
-    </div>
-
-    <!-- ROUND + DIST -->
-    <div class="round-info">
-      <div class="round-badge"><span data-sv="Runda " data-en="Round ">Runda </span><span id="roundNum">1</span></div>
-      <div class="dist-badge" id="distBadge">7m</div>
-    </div>
-
-    <!-- TIMER -->
-    <div class="timer-wrap" id="timerWrap">
-      <div class="timer-bar-track"><div class="timer-bar-fill" id="timerBar"></div></div>
-      <div class="timer-meta">
-        <span data-sv="Tid kvar" data-en="Time left">Tid kvar</span>
-        <span id="timerSec">30s</span>
+      <div class="score-target-bar">
+        <span class="score-target-txt" id="targetTxt">Först till 13</span>
+        <span class="round-badge" id="roundBadge">Runda 1</span>
       </div>
     </div>
 
-    <!-- BOULE COUNTERS -->
-    <div class="boule-counters">
-      <div class="boule-side">
-        <div class="boule-side-label player" id="playerBouleLabel">DU</div>
-        <div class="boule-dots" id="playerDots"></div>
+    <div class="progress-row">
+      <div class="prog-side">
+        <div class="prog-track"><div class="prog-fill-a" id="progA" style="width:0%"></div></div>
+        <div class="prog-label" id="progLabelA">0 / 13</div>
       </div>
-      <div class="boule-side">
-        <div class="boule-side-label cpu" data-sv="DATOR" data-en="CPU">DATOR</div>
-        <div class="boule-dots" id="cpuDots"></div>
+      <div class="prog-side" style="direction:rtl;">
+        <div class="prog-track"><div class="prog-fill-b" id="progB" style="width:0%"></div></div>
+        <div class="prog-label" style="direction:ltr;text-align:right;" id="progLabelB">0 / 13</div>
       </div>
     </div>
 
-    <!-- WHO HAS POINT -->
-    <div class="who-has" id="whoHas">–</div>
+    <div class="round-input-card">
+      <div class="round-input-label" data-sv="Vem vann rundan?" data-en="Who won the round?">Vem vann rundan?</div>
+      <div class="winner-btns">
+        <div class="winner-btn" id="winBtnA" onclick="selectWinner('a')">
+          <span class="winner-btn-name winner-btn-name-a" id="winBtnAName">LAG A</span>
+          <span class="winner-btn-sub" data-sv="Tryck för att välja" data-en="Tap to select">Tryck för att välja</span>
+        </div>
+        <div class="winner-btn" id="winBtnB" onclick="selectWinner('b')">
+          <span class="winner-btn-name winner-btn-name-b" id="winBtnBName">LAG B</span>
+          <span class="winner-btn-sub" data-sv="Tryck för att välja" data-en="Tap to select">Tryck för att välja</span>
+        </div>
+      </div>
 
-    <!-- SCORING INPUT -->
-    <div class="round-scoring" id="roundScoring">
-      <div class="scoring-label" data-sv="Vem vann rundan?" data-en="Who won the round?">Vem vann rundan?</div>
-      <div class="scoring-question" id="scoringQuestion"></div>
-      <div class="pts-grid" id="ptsGrid"></div>
+      <div class="pts-label" data-sv="Antal poäng denna runda" data-en="Points this round">Antal poäng denna runda</div>
+      <div class="pts-row">
+        <button class="pts-minus" onclick="adjRoundPts(-1)">−</button>
+        <span class="pts-val" id="roundPtsVal">1</span>
+        <button class="pts-plus" onclick="adjRoundPts(1)">+</button>
+      </div>
+
+      <button class="confirm-btn" id="confirmBtn" onclick="confirmRound()" disabled
+        data-sv="Bekräfta runda" data-en="Confirm Round">Bekräfta runda</button>
     </div>
 
-    <!-- ROUNDS STRIP -->
-    <div>
-      <p class="section-label" id="roundsStripLabel" data-sv="Rundor" data-en="Rounds">Rundor</p>
-      <div class="rounds-strip" id="roundsStrip"></div>
+    <div class="rounds-wrap">
+      <p class="section-label" data-sv="Rundor" data-en="Rounds">Rundor</p>
+      <div class="rounds-list" id="roundsList"></div>
+      <button class="undo-btn" onclick="undoRound()"
+        data-sv="↩ Ångra senaste runda" data-en="↩ Undo last round">↩ Ångra senaste runda</button>
     </div>
 
   </div>
-
 </div>
 </div>
 
@@ -343,25 +363,21 @@ input:checked+.toggle-slider::before{transform:translateX(20px);background:var(-
 <div class="tab-content" id="tab-stats-content">
 <div class="wrap">
   <div class="stats-top">
-    <h2 data-sv="Matcher" data-en="Matches">Matcher</h2>
+    <h2 data-sv="Matchhistorik" data-en="Match History">Matchhistorik</h2>
     <button class="clear-btn" onclick="confirmClear()" data-sv="Rensa" data-en="Clear">Rensa</button>
   </div>
   <div class="stats-nav">
     <button class="snav-btn active" onclick="switchStatsTab('overview')" data-sv="Översikt" data-en="Overview">Översikt</button>
-    <button class="snav-btn" onclick="switchStatsTab('history')" data-sv="Historik" data-en="History">Historik</button>
+    <button class="snav-btn" onclick="switchStatsTab('history')" data-sv="Matcher" data-en="Matches">Matcher</button>
   </div>
   <div class="stats-section active" id="stats-overview">
     <div class="ov-cards">
       <div class="ov-card"><span class="ov-val" id="ovMatches" style="color:var(--accent)">0</span><span class="ov-lbl" data-sv="Matcher" data-en="Matches">Matcher</span></div>
-      <div class="ov-card"><span class="ov-val" id="ovWins" style="color:var(--ok)">0</span><span class="ov-lbl" data-sv="Vinster" data-en="Wins">Vinster</span></div>
-      <div class="ov-card"><span class="ov-val" id="ovWinPct" style="color:var(--mid)">–</span><span class="ov-lbl" data-sv="Vinstprocent" data-en="Win rate">Vinstprocent</span></div>
+      <div class="ov-card"><span class="ov-val" id="ovRounds" style="color:var(--mid)">0</span><span class="ov-lbl" data-sv="Rundor totalt" data-en="Total Rounds">Rundor totalt</span></div>
+      <div class="ov-card"><span class="ov-val" id="ovAvgRounds" style="color:var(--a)">–</span><span class="ov-lbl" data-sv="Snitt rundor" data-en="Avg Rounds">Snitt rundor</span></div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:24px;">
-      <div class="ov-card"><span class="ov-val" id="ovAvgPtsFor" style="color:var(--player)">–</span><span class="ov-lbl" data-sv="Snitt gjorda" data-en="Avg scored">Snitt gjorda</span></div>
-      <div class="ov-card"><span class="ov-val" id="ovAvgPtsCpu" style="color:var(--cpu)">–</span><span class="ov-lbl" data-sv="Snitt mot" data-en="Avg against">Snitt mot</span></div>
-    </div>
-    <p class="section-label" data-sv="Per svårighetsgrad" data-en="By difficulty">Per svårighetsgrad</p>
-    <div id="diffBreakdown" style="display:flex;flex-direction:column;gap:8px;margin-bottom:24px;"></div>
+    <p class="section-label" data-sv="Senaste match" data-en="Latest Match">Senaste match</p>
+    <div id="latestMatch"></div>
   </div>
   <div class="stats-section" id="stats-history">
     <div class="match-history" id="matchHistory"></div>
@@ -369,44 +385,37 @@ input:checked+.toggle-slider::before{transform:translateX(20px);background:var(-
 </div>
 </div>
 
-<!-- ROUND RESULT POPUP -->
-<div class="round-result-overlay" id="roundResultOverlay">
-  <div class="round-result-pill" id="roundResultPill"></div>
-</div>
-
-<!-- MATCH RESULT MODAL -->
-<div class="overlay" id="matchResultOverlay">
+<!-- MATCH WINNER MODAL -->
+<div class="overlay" id="winOverlay">
   <div class="sheet">
-    <h2 id="matchResultTitle"></h2>
-    <p class="sheet-sub" id="matchResultSub"></p>
-    <div class="result-score-big">
-      <div class="score-big" id="matchFinalScore"></div>
-      <div class="score-detail" id="matchFinalDetail"></div>
+    <h2 id="winTitle">🏆 Match klar!</h2>
+    <p class="sheet-sub" id="winSub"></p>
+    <div class="win-score">
+      <div class="win-score-big" id="winScoreBig"></div>
+      <div class="win-name" id="winName"></div>
     </div>
-    <div class="sheet-stat"><span data-sv="Svårighetsgrad" data-en="Difficulty">Svårighetsgrad</span><span class="sv" id="mresDiff">–</span></div>
-    <div class="sheet-stat"><span data-sv="Rundor spelade" data-en="Rounds played">Rundor spelade</span><span class="sv" id="mresRounds">–</span></div>
-    <div class="sheet-stat"><span data-sv="Störst ledning" data-en="Biggest lead">Störst ledning</span><span class="sv" id="mresLead">–</span></div>
-    <div class="sheet-stat"><span data-sv="Matchens vändpunkt" data-en="Match turning point">Matchens vändpunkt</span><span class="sv" id="mresTurn">–</span></div>
+    <div class="sheet-stat"><span data-sv="Rundor spelade" data-en="Rounds played">Rundor spelade</span><span class="sv" id="winRounds">–</span></div>
+    <div class="sheet-stat"><span data-sv="Störst ledning" data-en="Biggest lead">Störst ledning</span><span class="sv" id="winLead">–</span></div>
     <div class="sheet-actions">
-      <button class="mbtn mbtn-accent" onclick="closeMatchResult(true)" data-sv="Ny match" data-en="New Match">Ny match</button>
-      <button class="mbtn mbtn-ghost" onclick="closeMatchResult(false)" data-sv="Se statistik" data-en="View Stats">Se statistik</button>
+      <button class="mbtn mbtn-accent" onclick="closeWin(true)" data-sv="Ny match" data-en="New Match">Ny match</button>
+      <button class="mbtn mbtn-ghost" onclick="closeWin(false)" data-sv="Se historik" data-en="View History">Se historik</button>
     </div>
   </div>
 </div>
 
-<!-- FORFEIT CONFIRM -->
-<div class="overlay" id="forfeitOverlay">
+<!-- ABANDON -->
+<div class="overlay" id="abandonOverlay">
   <div class="sheet">
-    <h2 data-sv="Avbryt match?" data-en="Forfeit match?">Avbryt match?</h2>
-    <p class="sheet-sub" data-sv="Matchen räknas som förlust." data-en="The match will count as a loss.">Matchen räknas som förlust.</p>
+    <h2 data-sv="Avbryt match?" data-en="Abandon match?">Avbryt match?</h2>
+    <p class="sheet-sub" data-sv="Pågående match sparas inte." data-en="Ongoing match will not be saved.">Pågående match sparas inte.</p>
     <div class="sheet-actions">
-      <button class="mbtn mbtn-danger" onclick="forfeitMatch()" data-sv="Ja, avbryt" data-en="Yes, forfeit">Ja, avbryt</button>
-      <button class="mbtn mbtn-ghost" onclick="document.getElementById('forfeitOverlay').classList.remove('show')" data-sv="Fortsätt spela" data-en="Keep playing">Fortsätt spela</button>
+      <button class="mbtn mbtn-danger" onclick="abandonMatch()" data-sv="Ja, avbryt" data-en="Yes, abandon">Ja, avbryt</button>
+      <button class="mbtn mbtn-ghost" onclick="document.getElementById('abandonOverlay').classList.remove('show')" data-sv="Fortsätt spela" data-en="Keep playing">Fortsätt spela</button>
     </div>
   </div>
 </div>
 
-<!-- CLEAR CONFIRM -->
+<!-- CLEAR -->
 <div class="overlay" id="clearOverlay">
   <div class="sheet">
     <h2 data-sv="Rensa historik?" data-en="Clear history?">Rensa historik?</h2>
@@ -426,6 +435,9 @@ let lang = localStorage.getItem('lang') || 'sv';
 function applyLang() {
   document.querySelectorAll('[data-sv]').forEach(el => {
     el.textContent = lang==='sv' ? el.dataset.sv : el.dataset.en;
+  });
+  document.querySelectorAll('[data-placeholder-sv]').forEach(el => {
+    el.placeholder = lang==='sv' ? el.dataset.placeholderSv : el.dataset.placeholderEn;
   });
   document.getElementById('langBtn').textContent = lang==='sv' ? '🌐 EN' : '🌐 SV';
   document.documentElement.lang = lang;
@@ -453,477 +465,282 @@ function switchStatsTab(tab) {
 }
 
 // ══════════════════════════════════════════
-// SETTINGS
+// SETUP
 // ══════════════════════════════════════════
-let settings = { diff:'medium', target:13, boules:3 };
+let settings = { format:'singles', boules:3, target:13 };
 
-function selectDiff(card) {
-  document.querySelectorAll('.diff-card').forEach(c => c.classList.remove('selected'));
+function selectFormat(card) {
+  document.querySelectorAll('.format-card').forEach(c => c.classList.remove('selected'));
   card.classList.add('selected');
-  settings.diff = card.dataset.diff;
+  settings.format = card.dataset.fmt;
+  const isDoubles = settings.format === 'doubles';
+  document.getElementById('extraA').classList.toggle('show', isDoubles);
+  document.getElementById('extraB').classList.toggle('show', isDoubles);
+  // Update placeholder for B's first player
+  const pb = document.getElementById('nameB1');
+  pb.placeholder = isDoubles ? (lang==='sv'?'Spelare 3':'Player 3') : (lang==='sv'?'Spelare 2':'Player 2');
+}
+function adjBoules(d) {
+  settings.boules = Math.max(1, Math.min(3, settings.boules + d));
+  document.getElementById('boulesVal').textContent = settings.boules;
 }
 function adjTarget(d) {
   settings.target = Math.max(7, Math.min(15, settings.target + d));
   document.getElementById('targetVal').textContent = settings.target;
-}
-function adjBoules(d) {
-  settings.boules = Math.max(1, Math.min(6, settings.boules + d));
-  document.getElementById('boulesVal').textContent = settings.boules;
-}
-
-// ══════════════════════════════════════════
-// CPU LOGIC
-// ══════════════════════════════════════════
-// Returns simulated CPU points for a round (1–boules per team, weighted by diff)
-function cpuScore(maxPts) {
-  const weights = {
-    easy:     [0.40, 0.30, 0.18, 0.08, 0.03, 0.01],
-    medium:   [0.28, 0.28, 0.22, 0.13, 0.06, 0.03],
-    hard:     [0.15, 0.22, 0.26, 0.20, 0.12, 0.05],
-  };
-  const w = weights[settings.diff].slice(0, maxPts);
-  const total = w.reduce((a,b) => a+b, 0);
-  let r = Math.random() * total, cumul = 0;
-  for (let i=0; i<w.length; i++) {
-    cumul += w[i];
-    if (r <= cumul) return i+1;
-  }
-  return 1;
 }
 
 // ══════════════════════════════════════════
 // MATCH STATE
 // ══════════════════════════════════════════
 let match = {
-  active: false,
-  playerName: 'Du',
-  target: 13,
-  boules: 3,
-  playerPts: 0,
-  cpuPts: 0,
-  round: 1,
-  dist: 7,
-  rounds: [],       // {round, dist, winner, playerPts, cpuPts, scoreAfter:[p,c]}
-  biggestLead: 0,
-  turningPoint: null,
-  timerInterval: null,
-  timerSec: 30,
-  timePressure: true,
-  phase: 'scoring', // 'scoring' | 'waiting'
+  active:false, format:'singles',
+  nameA:'', nameA2:'', nameB:'', nameB2:'',
+  target:13, boules:3,
+  scoreA:0, scoreB:0, round:1,
+  rounds:[], biggestLeadA:0, biggestLeadB:0,
+  selectedWinner:null, roundPts:1,
 };
 
+function teamLabel(side) {
+  if (side==='a') return match.nameA2 ? match.nameA+' & '+match.nameA2 : match.nameA;
+  return match.nameB2 ? match.nameB+' & '+match.nameB2 : match.nameB;
+}
+
 function startMatch() {
-  clearTimer();
-  const nameInput = document.getElementById('playerName').value.trim();
-  match.playerName = nameInput || (lang==='sv' ? 'Du' : 'You');
-  match.target = settings.target;
-  match.boules = settings.boules;
-  match.timePressure = document.getElementById('timePressure').checked;
-  match.playerPts = 0;
-  match.cpuPts = 0;
-  match.round = 1;
-  match.dist = randomDist();
-  match.rounds = [];
-  match.biggestLead = 0;
-  match.turningPoint = null;
-  match.active = true;
-  match.phase = 'scoring';
+  const isDoubles = settings.format === 'doubles';
+  match.format    = settings.format;
+  match.nameA     = document.getElementById('nameA1').value.trim() || (lang==='sv'?'Spelare 1':'Player 1');
+  match.nameA2    = isDoubles ? (document.getElementById('nameA2').value.trim() || (lang==='sv'?'Spelare 2':'Player 2')) : '';
+  match.nameB     = document.getElementById('nameB1').value.trim() || (lang==='sv'?(isDoubles?'Spelare 3':'Spelare 2'):(isDoubles?'Player 3':'Player 2'));
+  match.nameB2    = isDoubles ? (document.getElementById('nameB2').value.trim() || (lang==='sv'?'Spelare 4':'Player 4')) : '';
+  match.target    = settings.target;
+  match.boules    = settings.boules;
+  match.scoreA    = 0; match.scoreB = 0;
+  match.round     = 1; match.rounds = [];
+  match.biggestLeadA = 0; match.biggestLeadB = 0;
+  match.selectedWinner = null; match.roundPts = 1;
+  match.active    = true;
   document.getElementById('setupView').style.display = 'none';
   document.getElementById('matchView').style.display = 'block';
   renderMatchUI();
-  if (match.timePressure) startTimer();
-}
-
-function randomDist() {
-  return [6,7,7,8,8,9][Math.floor(Math.random()*6)];
 }
 
 function renderMatchUI() {
-  // Scoreboard
-  document.getElementById('playerLabel').textContent = match.playerName.toUpperCase();
-  document.getElementById('playerScore').textContent = match.playerPts;
-  document.getElementById('cpuScore').textContent = match.cpuPts;
-  document.getElementById('scoreTarget').textContent = (lang==='sv' ? 'Först till ' : 'First to ') + match.target + (lang==='sv' ? ' poäng' : ' points');
-  document.getElementById('roundNum').textContent = match.round;
-  document.getElementById('distBadge').textContent = match.dist + 'm';
+  const lA = teamLabel('a'), lB = teamLabel('b');
+  document.getElementById('teamALabel').textContent = lA.toUpperCase();
+  document.getElementById('teamBLabel').textContent = lB.toUpperCase();
+  document.getElementById('scoreA').textContent = match.scoreA;
+  document.getElementById('scoreB').textContent = match.scoreB;
+  document.getElementById('targetTxt').textContent = (lang==='sv'?'Först till ':'First to ')+match.target;
+  document.getElementById('roundBadge').textContent = (lang==='sv'?'Runda ':'Round ')+match.round;
 
-  // Player label in boule section
-  document.getElementById('playerBouleLabel').textContent = match.playerName.toUpperCase();
+  const pctA = Math.min(match.scoreA/match.target*100,100);
+  const pctB = Math.min(match.scoreB/match.target*100,100);
+  document.getElementById('progA').style.width = pctA+'%';
+  document.getElementById('progB').style.width = pctB+'%';
+  document.getElementById('progLabelA').textContent = match.scoreA+' / '+match.target;
+  document.getElementById('progLabelB').textContent = match.scoreB+' / '+match.target;
 
-  // Boule dots
-  renderBouleDots();
+  document.getElementById('winBtnAName').textContent = lA.toUpperCase();
+  document.getElementById('winBtnBName').textContent = lB.toUpperCase();
+  document.getElementById('winBtnA').className = 'winner-btn'+(match.selectedWinner==='a'?' selected-a':'');
+  document.getElementById('winBtnB').className = 'winner-btn'+(match.selectedWinner==='b'?' selected-b':'');
 
-  // Who has point
-  renderWhoHas();
+  // Cap pts to remaining
+  const maxPts = match.selectedWinner==='a' ? match.target-match.scoreA
+               : match.selectedWinner==='b' ? match.target-match.scoreB
+               : match.boules;
+  if (match.roundPts > maxPts) match.roundPts = Math.max(1, maxPts);
+  document.getElementById('roundPtsVal').textContent = match.roundPts;
+  document.getElementById('confirmBtn').disabled = !match.selectedWinner;
 
-  // Scoring UI
-  renderScoringUI();
-
-  // Rounds strip
-  renderRoundsStrip();
-
-  // Timer visibility
-  document.getElementById('timerWrap').style.display = match.timePressure ? 'block' : 'none';
+  renderRoundsList();
 }
 
-function renderBouleDots() {
-  const pd = document.getElementById('playerDots');
-  const cd = document.getElementById('cpuDots');
-  pd.innerHTML = '';
-  cd.innerHTML = '';
-  for (let i=0; i<match.boules; i++) {
-    const p = document.createElement('div');
-    p.className = 'bdot player-dot';
-    pd.appendChild(p);
-    const c = document.createElement('div');
-    c.className = 'bdot cpu-dot';
-    cd.appendChild(c);
-  }
+function selectWinner(side) {
+  match.selectedWinner = side;
+  const maxPts = side==='a' ? match.target-match.scoreA : match.target-match.scoreB;
+  match.roundPts = Math.min(match.roundPts, Math.max(1, maxPts));
+  renderMatchUI();
 }
 
-function renderWhoHas() {
-  const wh = document.getElementById('whoHas');
-  if (match.playerPts === 0 && match.cpuPts === 0) {
-    wh.textContent = lang==='sv' ? '🎯 Ingen poäng ännu' : '🎯 No points yet';
-    wh.style.color = 'var(--muted2)';
-  } else {
-    const diff = Math.abs(match.playerPts - match.cpuPts);
-    if (match.playerPts > match.cpuPts) {
-      wh.textContent = `✅ ${match.playerName} ${lang==='sv'?'leder med':'leads by'} ${diff}`;
-      wh.style.color = 'var(--ok)';
-    } else if (match.cpuPts > match.playerPts) {
-      wh.textContent = `⚠️ ${lang==='sv'?'Dator leder med':'CPU leads by'} ${diff}`;
-      wh.style.color = 'var(--fail)';
-    } else {
-      wh.textContent = lang==='sv' ? '⚡ Oavgjort' : '⚡ Tied';
-      wh.style.color = 'var(--mid)';
-    }
-  }
-  // Pressure flash if close to target
-  if (match.playerPts >= match.target-2 || match.cpuPts >= match.target-2) {
-    wh.classList.add('pressure');
-    setTimeout(() => wh.classList.remove('pressure'), 2000);
-  }
+function adjRoundPts(d) {
+  const maxPts = match.selectedWinner==='a' ? match.target-match.scoreA
+               : match.selectedWinner==='b' ? match.target-match.scoreB
+               : match.boules;
+  match.roundPts = Math.max(1, Math.min(maxPts||match.boules, match.roundPts+d));
+  document.getElementById('roundPtsVal').textContent = match.roundPts;
 }
 
-function renderScoringUI() {
-  const q = document.getElementById('scoringQuestion');
-  const grid = document.getElementById('ptsGrid');
+function confirmRound() {
+  if (!match.selectedWinner) return;
+  const w = match.selectedWinner, pts = match.roundPts;
+  if (w==='a') match.scoreA += pts;
+  else match.scoreB += pts;
 
-  q.textContent = lang==='sv'
-    ? `Runda ${match.round} – Hur många poäng tog du?`
-    : `Round ${match.round} – How many points did you score?`;
+  const leadA = match.scoreA - match.scoreB;
+  const leadB = match.scoreB - match.scoreA;
+  if (leadA > match.biggestLeadA) match.biggestLeadA = leadA;
+  if (leadB > match.biggestLeadB) match.biggestLeadB = leadB;
 
-  grid.innerHTML = '';
-  // Cap points so a team cannot exceed the target in a single round
-  const playerMax = Math.min(match.boules, match.target - match.playerPts);
-  const cpuMax    = Math.min(match.boules, match.target - match.cpuPts);
+  match.rounds.push({ round:match.round, winner:w, pts, scoreAfterA:match.scoreA, scoreAfterB:match.scoreB });
 
-  // Player wins options
-  for (let i=1; i<=playerMax; i++) {
-    const btn = document.createElement('div');
-    btn.className = 'pts-btn player-pts';
-    btn.innerHTML = `<span class="pts-num" style="color:var(--player)">${i}</span><span class="pts-lbl" style="color:var(--player)">${lang==='sv'?'poäng':'pts'}</span>`;
-    btn.onclick = () => submitRound('player', i);
-    grid.appendChild(btn);
+  // Bump animation
+  const el = document.getElementById(w==='a'?'scoreA':'scoreB');
+  el.classList.remove('bump');
+  void el.offsetWidth;
+  el.classList.add('bump');
+
+  match.selectedWinner = null;
+  match.roundPts = 1;
+
+  if (match.scoreA >= match.target || match.scoreB >= match.target) {
+    renderMatchUI();
+    setTimeout(finishMatch, 450);
+    return;
   }
-  // CPU wins options
-  for (let i=1; i<=cpuMax; i++) {
-    const btn = document.createElement('div');
-    btn.className = 'pts-btn cpu-pts';
-    btn.innerHTML = `<span class="pts-num" style="color:var(--cpu)">${i}</span><span class="pts-lbl" style="color:var(--cpu)">${lang==='sv'?'mot dig':'to CPU'}</span>`;
-    btn.onclick = () => submitRound('cpu', i);
-    grid.appendChild(btn);
-  }
-
-  // Add label above grid
-  const lbl = document.getElementById('roundScoring').querySelector('.scoring-label');
-  // Player section label
-  grid.insertAdjacentHTML('beforebegin',
-    `<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;margin-bottom:8px;">
-      <div style="font-family:var(--font-display);font-size:0.62rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--player);padding-left:4px;">${lang==='sv'?'Du vann':'You won'}</div>
-      <div style="font-family:var(--font-display);font-size:0.62rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--cpu);padding-left:4px;">${lang==='sv'?'Dator vann':'CPU won'}</div>
-    </div>`
-  );
+  match.round++;
+  renderMatchUI();
 }
 
-function renderRoundsStrip() {
-  const strip = document.getElementById('roundsStrip');
-  strip.innerHTML = '';
-  match.rounds.forEach(r => {
-    const chip = document.createElement('div');
-    chip.className = 'round-chip ' + (r.winner==='player' ? 'player-won' : 'cpu-won');
-    chip.textContent = `R${r.round} ${r.winner==='player'?'+'+r.playerPts:'-'+r.cpuPts}`;
-    strip.appendChild(chip);
+function undoRound() {
+  if (!match.rounds.length) return;
+  const last = match.rounds.pop();
+  if (last.winner==='a') match.scoreA -= last.pts;
+  else match.scoreB -= last.pts;
+  match.round = last.round;
+  match.selectedWinner = null;
+  match.roundPts = 1;
+  renderMatchUI();
+}
+
+function renderRoundsList() {
+  const list = document.getElementById('roundsList');
+  list.innerHTML = '';
+  [...match.rounds].reverse().forEach(r => {
+    const name = r.winner==='a' ? teamLabel('a') : teamLabel('b');
+    const isA = r.winner==='a';
+    const div = document.createElement('div');
+    div.className = 'round-row';
+    div.innerHTML = `
+      <div class="round-row-left">
+        <span class="round-num">R${r.round}</span>
+        <span class="round-winner ${isA?'round-winner-a':'round-winner-b'}">${name}</span>
+        <span class="round-pts-badge ${isA?'badge-a':'badge-b'}">+${r.pts}</span>
+      </div>
+      <span class="round-score-after">${r.scoreAfterA} – ${r.scoreAfterB}</span>
+    `;
+    list.appendChild(div);
   });
 }
 
 // ══════════════════════════════════════════
-// TIMER
+// MATCH END
 // ══════════════════════════════════════════
-function startTimer() {
-  match.timerSec = 30;
-  updateTimerUI();
-  match.timerInterval = setInterval(() => {
-    match.timerSec--;
-    updateTimerUI();
-    if (match.timerSec <= 0) {
-      clearTimer();
-      timeExpired();
-    }
-  }, 1000);
-}
-
-function updateTimerUI() {
-  const pct = (match.timerSec / 30) * 100;
-  const bar = document.getElementById('timerBar');
-  bar.style.width = pct + '%';
-  const color = match.timerSec > 15 ? 'var(--ok)' : match.timerSec > 7 ? 'var(--mid)' : 'var(--fail)';
-  bar.style.background = color;
-  document.getElementById('timerSec').textContent = match.timerSec + 's';
-}
-
-function clearTimer() {
-  if (match.timerInterval) { clearInterval(match.timerInterval); match.timerInterval = null; }
-}
-
-function timeExpired() {
-  // Auto-submit: CPU wins this round with random score, capped at remaining points needed
-  const maxCpu = Math.min(match.boules, match.target - match.cpuPts);
-  const pts = Math.min(cpuScore(match.boules), maxCpu);
-  submitRound('cpu', pts, true);
-}
-
-// ══════════════════════════════════════════
-// ROUND LOGIC
-// ══════════════════════════════════════════
-function submitRound(winner, pts, auto=false) {
-  clearTimer();
-
-  const prevLead = match.playerPts - match.cpuPts;
-
-  if (winner === 'player') {
-    match.playerPts += pts;
-  } else {
-    match.cpuPts += pts;
-  }
-
-  const newLead = match.playerPts - match.cpuPts;
-  if (newLead > match.biggestLead) match.biggestLead = newLead;
-
-  // Turning point: first time CPU takes the lead from behind
-  if (!match.turningPoint && prevLead > 0 && newLead <= 0) {
-    match.turningPoint = match.round;
-  }
-
-  match.rounds.push({
-    round: match.round,
-    dist: match.dist,
-    winner,
-    playerPts: winner==='player' ? pts : 0,
-    cpuPts: winner==='cpu' ? pts : 0,
-    scoreAfter: [match.playerPts, match.cpuPts]
-  });
-
-  // Show round result popup
-  showRoundResult(winner, pts, auto);
-
-  // Check win
-  setTimeout(() => {
-    hideRoundResult();
-    if (match.playerPts >= match.target || match.cpuPts >= match.target) {
-      finishMatch();
-    } else {
-      match.round++;
-      match.dist = randomDist();
-      renderMatchUI();
-      if (match.timePressure) startTimer();
-    }
-  }, 1400);
-}
-
-function showRoundResult(winner, pts, auto) {
-  const pill = document.getElementById('roundResultPill');
-  const overlay = document.getElementById('roundResultOverlay');
-  if (winner === 'player') {
-    pill.style.borderColor = 'rgba(61,255,160,0.5)';
-    pill.style.color = 'var(--ok)';
-    pill.textContent = `✅ +${pts} ${lang==='sv'?'till dig':'to you'}`;
-  } else {
-    pill.style.borderColor = 'rgba(255,77,77,0.5)';
-    pill.style.color = 'var(--fail)';
-    pill.textContent = auto
-      ? `⏱ ${lang==='sv'?'Tid ute':'Time up'} · CPU +${pts}`
-      : `❌ CPU +${pts}`;
-  }
-  overlay.classList.add('show');
-}
-function hideRoundResult() {
-  document.getElementById('roundResultOverlay').classList.remove('show');
-}
-
-function forfeitMatch() {
-  clearTimer();
-  document.getElementById('forfeitOverlay').classList.remove('show');
-  // Save as loss
-  saveMatch({ won:false, playerFinal:match.playerPts, cpuFinal:match.target,
-    rounds:match.round, diff:settings.diff, forfeit:true, date:new Date().toISOString() });
-  resetToSetup();
-}
-
 function finishMatch() {
-  const won = match.playerPts >= match.target;
-  const matchData = {
-    won, playerFinal:match.playerPts, cpuFinal:match.cpuPts,
-    rounds:match.rounds.length, diff:settings.diff,
-    biggestLead:match.biggestLead, turningPoint:match.turningPoint,
-    date:new Date().toISOString(), playerName:match.playerName
-  };
-  saveMatch(matchData);
+  const winSide = match.scoreA >= match.target ? 'a' : 'b';
+  const winName = teamLabel(winSide);
+  const biggestLead = winSide==='a' ? match.biggestLeadA : match.biggestLeadB;
 
-  // Show modal
-  const diffNames = { easy:{sv:'Lätt',en:'Easy'}, medium:{sv:'Medel',en:'Medium'}, hard:{sv:'Svår',en:'Hard'} };
-  document.getElementById('matchResultTitle').textContent = won
-    ? (lang==='sv'?'🏆 Seger!':'🏆 Victory!')
-    : (lang==='sv'?'😤 Förlust':'😤 Defeat');
-  document.getElementById('matchResultSub').textContent = won
-    ? (lang==='sv'?`Bra jobbat, ${match.playerName}!`:`Well played, ${match.playerName}!`)
-    : (lang==='sv'?'Bättre lycka nästa gång!':'Better luck next time!');
-  const scoreBig = document.getElementById('matchFinalScore');
-  scoreBig.textContent = match.playerPts + ' – ' + match.cpuPts;
-  scoreBig.className = 'score-big ' + (won?'win':'loss');
-  document.getElementById('matchFinalDetail').textContent =
-    (lang==='sv'?'Slutresultat · ':'Final score · ') + match.rounds.length + (lang==='sv'?' rundor':' rounds');
-  document.getElementById('mresDiff').textContent = lang==='sv' ? diffNames[settings.diff].sv : diffNames[settings.diff].en;
-  document.getElementById('mresRounds').textContent = match.rounds.length;
-  document.getElementById('mresLead').textContent = match.biggestLead > 0 ? '+' + match.biggestLead : '–';
-  document.getElementById('mresTurn').textContent = match.turningPoint
-    ? (lang==='sv'?'Runda ':'Round ') + match.turningPoint
-    : (lang==='sv'?'Ingen vändning':'No turn');
-  document.getElementById('matchResultOverlay').classList.add('show');
+  saveMatch({
+    date:new Date().toISOString(), format:match.format,
+    nameA:teamLabel('a'), nameB:teamLabel('b'),
+    finalA:match.scoreA, finalB:match.scoreB,
+    winner:winSide, winnerName:winName,
+    rounds:match.rounds.length, biggestLead
+  });
+
+  document.getElementById('winTitle').textContent = '🏆 '+(lang==='sv'?'Match klar!':'Match over!');
+  document.getElementById('winSub').textContent = winName+(lang==='sv'?' vinner matchen!'  :' wins the match!');
+  const sb = document.getElementById('winScoreBig');
+  sb.textContent = match.scoreA+' – '+match.scoreB;
+  sb.className = 'win-score-big '+(winSide==='a'?'win-score-a':'win-score-b');
+  document.getElementById('winName').textContent = winName.toUpperCase()+' '+(lang==='sv'?'VINNER':'WINS');
+  document.getElementById('winRounds').textContent = match.rounds.length;
+  document.getElementById('winLead').textContent = biggestLead>0 ? '+'+biggestLead : '–';
+  document.getElementById('winOverlay').classList.add('show');
 }
 
-function closeMatchResult(newMatch) {
-  document.getElementById('matchResultOverlay').classList.remove('show');
+function closeWin(newMatch) {
+  document.getElementById('winOverlay').classList.remove('show');
   match.active = false;
-  resetToSetup();
+  document.getElementById('matchView').style.display = 'none';
+  document.getElementById('setupView').style.display = 'block';
   if (!newMatch) switchTab('stats');
 }
 
-function resetToSetup() {
-  clearTimer();
+function abandonMatch() {
+  document.getElementById('abandonOverlay').classList.remove('show');
   match.active = false;
   document.getElementById('matchView').style.display = 'none';
   document.getElementById('setupView').style.display = 'block';
 }
 
-// Back button during match: show forfeit dialog
-document.querySelector('.back-btn').addEventListener('click', function(e) {
-  if (match.active) {
-    e.preventDefault();
-    document.getElementById('forfeitOverlay').classList.add('show');
-  }
+document.getElementById('backBtn').addEventListener('click', function(e) {
+  if (match.active) { e.preventDefault(); document.getElementById('abandonOverlay').classList.add('show'); }
 });
 
 // ══════════════════════════════════════════
 // STORAGE
 // ══════════════════════════════════════════
-function loadMatches() {
-  try { return JSON.parse(localStorage.getItem('pt_matches') || '[]'); } catch(e){ return []; }
-}
+function loadMatches() { try { return JSON.parse(localStorage.getItem('pt_matches_v2')||'[]'); } catch(e){ return []; } }
 function saveMatch(m) {
-  const matches = loadMatches();
-  matches.unshift(m);
-  if (matches.length > 100) matches.splice(100);
-  localStorage.setItem('pt_matches', JSON.stringify(matches));
-  // Also save to taktik_history format for index page aggregate
-  try {
-    const h = JSON.parse(localStorage.getItem('pt_taktik_history')||'[]');
-    h.unshift({ date:m.date, mode:'match' });
-    localStorage.setItem('pt_taktik_history', JSON.stringify(h));
-  } catch(e){}
+  const ms = loadMatches(); ms.unshift(m);
+  if (ms.length>100) ms.splice(100);
+  localStorage.setItem('pt_matches_v2', JSON.stringify(ms));
 }
 
 // ══════════════════════════════════════════
-// STATS RENDER
+// STATS
 // ══════════════════════════════════════════
 function renderStats() {
   const matches = loadMatches();
-  const wins = matches.filter(m => m.won).length;
   const total = matches.length;
-  const winPct = total > 0 ? Math.round(wins/total*100) : null;
-  const avgFor = total > 0 ? (matches.reduce((s,m)=>s+m.playerFinal,0)/total).toFixed(1) : '–';
-  const avgCpu = total > 0 ? (matches.reduce((s,m)=>s+m.cpuFinal,0)/total).toFixed(1) : '–';
-
+  const totalRounds = matches.reduce((s,m)=>s+m.rounds,0);
+  const avg = total>0 ? (totalRounds/total).toFixed(1) : '–';
   document.getElementById('ovMatches').textContent = total;
-  document.getElementById('ovWins').textContent = wins;
-  document.getElementById('ovWinPct').textContent = winPct !== null ? winPct+'%' : '–';
-  document.getElementById('ovAvgPtsFor').textContent = avgFor;
-  document.getElementById('ovAvgPtsCpu').textContent = avgCpu;
+  document.getElementById('ovRounds').textContent = totalRounds;
+  document.getElementById('ovAvgRounds').textContent = avg;
 
-  // By difficulty
-  const db = document.getElementById('diffBreakdown');
-  db.innerHTML = '';
-  const diffs = ['easy','medium','hard'];
-  const diffNames = { easy:{sv:'Lätt',en:'Easy'}, medium:{sv:'Medel',en:'Medium'}, hard:{sv:'Svår',en:'Hard'} };
-  const diffColors = { easy:'var(--ok)', medium:'var(--mid)', hard:'var(--fail)' };
-  diffs.forEach(d => {
-    const dm = matches.filter(m => m.diff===d);
-    if (!dm.length) return;
-    const dw = dm.filter(m => m.won).length;
-    const dpct = Math.round(dw/dm.length*100);
-    const div = document.createElement('div');
-    div.style.cssText = 'background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;';
-    div.innerHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <span style="font-family:var(--font-display);font-size:0.95rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;">${lang==='sv'?diffNames[d].sv:diffNames[d].en}</span>
-        <span style="font-family:var(--font-display);font-size:1.2rem;font-weight:900;color:${diffColors[d]}">${dw}/${dm.length}</span>
-      </div>
-      <div style="height:4px;background:var(--card2);border-radius:999px;overflow:hidden;">
-        <div style="height:100%;width:${dpct}%;background:${diffColors[d]};border-radius:999px;transition:width 0.6s;"></div>
-      </div>
-      <div style="font-size:0.75rem;color:var(--muted2);margin-top:7px;">${dpct}% ${lang==='sv'?'vinster':'win rate'}</div>
-    `;
-    db.appendChild(div);
-  });
-  if (!db.children.length) {
-    db.innerHTML = `<div class="empty-state"><div class="empty-icon">🏆</div><div class="empty-text">${lang==='sv'?'Inga matcher':'No matches'}</div><div class="empty-sub">${lang==='sv'?'Spela din första match!':'Play your first match!'}</div></div>`;
-  }
+  const latest = document.getElementById('latestMatch');
+  latest.innerHTML = matches.length ? buildMatchCard(matches[0])
+    : `<div class="empty-state"><div class="empty-icon">🏆</div><div class="empty-text">${lang==='sv'?'Inga matcher ännu':'No matches yet'}</div><div class="empty-sub">${lang==='sv'?'Starta en match för att se historik.':'Start a match to see history.'}</div></div>`;
 
-  // History
-  const mh = document.getElementById('matchHistory');
-  mh.innerHTML = '';
+  const hist = document.getElementById('matchHistory');
+  hist.innerHTML = '';
   if (!matches.length) {
-    mh.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">${lang==='sv'?'Ingen historik':'No history'}</div><div class="empty-sub">${lang==='sv'?'Dina matcher sparas här.':'Your matches will be saved here.'}</div></div>`;
+    hist.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">${lang==='sv'?'Ingen historik':'No history'}</div><div class="empty-sub">${lang==='sv'?'Dina matcher sparas här.':'Your matches will be saved here.'}</div></div>`;
     return;
   }
-  const diffNames2 = { easy:{sv:'Lätt',en:'Easy'}, medium:{sv:'Medel',en:'Medium'}, hard:{sv:'Svår',en:'Hard'} };
-  matches.forEach(m => {
-    const div = document.createElement('div');
-    div.className = 'match-card ' + (m.won?'match-win':'match-loss');
-    div.innerHTML = `
-      <div class="match-top">
-        <span class="match-result ${m.won?'win':'loss'}">${m.playerFinal} – ${m.cpuFinal}</span>
-        <span class="match-date">${fmtDate(m.date)}</span>
+  matches.forEach(m => { hist.innerHTML += buildMatchCard(m); });
+}
+
+function buildMatchCard(m) {
+  const isA = m.winner==='a';
+  const col = isA ? 'var(--a)' : 'var(--b)';
+  const fmtLbl = m.format==='doubles' ? (lang==='sv'?'Lag':'Teams') : (lang==='sv'?'Singel':'Singles');
+  return `<div class="match-card ${isA?'match-card-a':'match-card-b'}" style="margin-bottom:0">
+    <div class="match-top">
+      <div>
+        <div class="match-result" style="color:${col}">${m.finalA} – ${m.finalB}</div>
+        <div class="match-winner-name" style="color:${col}">🏆 ${m.winnerName}</div>
       </div>
-      <div class="match-meta">
-        <span>${m.won?(lang==='sv'?'✅ Seger':'✅ Win'):(lang==='sv'?'❌ Förlust':'❌ Loss')}</span>
-        <span>⚡ ${lang==='sv'?diffNames2[m.diff]?.sv:diffNames2[m.diff]?.en}</span>
-        <span>🔄 ${m.rounds} ${lang==='sv'?'rundor':'rounds'}</span>
-      </div>
-    `;
-    mh.appendChild(div);
-  });
+      <div class="match-date">${fmtDate(m.date)}</div>
+    </div>
+    <div class="match-meta">
+      <span>⚽ ${m.nameA} ${lang==='sv'?'mot':'vs'} ${m.nameB}</span>
+      <span>🔄 ${m.rounds} ${lang==='sv'?'rundor':'rounds'}</span>
+      <span>📋 ${fmtLbl}</span>
+    </div>
+  </div>`;
 }
 
 function fmtDate(iso) {
-  const d = new Date(iso);
-  return d.toLocaleDateString(lang==='sv'?'sv-SE':'en-GB', {day:'numeric',month:'short',year:'2-digit'});
+  return new Date(iso).toLocaleDateString(lang==='sv'?'sv-SE':'en-GB',{day:'numeric',month:'short',year:'2-digit'});
 }
-
 function confirmClear() { document.getElementById('clearOverlay').classList.add('show'); }
 function clearAll() {
-  localStorage.removeItem('pt_matches');
+  localStorage.removeItem('pt_matches_v2');
   document.getElementById('clearOverlay').classList.remove('show');
   renderStats();
 }
