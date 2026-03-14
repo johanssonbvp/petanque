@@ -14,12 +14,17 @@
 <script>
 const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="100" fill="#080810"/><defs><radialGradient id="boule" cx="38%" cy="32%" r="65%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/><stop offset="40%" stop-color="#e8ff47" stop-opacity="0.15"/><stop offset="100%" stop-color="#b8cc00" stop-opacity="0"/></radialGradient><radialGradient id="base" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#d4e800"/><stop offset="60%" stop-color="#a8b800"/><stop offset="100%" stop-color="#6a7500"/></radialGradient></defs><circle cx="256" cy="256" r="170" fill="url(#base)" stroke="#e8ff47" stroke-width="6" opacity="0.95"/><circle cx="256" cy="256" r="170" fill="url(#boule)"/><circle cx="204" cy="190" r="28" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="10"/><path d="M 256 86 A 170 170 0 0 1 400 190" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="10" stroke-linecap="round"/><path d="M 120 310 A 170 170 0 0 0 310 418" fill="none" stroke="rgba(0,0,0,0.15)" stroke-width="8" stroke-linecap="round"/><circle cx="220" cy="175" r="10" fill="rgba(255,255,255,0.35)"/></svg>`;
 const iconUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(iconSvg)));
-const manifest = {name:"Petanque Training",short_name:"Petanque",start_url:"./",display:"standalone",background_color:"#080810",theme_color:"#080810",orientation:"portrait",icons:[{src:iconUrl,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]};
+const manifest = {name:"Petanque Training",short_name:"Petanque",start_url:"./index.html",display:"standalone",background_color:"#080810",theme_color:"#080810",orientation:"portrait",icons:[{src:iconUrl,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]};
 const mblob = new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
 const ml = document.createElement('link'); ml.rel='manifest'; ml.href=URL.createObjectURL(mblob);
 document.currentScript.insertAdjacentElement('afterend',ml);
 const al = document.createElement('link'); al.rel='apple-touch-icon'; al.href=iconUrl;
 document.currentScript.insertAdjacentElement('afterend',al);
+
+<script>
+// ── SERVICE WORKER ──
+const SW_CODE=`const C='petanque-v6';self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll([self.location.href])));self.skipWaiting();});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))));self.clients.claim();});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(cached=>{if(cached)return cached;return fetch(e.request).then(res=>{if(res&&res.status===200&&e.request.method==='GET'){const cl=res.clone();caches.open(C).then(c=>c.put(e.request,cl));}return res;}).catch(()=>cached);}));});`;
+if('serviceWorker'in navigator){const b=new Blob([SW_CODE],{type:'application/javascript'});navigator.serviceWorker.register(URL.createObjectURL(b),{scope:'./'}).catch(()=>{});}
 </script>
 <style>
 :root {
@@ -180,6 +185,15 @@ body::before {
 .footer p { font-size: 0.75rem; color: var(--muted); line-height: 1.8; }
 .footer a { color: var(--muted2); text-decoration: none; }
 .footer a:hover { color: var(--accent); }
+
+/* ── INSTALL BANNER ── */
+#install-banner{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border2);padding:14px 16px calc(14px + env(safe-area-inset-bottom));z-index:30;flex-direction:row;align-items:center;gap:12px;}
+#install-banner.show{display:flex;}
+.install-text{flex:1;}
+.install-text strong{font-family:var(--font-display);font-size:0.95rem;font-weight:700;display:block;letter-spacing:0.5px;}
+.install-text span{font-size:0.78rem;color:var(--muted2);}
+.install-btn{background:var(--accent);color:#080810;border:none;padding:9px 18px;border-radius:10px;font-family:var(--font-display);font-size:0.85rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;cursor:pointer;flex-shrink:0;}
+.install-dismiss{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:4px;flex-shrink:0;}
 </style>
 </head>
 <body>
@@ -346,6 +360,62 @@ function loadStats() {
   document.getElementById('totalDays').textContent = days.size || '0';
 }
 loadStats();
+
+// ── INSTALL BANNER ──
+const _isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const _isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+let _deferredPrompt = null;
+
+function _showBanner() {
+  if (_isStandalone || localStorage.getItem('pt_install_dismissed')) return;
+  const banner = document.getElementById('install-banner');
+  const btn = document.getElementById('install-action-btn');
+  if (_isIOS) {
+    document.getElementById('install-sub').textContent = lang === 'sv' ? 'Tryck för instruktioner' : 'Tap for instructions';
+    btn.textContent = lang === 'sv' ? 'Visa hur' : 'Show how';
+    btn.onclick = () => { document.getElementById('ios-install-modal').style.display='flex'; document.getElementById('ios-install-modal').classList.add('show'); };
+    banner.classList.add('show');
+  }
+}
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); _deferredPrompt = e;
+  if (_isStandalone || localStorage.getItem('pt_install_dismissed')) return;
+  const btn = document.getElementById('install-action-btn');
+  btn.textContent = lang === 'sv' ? 'Installera' : 'Install';
+  btn.onclick = () => { if (_deferredPrompt) { _deferredPrompt.prompt(); _deferredPrompt.userChoice.then(() => { _deferredPrompt = null; document.getElementById('install-banner').classList.remove('show'); }); } };
+  document.getElementById('install-banner').classList.add('show');
+});
+window.addEventListener('appinstalled', () => { document.getElementById('install-banner').classList.remove('show'); _deferredPrompt = null; });
+function dismissInstall() { document.getElementById('install-banner').classList.remove('show'); localStorage.setItem('pt_install_dismissed','1'); }
+
+_showBanner();
+
 </script>
+
+<!-- INSTALL BANNER -->
+<div id="install-banner">
+  <span style="font-size:2rem;flex-shrink:0">🎯</span>
+  <div class="install-text">
+    <strong data-sv="Installera appen" data-en="Install app">Installera appen</strong>
+    <span id="install-sub" data-sv="Lägg till på hemskärmen" data-en="Add to home screen">Lägg till på hemskärmen</span>
+  </div>
+  <button class="install-btn" id="install-action-btn" data-sv="Installera" data-en="Install">Installera</button>
+  <button class="install-dismiss" onclick="dismissInstall()">✕</button>
+</div>
+
+<!-- IOS INSTALL MODAL -->
+<div class="overlay" id="ios-install-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);backdrop-filter:blur(12px);z-index:50;justify-content:center;align-items:flex-end;padding:16px;">
+  <div style="background:var(--card);border:1px solid var(--border2);border-radius:24px;padding:28px 24px;width:100%;max-width:440px;animation:slideUp 0.3s cubic-bezier(.4,0,.2,1);">
+    <h2 style="font-family:var(--font-display);font-size:1.3rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:18px;">📲 <span data-sv="Installera på din enhet" data-en="Install on your device">Installera på din enhet</span></h2>
+    <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:20px;">
+      <div style="display:flex;align-items:flex-start;gap:12px;"><span style="font-size:1.4rem;flex-shrink:0">1️⃣</span><span style="font-size:0.9rem;color:var(--muted2);line-height:1.5;" data-sv="Öppna sidan i <strong style='color:var(--text)'>Safari</strong>" data-en="Open in <strong style='color:var(--text)'>Safari</strong>">Öppna sidan i <strong style="color:var(--text)">Safari</strong></span></div>
+      <div style="display:flex;align-items:flex-start;gap:12px;"><span style="font-size:1.4rem;flex-shrink:0">2️⃣</span><span style="font-size:0.9rem;color:var(--muted2);line-height:1.5;" data-sv="Tryck på <strong style='color:var(--text)'>dela-ikonen</strong> &#x2197; längst ner" data-en="Tap the <strong style='color:var(--text)'>share icon</strong> &#x2197; at the bottom">Tryck på <strong style="color:var(--text)">dela-ikonen</strong> &#x2197; längst ner</span></div>
+      <div style="display:flex;align-items:flex-start;gap:12px;"><span style="font-size:1.4rem;flex-shrink:0">3️⃣</span><span style="font-size:0.9rem;color:var(--muted2);line-height:1.5;" data-sv="Tryck <strong style='color:var(--text)'>"Lägg till på hemskärmen"</strong>" data-en="Tap <strong style='color:var(--text)'>'Add to Home Screen'</strong>">Tryck <strong style="color:var(--text)">"Lägg till på hemskärmen"</strong></span></div>
+      <div style="display:flex;align-items:flex-start;gap:12px;"><span style="font-size:1.4rem;flex-shrink:0">4️⃣</span><span style="font-size:0.9rem;color:var(--muted2);line-height:1.5;" data-sv="Tryck <strong style='color:var(--text)'>"Lägg till"</strong> – klart! 🎉" data-en="Tap <strong style='color:var(--text)'>'Add'</strong> – done! 🎉">Tryck <strong style="color:var(--text)">"Lägg till"</strong> – klart! 🎉</span></div>
+    </div>
+    <button onclick="document.getElementById('ios-install-modal').classList.remove('show');document.getElementById('ios-install-modal').style.display='none';dismissInstall();" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--border2);color:var(--text);border-radius:14px;padding:15px;font-family:var(--font-display);font-size:1rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;" data-sv="Stäng" data-en="Close">Stäng</button>
+  </div>
+</div>
+
 </body>
 </html>
