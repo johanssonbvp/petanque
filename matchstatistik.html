@@ -280,8 +280,7 @@
             .key { padding: 0.85rem; font-size: 16px; }
         }
     </style>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
 <script src="./sync-manager.js"></script>
 </head>
 <body>
@@ -1749,20 +1748,6 @@ class MatchApp {
 // ---- BOOT ----
 const app = new MatchApp();
 document.addEventListener('DOMContentLoaded', () => app.init());
-</script>
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyCwzdwGEjN5LVw3RSLz2dy7f70Reafbe2c",
-    authDomain: "databas-serie.firebaseapp.com",
-    databaseURL: "https://databas-serie-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "databas-serie",
-    storageBucket: "databas-serie.firebasestorage.app",
-    messagingSenderId: "672666417012",
-    appId: "1:672666417012:web:93613783fe51cd2ce81e21"
-  };
-  if (typeof initSyncManager === 'function') {
-    initSyncManager(firebaseConfig);
-  }
 </script>
 </body>
 </html>
