@@ -1,421 +1,1175 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Petanque Träning</title>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Petanque">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#080810">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script>
-const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="100" fill="#080810"/><defs><radialGradient id="boule" cx="38%" cy="32%" r="65%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/><stop offset="40%" stop-color="#e8ff47" stop-opacity="0.15"/><stop offset="100%" stop-color="#b8cc00" stop-opacity="0"/></radialGradient><radialGradient id="base" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#d4e800"/><stop offset="60%" stop-color="#a8b800"/><stop offset="100%" stop-color="#6a7500"/></radialGradient></defs><circle cx="256" cy="256" r="170" fill="url(#base)" stroke="#e8ff47" stroke-width="6" opacity="0.95"/><circle cx="256" cy="256" r="170" fill="url(#boule)"/><circle cx="204" cy="190" r="28" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="10"/><path d="M 256 86 A 170 170 0 0 1 400 190" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="10" stroke-linecap="round"/><path d="M 120 310 A 170 170 0 0 0 310 418" fill="none" stroke="rgba(0,0,0,0.15)" stroke-width="8" stroke-linecap="round"/><circle cx="220" cy="175" r="10" fill="rgba(255,255,255,0.35)"/></svg>`;
-const iconUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(iconSvg)));
-const manifest = {name:"Petanque Training",short_name:"Petanque",start_url:"./index.html",display:"standalone",background_color:"#080810",theme_color:"#080810",orientation:"portrait",icons:[{src:iconUrl,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]};
-const mblob = new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
-const ml = document.createElement('link'); ml.rel='manifest'; ml.href=URL.createObjectURL(mblob);
-document.currentScript.insertAdjacentElement('afterend',ml);
-const al = document.createElement('link'); al.rel='apple-touch-icon'; al.href=iconUrl;
-document.currentScript.insertAdjacentElement('afterend',al);
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0A0E27">
+  <title>Petanque Träning – Din personliga träningscoach</title>
+  <meta name="description" content="Spåra din utveckling. Träna smartare. Bli bättre. Gratis petanque-träningsapp med statistik, analyser och trendlinjer.">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-<script>
-// ── SERVICE WORKER ──
-const SW_CODE=`const C='petanque-v6';self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll([self.location.href])));self.skipWaiting();});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))));self.clients.claim();});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(cached=>{if(cached)return cached;return fetch(e.request).then(res=>{if(res&&res.status===200&&e.request.method==='GET'){const cl=res.clone();caches.open(C).then(c=>c.put(e.request,cl));}return res;}).catch(()=>cached);}));});`;
-if('serviceWorker'in navigator){const b=new Blob([SW_CODE],{type:'application/javascript'});navigator.serviceWorker.register(URL.createObjectURL(b),{scope:'./'}).catch(()=>{});}
-</script>
-<style>
-:root {
-  --bg: #080810; --bg2: #0d0d1a; --surface: #111120;
-  --card: #161628; --card2: #1c1c34;
-  --border: rgba(255,255,255,0.06); --border2: rgba(255,255,255,0.12);
-  --text: #f0f0f8; --muted: #5a5a78; --muted2: #8888aa;
-  --accent: #e8ff47; --accent-dim: rgba(232,255,71,0.12); --accent-glow: rgba(232,255,71,0.3);
-  --carreau: #3dffa0; --traff: #f5c842; --miss: #ff4d4d;
-  --font-display: 'Barlow Condensed', sans-serif;
-  --font-body: 'Barlow', sans-serif;
-}
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: var(--font-body);
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  overscroll-behavior-y: contain;
-  touch-action: manipulation;
-}
-body::before {
-  content: '';
-  position: fixed; inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-  pointer-events: none; z-index: 0; opacity: 0.5;
-}
+    :root {
+      --bg: #0A0E27;
+      --bg2: #1a1f3a;
+      --text: #FFFFFF;
+      --text-muted: #B0B0B0;
+      --accent: #e8ff47;
+      --accent-dark: #c8dd00;
+      --border: rgba(232, 255, 71, 0.1);
+    }
 
-/* LANG BAR */
-.lang-bar {
-  display: flex; justify-content: flex-end;
-  padding: 10px 16px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  position: relative; z-index: 1;
-}
-.lang-btn {
-  background: none; border: 1px solid var(--border2); border-radius: 8px;
-  padding: 5px 12px; font-family: var(--font-body);
-  font-size: 0.78rem; font-weight: 600; color: var(--muted2);
-  cursor: pointer; transition: all 0.2s;
-}
-.lang-btn:hover { border-color: var(--accent); color: var(--accent); }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 0;
+      margin: 0;
+      min-height: 100vh;
+    }
 
-/* HERO */
-.hero-wrap {
-  max-width: 480px; margin: 0 auto;
-  padding: 48px 20px 20px;
-  text-align: center; position: relative; z-index: 1;
-}
-.hero-glow {
-  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-  width: 320px; height: 320px;
-  background: radial-gradient(circle, rgba(232,255,71,0.07) 0%, transparent 65%);
-  pointer-events: none;
-}
-.hero-icon {
-  width: 72px; height: 72px; margin: 0 auto 20px;
-  animation: pulse 3s ease-in-out infinite;
-}
-@keyframes pulse {
-  0%,100% { filter: drop-shadow(0 0 12px rgba(232,255,71,0.3)); }
-  50% { filter: drop-shadow(0 0 28px rgba(232,255,71,0.6)); }
-}
-.hero-eyebrow {
-  font-family: var(--font-display); font-size: 0.7rem; font-weight: 700;
-  letter-spacing: 3px; text-transform: uppercase; color: var(--muted2); margin-bottom: 8px;
-}
-.hero-title {
-  font-family: var(--font-display); font-size: 3.4rem; font-weight: 900;
-  line-height: 0.95; letter-spacing: -1px; color: var(--text); margin-bottom: 14px;
-}
-.hero-title span { color: var(--accent); }
-.hero-sub {
-  font-size: 0.92rem; color: var(--muted2); line-height: 1.6;
-  max-width: 320px; margin: 0 auto 36px;
-}
+    /* ======================== SYNC STATUS BADGE ======================== */
+    #sync-status-badge {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: rgba(10, 14, 39, 0.9);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #999;
+      z-index: 999;
+      font-family: 'Montserrat', sans-serif;
+    }
 
-/* APPS */
-.apps-wrap {
-  max-width: 480px; margin: 0 auto;
-  padding: 0 16px 100px;
-  position: relative; z-index: 1;
-}
-.section-label {
-  font-family: var(--font-display); font-size: 0.68rem; font-weight: 700;
-  letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 14px;
-}
-.app-grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 36px; }
-.app-card {
-  background: var(--card); border: 1px solid var(--border); border-radius: 20px;
-  padding: 22px 20px; display: flex; align-items: center; gap: 18px;
-  cursor: pointer; text-decoration: none; color: inherit;
-  transition: transform 0.18s cubic-bezier(.4,0,.2,1), border-color 0.18s, box-shadow 0.18s;
-  position: relative; overflow: hidden; -webkit-tap-highlight-color: transparent;
-}
-.app-card::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-  opacity: 0; transition: opacity 0.2s;
-}
-.app-card:hover { transform: translateY(-3px); border-color: var(--border2); }
-.app-card:hover::before { opacity: 1; }
-.app-card:active { transform: scale(0.98); }
+    /* ======================== LOGIN MODAL ======================== */
+    .login-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      backdrop-filter: blur(5px);
+    }
 
-.card-shooting::before { background: linear-gradient(90deg, var(--miss), #ff8080); }
-.card-lagg::before    { background: linear-gradient(90deg, var(--carreau), #00cc80); }
-.card-dagbok::before  { background: linear-gradient(90deg, var(--accent), #c8dd00); }
-.card-tavling::before { background: linear-gradient(90deg, var(--traff), #ff8c00); }
+    .login-modal.hidden {
+      display: none;
+    }
 
-.app-icon-wrap {
-  width: 52px; height: 52px; border-radius: 14px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.6rem; flex-shrink: 0;
-}
-.app-card.card-shooting .app-icon-wrap { background: rgba(255,77,77,0.12); }
-.app-card.card-lagg .app-icon-wrap     { background: rgba(61,255,160,0.1); }
-.app-card.card-dagbok .app-icon-wrap   { background: rgba(232,255,71,0.1); }
-.app-card.card-tavling .app-icon-wrap  { background: rgba(245,200,66,0.12); }
+    .login-card {
+      background: linear-gradient(135deg, var(--bg) 0%, var(--bg2) 100%);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
 
-.app-info { flex: 1; min-width: 0; }
-.app-name {
-  font-family: var(--font-display); font-size: 1.15rem; font-weight: 800;
-  letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px;
-  display: flex; align-items: center; gap: 8px;
-}
-.app-desc { font-size: 0.82rem; color: var(--muted2); line-height: 1.4; }
-.app-badge {
-  font-family: var(--font-display); font-size: 0.6rem; font-weight: 700;
-  letter-spacing: 1.5px; text-transform: uppercase; padding: 3px 8px; border-radius: 6px;
-}
-.badge-live { background: rgba(61,255,160,0.15); color: var(--carreau); }
-.badge-soon { background: rgba(90,90,120,0.3); color: var(--muted2); }
-.badge-new  { background: rgba(232,255,71,0.15); color: var(--accent); }
+    .login-card h2 {
+      font-size: 28px;
+      font-weight: 900;
+      margin-bottom: 10px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
 
-.app-arrow { color: var(--muted); font-size: 1.2rem; transition: transform 0.2s, color 0.2s; flex-shrink: 0; }
-.app-card:hover .app-arrow { transform: translateX(4px); color: var(--accent); }
+    .login-card p {
+      color: var(--text-muted);
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
 
-/* STATS STRIP */
-.stats-strip {
-  display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 40px;
-}
-.strip-stat {
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: 14px; padding: 14px 10px; text-align: center;
-}
-.strip-val {
-  font-family: var(--font-display); font-size: 1.8rem; font-weight: 900;
-  color: var(--accent); letter-spacing: -0.5px; display: block;
-}
-.strip-lbl {
-  font-family: var(--font-display); font-size: 0.6rem; font-weight: 700;
-  letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted2);
-  margin-top: 2px; display: block;
-}
+    #trainer-code-input {
+      width: 100%;
+      padding: 14px;
+      border: 2px solid var(--border);
+      background: rgba(232, 255, 71, 0.05);
+      border-radius: 12px;
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 18px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      font-family: 'Montserrat', sans-serif;
+      transition: all 0.3s;
+      letter-spacing: 2px;
+    }
 
-/* FOOTER */
-.footer { text-align: center; padding: 0 16px 40px; position: relative; z-index: 1; }
-.footer p { font-size: 0.75rem; color: var(--muted); line-height: 1.8; }
-.footer a { color: var(--muted2); text-decoration: none; }
-.footer a:hover { color: var(--accent); }
+    #trainer-code-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: rgba(232, 255, 71, 0.1);
+    }
 
-/* ── INSTALL BANNER ── */
-#install-banner{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border2);padding:14px 16px calc(14px + env(safe-area-inset-bottom));z-index:30;flex-direction:row;align-items:center;gap:12px;}
-#install-banner.show{display:flex;}
-.install-text{flex:1;}
-.install-text strong{font-family:var(--font-display);font-size:0.95rem;font-weight:700;display:block;letter-spacing:0.5px;}
-.install-text span{font-size:0.78rem;color:var(--muted2);}
-.install-btn{background:var(--accent);color:#080810;border:none;padding:9px 18px;border-radius:10px;font-family:var(--font-display);font-size:0.85rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;cursor:pointer;flex-shrink:0;}
-.install-dismiss{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:4px;flex-shrink:0;}
-</style>
+    #login-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      border-radius: 12px;
+      font-weight: 900;
+      font-size: 16px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s;
+      box-shadow: 0 8px 30px rgba(232, 255, 71, 0.2);
+    }
+
+    #login-btn:hover {
+      background: var(--accent-dark);
+      box-shadow: 0 12px 40px rgba(232, 255, 71, 0.4);
+      transform: translateY(-2px);
+    }
+
+    #login-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .login-status {
+      margin-top: 15px;
+      font-size: 12px;
+      color: var(--text-muted);
+      min-height: 20px;
+    }
+
+    /* ======================== HEADER TRAINER INFO ======================== */
+    header .trainer-info {
+      position: absolute;
+      right: 20px;
+      top: 15px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    header .trainer-info strong {
+      color: var(--accent);
+    }
+
+    /* ======================== HEADER LOGOUT ======================== */
+    .logout-btn {
+      position: absolute;
+      right: 20px;
+      bottom: 15px;
+      padding: 6px 12px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .logout-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ======================== HEADER ======================== */
+    header {
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10, 14, 39, 0.8);
+      backdrop-filter: blur(10px);
+      sticky: top;
+      z-index: 1000;
+    }
+
+    .header-logo {
+      font-weight: 900;
+      font-size: 18px;
+      letter-spacing: 2px;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+
+    .lang-toggle {
+      display: flex;
+      gap: 8px;
+    }
+
+    .lang-btn {
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .lang-btn.active {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+
+    .lang-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ======================== HERO SECTION ======================== */
+    .hero {
+      padding: 50px 20px 60px;
+      text-align: center;
+      background: linear-gradient(135deg, var(--bg) 0%, var(--bg2) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(232, 255, 71, 0.1) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .hero-logo {
+      max-width: 120px;
+      width: 100%;
+      height: auto;
+      margin: 0 auto 20px;
+      display: block;
+    }
+
+    @media (min-width: 768px) {
+      .hero-logo {
+        max-width: 180px;
+        margin-bottom: 25px;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .hero-logo {
+        max-width: 220px;
+        margin-bottom: 30px;
+      }
+    }
+
+    .hero-emoji {
+      font-size: 80px;
+      margin-bottom: 20px;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .hero h1 {
+      font-size: 2.8rem;
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 15px;
+      letter-spacing: -1px;
+    }
+
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+
+    .cta-primary {
+      display: inline-block;
+      padding: 16px 40px;
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      border-radius: 50px;
+      font-weight: 900;
+      font-size: 16px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s;
+      box-shadow: 0 8px 30px rgba(232, 255, 71, 0.2);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .cta-primary:hover {
+      background: var(--accent-dark);
+      box-shadow: 0 12px 40px rgba(232, 255, 71, 0.4);
+      transform: translateY(-3px);
+    }
+
+    /* ======================== VALUE PROPS ======================== */
+    .value-props {
+      padding: 60px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 900;
+      margin-bottom: 40px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .props-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+      margin-bottom: 50px;
+    }
+
+    .prop-card {
+      background: rgba(232, 255, 71, 0.04);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 30px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+
+    .prop-card:hover {
+      background: rgba(232, 255, 71, 0.08);
+      border-color: var(--accent);
+      transform: translateY(-5px);
+    }
+
+    .prop-icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+    }
+
+    .prop-card h3 {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+      font-weight: 800;
+    }
+
+    .prop-card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* ======================== APP GRID ======================== */
+    .apps-section {
+      padding: 60px 20px;
+      background: rgba(232, 255, 71, 0.02);
+    }
+
+    .apps-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 900;
+      margin-bottom: 50px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .app-card {
+      background: rgba(232, 255, 71, 0.04);
+      border: 1px solid rgba(232, 255, 71, 0.15);
+      border-radius: 14px;
+      padding: 20px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .app-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(232, 255, 71, 0.05) 0%, transparent 70%);
+      border-radius: 50%;
+      transition: all 0.5s;
+      pointer-events: none;
+    }
+
+    .app-card:hover {
+      background: rgba(232, 255, 71, 0.08);
+      border-color: rgba(232, 255, 71, 0.3);
+      transform: translateY(-5px);
+    }
+
+    .app-card:hover::before {
+      top: -30%;
+      right: -30%;
+    }
+
+    .app-icon {
+      font-size: 2rem;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .app-info {
+      flex: 1;
+      min-width: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .app-name {
+      font-size: 1rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 3px;
+    }
+
+    .app-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .app-arrow {
+      color: var(--text-muted);
+      font-size: 1.2rem;
+      flex-shrink: 0;
+      transition: all 0.3s;
+      position: relative;
+      z-index: 1;
+    }
+
+    .app-card:hover .app-arrow {
+      color: var(--accent);
+      transform: translateX(4px);
+    }
+
+    /* DISABLED APP CARD */
+    .app-card-disabled {
+      background: rgba(100, 100, 120, 0.06);
+      border: 1px solid rgba(100, 100, 120, 0.2);
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .app-card-disabled:hover {
+      background: rgba(100, 100, 120, 0.06);
+      border-color: rgba(100, 100, 120, 0.2);
+      transform: none;
+    }
+
+    .app-status {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ======================== STATISTICS SECTION ======================== */
+    .stats-section {
+      padding: 60px 20px;
+      background: rgba(232, 255, 71, 0.02);
+    }
+
+    .stats-container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .stat-card {
+      background: rgba(232, 255, 71, 0.06);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 35px 25px;
+      text-align: center;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(232, 255, 71, 0.05) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .stat-card:hover {
+      background: rgba(232, 255, 71, 0.1);
+      border-color: var(--accent);
+      transform: translateY(-5px);
+    }
+
+    .stat-number {
+      font-size: 3rem;
+      font-weight: 900;
+      color: var(--accent);
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stat-label {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ======================== FAQ ======================== */
+    .faq-section {
+      padding: 60px 20px;
+      background: rgba(232, 255, 71, 0.02);
+    }
+
+    .faq-container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .faq-item {
+      margin-bottom: 15px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .faq-question {
+      padding: 18px;
+      background: rgba(232, 255, 71, 0.04);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.95rem;
+      letter-spacing: 0.5px;
+      transition: all 0.3s;
+    }
+
+    .faq-question:hover {
+      background: rgba(232, 255, 71, 0.08);
+    }
+
+    .faq-toggle {
+      color: var(--accent);
+      font-size: 1.3rem;
+      transition: transform 0.3s;
+    }
+
+    .faq-item.open .faq-toggle {
+      transform: rotate(180deg);
+    }
+
+    .faq-answer {
+      padding: 0 18px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s, padding 0.3s;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    .faq-item.open .faq-answer {
+      padding: 18px;
+      max-height: 500px;
+    }
+
+    /* ======================== FOOTER ======================== */
+    footer {
+      padding: 50px 20px;
+      text-align: center;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.8;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .footer-links a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+
+    .footer-links a:hover {
+      color: var(--accent-dark);
+      text-decoration: underline;
+    }
+
+    /* ======================== RESPONSIVE ======================== */
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 2rem;
+      }
+
+      .hero p {
+        font-size: 1rem;
+      }
+
+      .section-title {
+        font-size: 1.6rem;
+      }
+
+      .props-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .app-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .proof-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
 
-<div class="lang-bar">
-  <button class="lang-btn" onclick="toggleLang()" id="langBtn">🌐 EN</button>
+<!-- LOGIN MODAL -->
+<div id="login-modal" class="login-modal">
+  <div class="login-card">
+    <h2 data-sv="Tränarens Kod" data-en="Trainer Code" data-es="Código del Entrenador">Tränarens Kod</h2>
+    <p data-sv="Ange din unika kod för att logga in och synka din träningsdata" data-en="Enter your unique code to login and sync your training data" data-es="Ingresa tu código único para iniciar sesión y sincronizar tus datos">
+      Ange din unika kod för att logga in och synka din träningsdata
+    </p>
+    
+    <input 
+      type="text" 
+      id="trainer-code-input" 
+      placeholder="T.EX: GBGPETANQUE" 
+      maxlength="12"
+      autocomplete="off"
+    >
+    
+    <button id="login-btn" data-sv="LOGGA IN" data-en="LOGIN" data-es="INICIAR SESIÓN">LOGGA IN</button>
+    
+    <div class="login-status" id="login-status"></div>
+  </div>
 </div>
 
-<div class="hero-wrap">
-  <div class="hero-glow"></div>
-  <div class="hero-icon">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-      <defs>
-        <radialGradient id="boule" cx="38%" cy="32%" r="65%">
-          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/>
-          <stop offset="40%" stop-color="#e8ff47" stop-opacity="0.15"/>
-          <stop offset="100%" stop-color="#b8cc00" stop-opacity="0"/>
-        </radialGradient>
-        <radialGradient id="base" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="#d4e800"/>
-          <stop offset="60%" stop-color="#a8b800"/>
-          <stop offset="100%" stop-color="#6a7500"/>
-        </radialGradient>
-      </defs>
-      <circle cx="256" cy="256" r="240" fill="url(#base)" stroke="#e8ff47" stroke-width="8" opacity="0.95"/>
-      <circle cx="256" cy="256" r="240" fill="url(#boule)"/>
-      <circle cx="204" cy="190" r="38" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="14"/>
-      <path d="M 256 16 A 240 240 0 0 1 456 190" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="14" stroke-linecap="round"/>
-      <circle cx="220" cy="175" r="14" fill="rgba(255,255,255,0.35)"/>
-    </svg>
+<!-- SYNC STATUS BADGE -->
+<div id="sync-status-badge">📱 Offline</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-logo">🎪 PETANQUE</div>
+  <div class="trainer-info"></div>
+  <div class="lang-toggle">
+    <button class="lang-btn active" data-lang="sv">🇸🇪 SV</button>
+    <button class="lang-btn" data-lang="en">🇬🇧 EN</button> <button class="lang-btn" onclick="logout()" style="font-size:0.75rem">🚪 Logga ut</button>
+    <button class="lang-btn" data-lang="es">🇪🇸 ES</button>
   </div>
-  <p class="hero-eyebrow" data-sv="Träningsplattform" data-en="Training Platform">Träningsplattform</p>
-  <h1 class="hero-title">Petanque<br><span>Träning</span></h1>
-  <p class="hero-sub" data-sv="Välj en träningsapp nedan och börja förbättra ditt spel." data-en="Choose a training app below and start improving your game.">Välj en träningsapp nedan och börja förbättra ditt spel.</p>
-</div>
+</header>
 
-<div class="apps-wrap">
-
-  <p class="section-label" data-sv="Träningsappar" data-en="Training Apps">Träningsappar</p>
-  <div class="app-grid">
-
-    <a class="app-card card-shooting" href="skjuttraning.html">
-      <div class="app-icon-wrap">🎯</div>
-      <div class="app-info">
-        <div class="app-name">
-          <span data-sv="Skjutträning" data-en="Shooting">Skjutträning</span>
-          <span class="app-badge badge-live">Live</span>
-        </div>
-        <p class="app-desc" data-sv="Registrera miss, träff och carreau. Spåra precision per avstånd." data-en="Log miss, hit and carreau. Track precision per distance.">Registrera miss, träff och carreau. Spåra precision per avstånd.</p>
-      </div>
-      <span class="app-arrow">›</span>
-    </a>
-
-    <a class="app-card card-lagg" href="laggtraning.html">
-      <div class="app-icon-wrap">🪃</div>
-      <div class="app-info">
-        <div class="app-name">
-          <span data-sv="Läggträning" data-en="Pointing">Läggträning</span>
-          <span class="app-badge badge-new" data-sv="Ny" data-en="New">Ny</span>
-        </div>
-        <p class="app-desc" data-sv="Träna precision och avstånd. Mät hur nära du lägger boulerna." data-en="Train precision and distance. Measure how close you point.">Träna precision och avstånd. Mät hur nära du lägger boulerna.</p>
-      </div>
-      <span class="app-arrow">›</span>
-    </a>
-
-    <a class="app-card card-tavling" href="tavlingssimulator.html">
-      <div class="app-icon-wrap">🏆</div>
-      <div class="app-info">
-        <div class="app-name">
-          <span data-sv="Poängräknare" data-en="Scoreboard">Poängräknare</span>
-          <span class="app-badge badge-new" data-sv="Ny" data-en="New">Ny</span>
-        </div>
-        <p class="app-desc" data-sv="Digital poängräknare för singel och lag. Spela mot en kompis." data-en="Digital scoreboard for singles and teams. Play against a friend.">Digital poängräknare för singel och lag. Spela mot en kompis.</p>
-      </div>
-      <span class="app-arrow">›</span>
-    </a>
-
-    <a class="app-card card-dagbok" href="dagbok.html">
-      <div class="app-icon-wrap">📖</div>
-      <div class="app-info">
-        <div class="app-name">
-          <span data-sv="Träningsdagbok" data-en="Training Journal">Träningsdagbok</span>
-          <span class="app-badge badge-new" data-sv="Ny" data-en="New">Ny</span>
-        </div>
-        <p class="app-desc" data-sv="Logga dina pass, känsla och anteckningar. Se historiken i kalender." data-en="Log your sessions, mood and notes. View history in calendar.">Logga dina pass, känsla och anteckningar. Se historiken i kalender.</p>
-      </div>
-      <span class="app-arrow">›</span>
-    </a>
-
+<!-- HERO SECTION -->
+<section class="hero">
+  <div class="hero-content">
+    <!-- Responsive logo: 192px mobile, 512px desktop -->
+    <img 
+      class="hero-logo"
+      srcset="https://raw.githubusercontent.com/johanssonbvp/skyttetraning/main/icon-192.png 192w,
+              https://raw.githubusercontent.com/johanssonbvp/skyttetraning/main/icon-512.png 512w"
+      sizes="(max-width: 768px) 120px,
+             (max-width: 1024px) 180px,
+             220px"
+      src="https://raw.githubusercontent.com/johanssonbvp/skyttetraning/main/icon-512.png"
+      alt="Petanque Träning Logo"
+    >
+    <h1 data-sv="Spåra din utveckling. Träna smartare." data-en="Track your progress. Train smarter." data-es="Rastrea tu progreso. Entrena más inteligentemente.">
+      Spåra din utveckling. Träna smartare.
+    </h1>
+    <p data-sv="Din personliga träningscoach för petanque. Statistik, analyser och trendlinjer – helt gratis!" data-en="Your personal petanque coach. Statistics, analysis and trends – completely free!" data-es="Tu entrenador personal de petanca. Estadísticas, análisis y tendencias - ¡completamente gratis!">
+      Din personliga träningscoach för petanque. Statistik, analyser och trendlinjer – helt gratis!
+    </p>
+    <button class="cta-primary" onclick="document.querySelector('.apps-section').scrollIntoView({behavior:'smooth'})" 
+            data-sv="BÖRJA NU" data-en="START NOW" data-es="COMIENZA AHORA">
+      BÖRJA NU
+    </button>
   </div>
+</section>
 
-  <p class="section-label" data-sv="Din träning totalt" data-en="Your Total Training">Din träning totalt</p>
-  <div class="stats-strip">
-    <div class="strip-stat">
-      <span class="strip-val" id="totalSessions">–</span>
-      <span class="strip-lbl" data-sv="Sessioner" data-en="Sessions">Sessioner</span>
+<!-- VALUE PROPS -->
+<section class="value-props">
+  <h2 class="section-title" data-sv="Varför välja oss?" data-en="Why choose us?" data-es="¿Por qué elegirnos?">
+    Varför välja oss?
+  </h2>
+  <div class="props-grid">
+    <div class="prop-card">
+      <div class="prop-icon">📊</div>
+      <h3 data-sv="Spåra framsteg" data-en="Track Progress" data-es="Seguir Progreso">Spåra framsteg</h3>
+      <p data-sv="Se din utveckling över tid med detaljerad statistik och grafer" data-en="See your development over time with detailed stats and charts" data-es="Ve tu desarrollo a lo largo del tiempo con estadísticas y gráficos detallados">
+        Se din utveckling över tid med detaljerad statistik och grafer
+      </p>
     </div>
-    <div class="strip-stat">
-      <span class="strip-val" id="totalShots">–</span>
-      <span class="strip-lbl" data-sv="Skott" data-en="Shots">Skott</span>
+    <div class="prop-card">
+      <div class="prop-icon">⚡</div>
+      <h3 data-sv="Träna offline" data-en="Train Offline" data-es="Entrena Offline">Träna offline</h3>
+      <p data-sv="Appen fungerar utan internet – perfekt vid träningsbanan" data-en="Works without internet – perfect at the training grounds" data-es="Funciona sin Internet - perfecto en el campo de entrenamiento">
+        Appen fungerar utan internet – perfekt vid träningsbanan
+      </p>
     </div>
-    <div class="strip-stat">
-      <span class="strip-val" id="totalDays">–</span>
-      <span class="strip-lbl" data-sv="Träningsdagar" data-en="Training Days">Träningsdagar</span>
+    <div class="prop-card">
+      <div class="prop-icon">🎯</div>
+      <h3 data-sv="Fokuserad träning" data-en="Focused Training" data-es="Entrenamiento Enfocado">Fokuserad träning</h3>
+      <p data-sv="5 specialiserade appar för olika träningsmetoder och tävlingar" data-en="5 specialized apps for different training methods and competitions" data-es="5 aplicaciones especializadas para diferentes métodos de entrenamiento y competiciones">
+        5 specialiserade appar för olika träningsmetoder och tävlingar
+      </p>
     </div>
   </div>
+</section>
 
-</div>
+<!-- APPS SECTION -->
+<section class="apps-section">
+  <div class="apps-container">
+    <h2 class="section-title" data-sv="Träningsappar" data-en="Training Apps" data-es="Aplicaciones de Entrenamiento">
+      Träningsappar
+    </h2>
+    
+    <div class="app-grid">
+      <!-- App 1 -->
+      <a href="./skjuttraning.html" class="app-card">
+        <span class="app-icon">💥</span>
+        <div class="app-info">
+          <div class="app-name" data-sv="Skjutträning" data-en="Shooting Practice" data-es="Entrenamiento de Tiro">Skjutträning</div>
+          <div class="app-desc" data-sv="Träna skjutning och träffprocent" data-en="Train shooting accuracy" data-es="Entrena precisión de tiro">Träna skjutning och träffprocent</div>
+        </div>
+        <span class="app-arrow">→</span>
+      </a>
 
-<div class="footer">
-  <p><a href="https://petanquetraning.se">petanquetraning.se</a> &nbsp;·&nbsp; <span data-sv="Byggd för petanquespelare" data-en="Built for pétanque players">Byggd för petanquespelare</span></p>
-</div>
+      <!-- App 2 -->
+      <a href="./laggtraning.html" class="app-card">
+        <span class="app-icon">🏐</span>
+        <div class="app-info">
+          <div class="app-name" data-sv="Läggträning" data-en="Pointing Practice" data-es="Entrenamiento de Apuntación">Läggträning</div>
+          <div class="app-desc" data-sv="Träna läggning och avstånd" data-en="Train pointing and distance" data-es="Entrena apuntación y distancia">Träna läggning och avstånd</div>
+        </div>
+        <span class="app-arrow">→</span>
+      </a>
 
+      <!-- App 3 -->
+      <a href="./tavlingssimulator.html" class="app-card">
+        <span class="app-icon">🏆</span>
+        <div class="app-info">
+          <div class="app-name" data-sv="Poängräknare" data-en="Score Counter" data-es="Contador de Puntos">Poängräknare</div>
+          <div class="app-desc" data-sv="Digital match-räknare för matcher" data-en="Digital match counter" data-es="Contador digital de partidos">Digital match-räknare för matcher</div>
+        </div>
+        <span class="app-arrow">→</span>
+      </a>
+
+      <!-- App 4 -->
+      <a href="./dagbok.html" class="app-card">
+        <span class="app-icon">📓</span>
+        <div class="app-info">
+          <div class="app-name" data-sv="Träningsdagbok" data-en="Training Journal" data-es="Diario de Entrenamiento">Träningsdagbok</div>
+          <div class="app-desc" data-sv="Logga dina träningspass och framsteg" data-en="Log your training sessions" data-es="Registra tus sesiones de entrenamiento">Logga dina träningspass och framsteg</div>
+        </div>
+        <span class="app-arrow">→</span>
+      </a>
+
+      <!-- App 5 -->
+      <a href="./precisionsskytte.html" class="app-card">
+        <span class="app-icon">🎪</span>
+        <div class="app-info">
+          <div class="app-name" data-sv="Precisionsskytte" data-en="Precision Shooting" data-es="Tiro de Precisión">Precisionsskytte</div>
+          <div class="app-desc" data-sv="Tävlingssimulator enligt SBF-regler" data-en="Competition simulator" data-es="Simulador de competencia">Tävlingssimulator enligt SBF-regler</div>
+        </div>
+        <span class="app-arrow">→</span>
+      </a>
+<a href="./matchstatistik.html" class="app-card">
+        <span class="app-icon">🎪</span>
+        <div class="app-info">
+          <div class="app-name" data-sv="Matchstatistik" data-en="Match Shooting" data-es="Tiro de Precisión">Matchstatistik</div>
+          <div class="app-desc" data-sv="Tävlingssimulator enligt SBF-regler" data-en="Competition simulator" data-es="Simulador de competencia">Tävlingssimulator enligt SBF-regler</div>
+        </div>
+        <span class="app-arrow">→</span>
+      </a>
+
+        <span class="app-status">🚧 Under uppbyggnad</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATISTICS SECTION -->
+<section class="stats-section">
+  <div class="stats-container">
+    <h2 class="section-title" data-sv="Din statistik" data-en="Your Statistics" data-es="Tu Estadística">
+      Din statistik
+    </h2>
+    
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number" id="stat-sessions">0</div>
+        <div class="stat-label" data-sv="Träningspass" data-en="Training Sessions" data-es="Sesiones de Entrenamiento">Träningspass</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="stat-shots">0</div>
+        <div class="stat-label" data-sv="Skott" data-en="Shots" data-es="Disparos">Skott</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="stat-accuracy">0%</div>
+        <div class="stat-label" data-sv="Träffprocent" data-en="Accuracy" data-es="Precisión">Träffprocent</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section">
+  <div class="faq-container">
+    <h2 class="section-title" data-sv="Vanliga frågor" data-en="FAQ" data-es="Preguntas Frecuentes">
+      Vanliga frågor
+    </h2>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+        <span data-sv="Kostar appen något?" data-en="Does the app cost anything?" data-es="¿La aplicación cuesta algo?">Kostar appen något?</span>
+        <span class="faq-toggle">▼</span>
+      </div>
+      <div class="faq-answer">
+        <p data-sv="Nej! Petanque Träning är helt gratis. Ingen prenumeration, inga dolda kostnader. Allt du behöver för att spåra din utveckling är inkluderat." 
+           data-en="No! Petanque Training is completely free. No subscription, no hidden costs. Everything you need to track your progress is included." 
+           data-es="¡No! Petanque Training es completamente gratis. Sin suscripción, sin costos ocultos. Todo lo que necesitas para seguir tu progreso está incluido.">
+          Nej! Petanque Träning är helt gratis. Ingen prenumeration, inga dolda kostnader. Allt du behöver för att spåra din utveckling är inkluderat.
+        </p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+        <span data-sv="Fungerar appen utan internet?" data-en="Does the app work without internet?" data-es="¿Funciona la aplicación sin Internet?">Fungerar appen utan internet?</span>
+        <span class="faq-toggle">▼</span>
+      </div>
+      <div class="faq-answer">
+        <p data-sv="Ja! Appen är en PWA (Progressive Web App) som fungerar offline. Dina data sparas lokalt på enheten och synkroniseras när du är online igen." 
+           data-en="Yes! The app is a PWA (Progressive Web App) that works offline. Your data is saved locally on your device and synced when you're online again." 
+           data-es="¡Sí! La aplicación es una PWA (Aplicación Web Progresiva) que funciona sin conexión. Sus datos se guardan localmente en su dispositivo y se sincronizan cuando vuelva a estar en línea.">
+          Ja! Appen är en PWA (Progressive Web App) som fungerar offline. Dina data sparas lokalt på enheten och synkroniseras när du är online igen.
+        </p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+        <span data-sv="Vilka webbläsare stöds?" data-en="Which browsers are supported?" data-es="¿Qué navegadores son compatibles?">Vilka webbläsare stöds?</span>
+        <span class="faq-toggle">▼</span>
+      </div>
+      <div class="faq-answer">
+        <p data-sv="Appen fungerar på de flesta moderna webbläsare – Chrome, Firefox, Safari, Edge. Det fungerar bäst på mobil, men även på dator!" 
+           data-en="The app works on most modern browsers – Chrome, Firefox, Safari, Edge. It works best on mobile, but also on desktop!" 
+           data-es="La aplicación funciona en la mayoría de navegadores modernos: Chrome, Firefox, Safari, Edge. ¡Funciona mejor en dispositivo móvil, pero también en escritorio!">
+          Appen fungerar på de flesta moderna webbläsare – Chrome, Firefox, Safari, Edge. Det fungerar bäst på mobil, men även på dator!
+        </p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+        <span data-sv="Hur installerar jag appen?" data-en="How do I install the app?" data-es="¿Cómo instalo la aplicación?">Hur installerar jag appen?</span>
+        <span class="faq-toggle">▼</span>
+      </div>
+      <div class="faq-answer">
+        <p data-sv="Du kan använda den direkt i webbläsaren eller installera den som en egen app. På iOS/Android, se efter en 'Lägg till på hemskärm'-knapp i webbläsarens meny." 
+           data-en="You can use it directly in your browser or install it as a standalone app. On iOS/Android, look for an 'Add to Home Screen' button in your browser menu." 
+           data-es="Puedes usarlo directamente en tu navegador o instalarlo como una aplicación independiente. En iOS/Android, busca un botón 'Agregar a la pantalla de inicio' en el menú del navegador.">
+          Du kan använda den direkt i webbläsaren eller installera den som en egen app. På iOS/Android, se efter en 'Lägg till på hemskärm'-knapp i webbläsarens meny.
+        </p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+        <span data-sv="Är mina data säkra?" data-en="Are my data safe?" data-es="¿Están seguros mis datos?">Är mina data säkra?</span>
+        <span class="faq-toggle">▼</span>
+      </div>
+      <div class="faq-answer">
+        <p data-sv="Din data sparas lokalt på din enhet och krypteras. Vi samlar inte in personlig information eller använder dig för reklamändamål." 
+           data-en="Your data is saved locally on your device and encrypted. We don't collect personal information or use you for advertising purposes." 
+           data-es="Sus datos se guardan localmente en su dispositivo y se cifran. No recopilamos información personal ni lo usamos con fines publicitarios.">
+          Din data sparas lokalt på din enhet och krypteras. Vi samlar inte in personlig information eller använder dig för reklamändamål.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-links">
+    <a href="https://github.com/johanssonbvp/skyttetraning" target="_blank">GitHub</a>
+    <a href="mailto:par@example.com">Kontakt</a>
+    <a href="#privacy">Integritet</a>
+  </div>
+  <p data-sv="Gjord med ❤️ av Pär Johansson | © 2026 Petanque Träning" 
+     data-en="Made with ❤️ by Pär Johansson | © 2026 Petanque Training" 
+     data-es="Hecho con ❤️ por Pär Johansson | © 2026 Entrenamiento de Petanca">
+    Gjord med ❤️ av Pär Johansson | © 2026 Petanque Träning
+  </p>
+  <p style="margin-top: 15px; font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 15px;">
+    <strong data-sv="🔐 Proprietary" data-en="🔐 Proprietary" data-es="🔐 Propietario">🔐 Proprietary</strong>
+    <span data-sv="– Petanque Träning är skyddad intellectual property. All rights reserved. Unauthorized copying, modification or distribution of this application is prohibited." 
+          data-en="– Petanque Training is protected intellectual property. All rights reserved. Unauthorized copying, modification or distribution of this application is prohibited." 
+          data-es="– Entrenamiento de Petanca es propiedad intelectual protegida. Todos los derechos reservados. Se prohíbe la copia, modificación o distribución no autorizada de esta aplicación.">
+      – Petanque Träning är skyddad intellectual property. All rights reserved. Unauthorized copying, modification or distribution of this application is prohibited.
+    </span>
+  </p>
+</footer>
+
+<!-- FIREBASE CONFIG & SYNC MANAGER -->
+<script src="./sync-manager.js"></script>
 <script>
-// ── LANGUAGE ──
-let lang = localStorage.getItem('lang') || 'sv';
-function applyLang() {
-  document.querySelectorAll('[data-sv]').forEach(el => {
-    el.textContent = lang === 'sv' ? el.dataset.sv : el.dataset.en;
-  });
-  document.getElementById('langBtn').textContent = lang === 'sv' ? '🌐 EN' : '🌐 SV';
-  document.documentElement.lang = lang === 'sv' ? 'sv' : 'en';
-}
-function toggleLang() {
-  lang = lang === 'sv' ? 'en' : 'sv';
-  localStorage.setItem('lang', lang);
-  applyLang();
-}
-applyLang();
+  // Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyCwzdwGEjN5LVw3RSLz2dy7f70Reafbe2c",
+    authDomain: "databas-serie.firebaseapp.com",
+    databaseURL: "https://databas-serie-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "databas-serie",
+    storageBucket: "databas-serie.firebasestorage.app",
+    messagingSenderId: "672666417012",
+    appId: "1:672666417012:web:93613783fe51cd2ce81e21"
+  };
 
-// ── TOTAL STATS (aggregates all app data) ──
-function loadStats() {
-  let sessions = 0, shots = 0;
-  const days = new Set();
+  // Initialize SyncManager
+  initSyncManager(firebaseConfig);
 
-  // Skjutträning
-  try {
-    JSON.parse(localStorage.getItem('pt_history') || '[]').forEach(s => {
-      sessions++;
-      shots += (s.miss||0) + (s.traff||0) + (s.carreau||0);
-      if (s.date) days.add(s.date.split('T')[0]);
-    });
-  } catch(e){}
+  // ============ LOGIN HANDLER ============
+  async function handleLogin() {
+    const code = document.getElementById('trainer-code-input').value.trim().toUpperCase();
+    const btn = document.getElementById('login-btn');
+    const status = document.getElementById('login-status');
 
-  // Läggträning
-  try {
-    JSON.parse(localStorage.getItem('pt_lagg_history') || '[]').forEach(s => {
-      sessions++;
-      shots += (s.attempts||0);
-      if (s.date) days.add(s.date.split('T')[0]);
-    });
-  } catch(e){}
+    if (!code) {
+      status.textContent = '⚠️ Ange en kod';
+      return;
+    }
 
-  // Taktik
-  try {
-    JSON.parse(localStorage.getItem('pt_taktik_history') || '[]').forEach(s => {
-      sessions++;
-      if (s.date) days.add(s.date.split('T')[0]);
-    });
-  } catch(e){}
+    btn.disabled = true;
+    status.textContent = '⏳ Loggar in...';
 
-  document.getElementById('totalSessions').textContent = sessions || '0';
-  document.getElementById('totalShots').textContent = shots || '0';
-  document.getElementById('totalDays').textContent = days.size || '0';
-}
-loadStats();
-
-// ── INSTALL BANNER ──
-const _isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-const _isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-let _deferredPrompt = null;
-
-function _showBanner() {
-  if (_isStandalone || localStorage.getItem('pt_install_dismissed')) return;
-  const banner = document.getElementById('install-banner');
-  const btn = document.getElementById('install-action-btn');
-  if (_isIOS) {
-    document.getElementById('install-sub').textContent = lang === 'sv' ? 'Tryck för instruktioner' : 'Tap for instructions';
-    btn.textContent = lang === 'sv' ? 'Visa hur' : 'Show how';
-    btn.onclick = () => { document.getElementById('ios-install-modal').style.display='flex'; document.getElementById('ios-install-modal').classList.add('show'); };
-    banner.classList.add('show');
+    try {
+      await syncManager.login(code);
+      
+      // Dölj login-modal
+      document.getElementById('login-modal').classList.add('hidden');
+      
+      // Visa tränarinformation
+      document.querySelector('header .trainer-info').innerHTML = 
+        `<strong>${code}</strong> ✓`;
+      
+      status.textContent = '✅ Inloggad!';
+      console.log('✅ Login successful');
+    } catch (e) {
+      status.textContent = '❌ Fel vid inloggning';
+      console.error('Login failed:', e);
+    } finally {
+      btn.disabled = false;
+    }
   }
-}
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault(); _deferredPrompt = e;
-  if (_isStandalone || localStorage.getItem('pt_install_dismissed')) return;
-  const btn = document.getElementById('install-action-btn');
-  btn.textContent = lang === 'sv' ? 'Installera' : 'Install';
-  btn.onclick = () => { if (_deferredPrompt) { _deferredPrompt.prompt(); _deferredPrompt.userChoice.then(() => { _deferredPrompt = null; document.getElementById('install-banner').classList.remove('show'); }); } };
-  document.getElementById('install-banner').classList.add('show');
-});
-window.addEventListener('appinstalled', () => { document.getElementById('install-banner').classList.remove('show'); _deferredPrompt = null; });
-function dismissInstall() { document.getElementById('install-banner').classList.remove('show'); localStorage.setItem('pt_install_dismissed','1'); }
 
-_showBanner();
+  // Setup login button
+  document.getElementById('login-btn').addEventListener('click', handleLogin);
+  document.getElementById('trainer-code-input').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') handleLogin();
+  });
 
+  // Check if already logged in
+  window.addEventListener('DOMContentLoaded', () => {
+    const savedCode = localStorage.getItem('pt_trainer_code');
+    if (savedCode) {
+      syncManager.login(savedCode);
+      document.getElementById('login-modal').classList.add('hidden');
+      document.querySelector('header .trainer-info').innerHTML = 
+        `<strong>${savedCode}</strong> ✓`;
+    }
+  });
+
+  // Logout handler
+  function logout() {
+    syncManager.logout();
+    document.getElementById('login-modal').classList.remove('hidden');
+    document.getElementById('trainer-code-input').value = '';
+    document.querySelector('header .trainer-info').innerHTML = '';
+  }
+
+  // Listen to sync status changes
+  syncManager.onStatusChange((status) => {
+    console.log('📊 Sync Status:', status);
+  });
 </script>
 
-<!-- INSTALL BANNER -->
-<div id="install-banner">
-  <span style="font-size:2rem;flex-shrink:0">🎯</span>
-  <div class="install-text">
-    <strong data-sv="Installera appen" data-en="Install app">Installera appen</strong>
-    <span id="install-sub" data-sv="Lägg till på hemskärmen" data-en="Add to home screen">Lägg till på hemskärmen</span>
-  </div>
-  <button class="install-btn" id="install-action-btn" data-sv="Installera" data-en="Install">Installera</button>
-  <button class="install-dismiss" onclick="dismissInstall()">✕</button>
-</div>
+<!-- LANGUAGE SCRIPT -->
+<script>
+  const LANGS = {
+    sv: {}, en: {}, es: {}
+  };
 
-<!-- IOS INSTALL MODAL -->
-<div class="overlay" id="ios-install-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);backdrop-filter:blur(12px);z-index:50;justify-content:center;align-items:flex-end;padding:16px;">
-  <div style="background:var(--card);border:1px solid var(--border2);border-radius:24px;padding:28px 24px;width:100%;max-width:440px;animation:slideUp 0.3s cubic-bezier(.4,0,.2,1);">
-    <h2 style="font-family:var(--font-display);font-size:1.3rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:18px;">📲 <span data-sv="Installera på din enhet" data-en="Install on your device">Installera på din enhet</span></h2>
-    <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:20px;">
-      <div style="display:flex;align-items:flex-start;gap:12px;"><span style="font-size:1.4rem;flex-shrink:0">1️⃣</span><span style="font-size:0.9rem;color:var(--muted2);line-height:1.5;" data-sv="Öppna sidan i <strong style='color:var(--text)'>Safari</strong>" data-en="Open in <strong style='color:var(--text)'>Safari</strong>">Öppna sidan i <strong style="color:var(--text)">Safari</strong></span></div>
-      <div style="display:flex;align-items:flex-start;gap:12px;"><span style="font-size:1.4rem;flex-shrink:0">2️⃣</span><span style="font-size:0.9rem;color:var(--muted2);line-height:1.5;" data-sv="Tryck på <strong style='color:var(--text)'>dela-ikonen</strong> &#x2197; längst ner" data-en="Tap the <strong style='color:var(--text)'>share icon</strong> &#x2197; at the bottom">Tryck på <strong style="color:var(--text)">dela-ikonen</strong> &#x2197; längst ner</span></div>
-      <div style="display:flex;align-items:flex-start;gap:12px;"><span style="font-size:1.4rem;flex-shrink:0">3️⃣</span><span style="font-size:0.9rem;color:var(--muted2);line-height:1.5;" data-sv="Tryck <strong style='color:var(--text)'>"Lägg till på hemskärmen"</strong>" data-en="Tap <strong style='color:var(--text)'>'Add to Home Screen'</strong>">Tryck <strong style="color:var(--text)">"Lägg till på hemskärmen"</strong></span></div>
-      <div style="display:flex;align-items:flex-start;gap:12px;"><span style="font-size:1.4rem;flex-shrink:0">4️⃣</span><span style="font-size:0.9rem;color:var(--muted2);line-height:1.5;" data-sv="Tryck <strong style='color:var(--text)'>"Lägg till"</strong> – klart! 🎉" data-en="Tap <strong style='color:var(--text)'>'Add'</strong> – done! 🎉">Tryck <strong style="color:var(--text)">"Lägg till"</strong> – klart! 🎉</span></div>
-    </div>
-    <button onclick="document.getElementById('ios-install-modal').classList.remove('show');document.getElementById('ios-install-modal').style.display='none';dismissInstall();" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--border2);color:var(--text);border-radius:14px;padding:15px;font-family:var(--font-display);font-size:1rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;" data-sv="Stäng" data-en="Close">Stäng</button>
-  </div>
-</div>
+  // Load language data
+  document.querySelectorAll('[data-sv]').forEach(el => {
+    const sv = el.getAttribute('data-sv');
+    const en = el.getAttribute('data-en');
+    const es = el.getAttribute('data-es');
+    const key = sv + '|' + el.tagName;
+    LANGS.sv[key] = sv;
+    LANGS.en[key] = en;
+    LANGS.es[key] = es;
+  });
 
+  function setLanguage(lang) {
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-sv]').forEach(el => {
+      const key = el.getAttribute('data-sv') + '|' + el.tagName;
+      const text = LANGS[lang][key];
+      if (el.tagName === 'INPUT' || el.tagName === 'BUTTON' && el.getAttribute('data-sv')) {
+        el.setAttribute('data-sv', el.getAttribute('data-sv'));
+        el.textContent = text || el.getAttribute('data-sv');
+      } else {
+        el.textContent = text || el.getAttribute('data-sv');
+      }
+    });
+    
+    // Update active language button
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector(`[data-lang="${lang}"]`).classList.add('active');
+    
+    localStorage.setItem('lang', lang);
+  }
+
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => setLanguage(btn.getAttribute('data-lang')));
+  });
+
+  // Load Statistics from localStorage
+  function loadStatistics() {
+    const skjutHistory = JSON.parse(localStorage.getItem('pt_h') || '[]');
+    const laggHistory = JSON.parse(localStorage.getItem('pt_lagg_history') || '[]');
+    const daybookHistory = JSON.parse(localStorage.getItem('pt_dagbok') || '[]');
+
+    // Count sessions
+    const totalSessions = skjutHistory.length + laggHistory.length + daybookHistory.length;
+
+    // Count shots and hits
+    let totalShots = skjutHistory.reduce((sum, entry) => sum + (entry.shots || 0), 0);
+    let totalHits = skjutHistory.reduce((sum, entry) => sum + (entry.traff || 0), 0);
+
+    // Add lägg data
+    totalShots += laggHistory.reduce((sum, entry) => sum + (entry.total || 0), 0);
+    totalHits += laggHistory.reduce((sum, entry) => sum + (entry.success || 0), 0);
+
+    // Calculate accuracy
+    const avgAccuracy = totalShots > 0 ? Math.round((totalHits / totalShots) * 100) : 0;
+
+    // Update DOM
+    document.getElementById('stat-sessions').textContent = totalSessions;
+    document.getElementById('stat-shots').textContent = totalShots;
+    document.getElementById('stat-accuracy').textContent = avgAccuracy + '%';
+  }
+
+  // Initialize
+  const savedLang = localStorage.getItem('lang') || 'sv';
+  setLanguage(savedLang);
+  loadStatistics();
+</script>
+
+<script>
+function logout() {
+    if (confirm('Är du säker på att du vill logga ut?')) {
+        localStorage.removeItem('pt_trainer_code');
+        location.reload();
+    }
+}
+</script>
 </body>
 </html>

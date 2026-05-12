@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pétanque Pro – Admin</title>
+<style>
+  :root{--bg:#0d0f14;--bg2:#13161e;--bg3:#1a1e2a;--border:#252a38;--accent:#6366f1;--accent2:#818cf8;--gold:#f59e0b;--green:#22c55e;--red:#ef4444;--text:#e2e8f0;--muted:#64748b;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;}
+  ::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--bg2);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+  .login-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999;}
+  .login-box{background:var(--bg2);border:1px solid var(--border);border-radius:1rem;padding:2.5rem;width:100%;max-width:360px;display:flex;flex-direction:column;gap:1.25rem;align-items:center;}
+  .login-logo{font-size:1.4rem;font-weight:900;color:var(--accent2);text-align:center;}
+  .login-logo span{color:var(--gold);}
+  .login-subtitle{text-align:center;color:var(--muted);font-size:0.85rem;margin-top:-0.75rem;}
+  .login-error{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:var(--red);font-size:0.8rem;padding:0.5rem 0.75rem;border-radius:0.4rem;text-align:center;display:none;width:100%;}
+  .login-error.show{display:block;}
+  .login-spinner{text-align:center;color:var(--muted);font-size:0.85rem;display:none;}
+  .login-spinner.show{display:block;}
+  .btn-google{display:flex;align-items:center;justify-content:center;gap:0.75rem;background:#fff;color:#1f1f1f;border:1px solid #dadce0;border-radius:0.5rem;padding:0.75rem 1.5rem;font-size:0.95rem;font-weight:600;cursor:pointer;width:100%;transition:box-shadow 0.15s;}
+  .btn-google:hover{box-shadow:0 2px 8px rgba(0,0,0,0.2);}
+  .btn-google:disabled{opacity:0.5;cursor:not-allowed;}
+  .btn-google svg{width:20px;height:20px;flex-shrink:0;}
+  .app{display:flex;min-height:100vh;}
+  .sidebar{width:220px;min-width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:1.5rem 1rem;gap:0.5rem;position:sticky;top:0;height:100vh;overflow-y:auto;}
+  .main{flex:1;padding:2rem;overflow-x:hidden;}
+  @media(max-width:900px){.sidebar{display:none;}}
+  .sidebar-logo{font-size:1.1rem;font-weight:900;color:var(--accent2);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+  .sidebar-logo span{color:var(--gold);}
+  .nav-item{display:flex;align-items:center;gap:0.6rem;padding:0.55rem 0.75rem;border-radius:0.5rem;font-size:0.85rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all 0.15s;border:none;background:none;width:100%;text-align:left;}
+  .nav-item:hover{background:var(--bg3);color:var(--text);}
+  .nav-item.active{background:rgba(99,102,241,0.15);color:var(--accent2);}
+  .nav-dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;}
+  .nav-item.active .nav-dot{background:var(--accent);}
+  .nav-section{font-size:0.65rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin:1rem 0 0.3rem 0.75rem;}
+  .sidebar-footer{margin-top:auto;}
+  .sidebar-user{font-size:0.72rem;color:var(--muted);padding:0.4rem 0.75rem;margin-bottom:0.3rem;word-break:break-all;line-height:1.4;}
+  .btn-logout{width:100%;background:none;border:1px solid var(--border);color:var(--muted);border-radius:0.5rem;padding:0.45rem;font-size:0.78rem;font-weight:600;cursor:pointer;transition:all 0.15s;}
+  .btn-logout:hover{border-color:var(--red);color:var(--red);}
+  .card{background:var(--bg2);border:1px solid var(--border);border-radius:0.75rem;padding:1.5rem;box-shadow:0 4px 24px rgba(0,0,0,0.4);margin-bottom:1.5rem;}
+  .card-title{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:1rem;}
+  .setup-grid{display:grid;grid-template-columns:280px 1fr;gap:1.5rem;}
+  @media(max-width:900px){.setup-grid{grid-template-columns:1fr;}}
+  .input-row{display:flex;gap:0.5rem;margin-bottom:0.75rem;}
+  input[type="text"],input[type="number"],select{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:0.5rem;padding:0.55rem 0.75rem;font-size:0.9rem;outline:none;transition:border 0.15s;}
+  input[type="number"]{width:56px;text-align:center;padding:0.4rem 0.3rem;}
+  input:focus,select:focus{border-color:var(--accent);}
+  .btn{padding:0.55rem 1.1rem;border-radius:0.5rem;font-weight:700;font-size:0.85rem;border:none;cursor:pointer;transition:all 0.15s;}
+  .btn-primary{background:var(--accent);color:#fff;}
+  .btn-success{background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.3);}
+  .btn-danger{background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.2);}
+  .btn-ghost{background:var(--bg3);color:var(--muted);border:1px solid var(--border);}
+  .btn-xl{padding:1rem 2rem;font-size:1rem;border-radius:0.75rem;width:100%;margin-top:1rem;letter-spacing:0.05em;}
+  .hidden{display:none!important;}
+  .tabs{display:flex;gap:0.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .tab{padding:0.5rem 1rem;border-radius:0.5rem;font-size:0.85rem;font-weight:600;color:var(--muted);cursor:pointer;border:1px solid var(--border);background:var(--bg3);transition:all 0.15s;}
+  .tab.active{background:rgba(99,102,241,0.15);color:var(--accent2);border-color:var(--accent);}
+  .round-section{margin-bottom:1rem;}
+  .round-header{display:flex;align-items:center;justify-content:space-between;padding:0.6rem 1rem;background:var(--bg3);border:1px solid var(--border);border-radius:0.5rem 0.5rem 0 0;cursor:pointer;user-select:none;}
+  .round-header-left{display:flex;align-items:center;gap:0.75rem;font-weight:700;font-size:0.9rem;}
+  .round-progress{font-size:0.75rem;color:var(--muted);}
+  .round-body{border:1px solid var(--border);border-top:none;border-radius:0 0 0.5rem 0.5rem;overflow:hidden;}
+  .round-body.collapsed{display:none;}
+  .round-chevron{transition:transform 0.2s;color:var(--muted);font-size:0.8rem;}
+  .round-chevron.open{transform:rotate(180deg);}
+  .match-row{display:grid;align-items:center;padding:0.85rem 1rem;border-bottom:1px solid var(--border);gap:0.75rem;grid-template-columns:22px 1fr auto 1fr 10px;}
+  .match-row:last-child{border-bottom:none;}
+  .match-num{width:22px;height:22px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;color:var(--muted);flex-shrink:0;}
+  .match-team{font-weight:600;font-size:0.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .match-team.right{text-align:right;}
+  .match-status{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .match-status.done{background:var(--green);}
+  .match-status.pending{background:var(--border);}
+  .sets-input-area{display:flex;align-items:center;gap:0.5rem;flex-wrap:nowrap;}
+  .set-group{display:flex;align-items:center;gap:3px;position:relative;}
+  .set-group.disabled input{opacity:0.3;pointer-events:none;}
+  .set-label{font-size:0.6rem;font-weight:700;color:var(--muted);text-transform:uppercase;position:absolute;top:-14px;left:50%;transform:translateX(-50%);white-space:nowrap;}
+  .score-sep{color:var(--muted);font-weight:700;font-size:0.85rem;}
+  .set-divider{width:1px;height:28px;background:var(--border);margin:0 0.2rem;}
+  .standings-table{width:100%;border-collapse:collapse;font-size:0.85rem;}
+  .standings-table th{padding:8px 10px;text-align:left;color:var(--muted);font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;border-bottom:1px solid var(--border);}
+  .standings-table th.num{text-align:center;}
+  .standings-table td{padding:10px 10px;border-bottom:1px solid rgba(37,42,56,0.5);}
+  .standings-table td.num{text-align:center;}
+  .standings-table tr:last-child td{border-bottom:none;}
+  .rank-badge{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;}
+  .rank-1{background:rgba(245,158,11,0.2);color:var(--gold);}
+  .rank-2{background:rgba(148,163,184,0.15);color:#94a3b8;}
+  .rank-3{background:rgba(180,120,60,0.15);color:#b4783c;}
+  .rank-n{background:var(--bg3);color:var(--muted);}
+  .pts-badge{font-weight:800;color:var(--accent2);}
+  .bottom-bar{position:fixed;bottom:0;left:220px;right:0;background:rgba(13,15,20,0.9);backdrop-filter:blur(12px);border-top:1px solid var(--border);padding:0.75rem 2rem;display:flex;gap:1rem;justify-content:flex-end;z-index:100;}
+  @media(max-width:900px){.bottom-bar{left:0;}}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:500;backdrop-filter:blur(4px);}
+  .modal-box{background:var(--bg2);border:1px solid var(--border);border-radius:1rem;padding:2rem;width:100%;max-width:520px;display:flex;flex-direction:column;gap:1rem;max-height:90vh;overflow-y:auto;}
+  .modal-title{font-size:1rem;font-weight:800;}
+  .modal-section{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-top:0.5rem;}
+  .round-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:0.5rem;margin-top:0.4rem;}
+  .round-btn{background:var(--bg3);border:1px solid var(--border);color:var(--muted);border-radius:0.5rem;padding:0.5rem 0.75rem;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.15s;text-align:center;}
+  .round-btn:hover{border-color:var(--accent);color:var(--accent2);}
+  .div-select-list{display:flex;flex-direction:column;gap:0.4rem;margin-top:0.4rem;}
+  .div-select-item{background:var(--bg3);border:1px solid var(--border);color:var(--muted);border-radius:0.5rem;padding:0.55rem 0.85rem;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.15s;}
+  .div-select-item:hover{border-color:var(--accent);color:var(--accent2);}
+  .modal-actions{display:flex;gap:0.75rem;justify-content:flex-end;margin-top:0.5rem;}
+  .loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:998;flex-direction:column;gap:1rem;}
+  .loading-screen p{color:var(--muted);font-size:0.9rem;}
+  .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  #print-view-container{display:none;}
+  @media print{*{-webkit-print-color-adjust:exact;print-color-adjust:exact;}body{background:white!important;color:black!important;}.sidebar,.bottom-bar,.no-print,.login-overlay,.modal-overlay,.loading-screen,#setup-section,#active-leagues-section{display:none!important;}.app{display:block!important;}.main{padding:0!important;}#print-view-container{display:block!important;}.print-page{padding:30px 40px;page-break-after:always;background:white;}.print-page:last-child{page-break-after:auto;}.print-header{border-bottom:3px solid #1a1a2e;padding-bottom:12px;margin-bottom:22px;display:flex;justify-content:space-between;align-items:flex-end;}.print-header-left h1{font-size:22px;font-weight:900;color:#1a1a2e;margin-bottom:3px;}.print-header-left p{font-size:12px;color:#666;}.print-header-right{font-size:11px;color:#888;text-align:right;}.print-round{border:2px solid #1a1a2e;border-radius:8px;overflow:hidden;}.print-round-header{background:#1a1a2e;color:white;padding:10px 16px;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:0.08em;}.print-match{display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid #e5e7eb;gap:12px;}.print-match:last-child{border-bottom:none;}.print-match:nth-child(even){background:#f9fafb;}.print-match-num{width:24px;height:24px;background:#1a1a2e;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;}.print-team{font-weight:700;font-size:15px;flex:1;}.print-team.right{text-align:right;}.print-score-area{display:flex;align-items:center;gap:6px;flex-shrink:0;}.print-set-group{display:flex;align-items:center;gap:4px;}.print-score-box{width:32px;height:32px;border:2px solid #1a1a2e;border-radius:4px;display:inline-block;}.print-vs{font-size:10px;color:#999;font-weight:700;}.print-separator{color:#ccc;font-size:18px;margin:0 4px;}.print-table-page{padding:30px 40px;background:white;}.print-standings{width:100%;border-collapse:collapse;margin-top:16px;}.print-standings th{background:#1a1a2e;color:white;padding:10px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;}.print-standings th.num{text-align:center;}.print-standings td{padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;}.print-standings tr:nth-child(even) td{background:#f9fafb;}.print-standings td.num{text-align:center;font-weight:700;}.print-standings td.rank{font-weight:900;font-size:15px;width:36px;}.print-footer{margin-top:20px;font-size:10px;color:#aaa;text-align:right;}}
+</style>
+</head>
+<body>
+
+<div class="loading-screen" id="loading-screen"><div class="spinner"></div><p>Laddar…</p></div>
+
+<div class="login-overlay" id="login-overlay" style="display:none">
+  <div class="login-box">
+    <div class="login-logo">Pétanque <span>Pro</span></div>
+    <p class="login-subtitle">Adminåtkomst krävs</p>
+    <div class="login-error" id="login-error">Fel e-post eller lösenord.</div>
+    <div style="display:flex;flex-direction:column;gap:0.4rem;width:100%">
+      <label style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted)">E-post</label>
+      <input type="email" id="login-email" placeholder="din@email.se" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:0.5rem;padding:0.65rem 0.85rem;font-size:0.95rem;outline:none;" onkeydown="if(event.key==='Enter')tryLogin()">
+    </div>
+    <div style="display:flex;flex-direction:column;gap:0.4rem;width:100%">
+      <label style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted)">Lösenord</label>
+      <input type="password" id="login-pass" placeholder="••••••••" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:0.5rem;padding:0.65rem 0.85rem;font-size:0.95rem;outline:none;" onkeydown="if(event.key==='Enter')tryLogin()">
+    </div>
+    <button class="btn-google" id="login-btn" onclick="tryLogin()" style="background:var(--accent);color:#fff;border:none;">
+      Logga in
+    </button>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="print-modal">
+  <div class="modal-box">
+    <div class="modal-title">🖨 Välj vad du vill skriva ut</div>
+    <div><div class="modal-section">Omgångar – en omgång per papper</div><div id="print-modal-div-tabs" style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;"></div><div class="round-grid" id="print-modal-rounds"></div><div style="margin-top:0.5rem;"><button class="btn btn-ghost" style="width:100%" onclick="printAllRounds()">Alla omgångar</button></div></div>
+    <div><div class="modal-section">Tabell</div><div class="div-select-list" id="print-modal-tables"></div></div>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closePrintModal()">Avbryt</button></div>
+  </div>
+</div>
+
+<div class="app" id="app" style="display:none">
+  <nav class="sidebar no-print">
+    <div class="sidebar-logo">Pétanque <span>Pro</span></div>
+    <div class="nav-item active" id="nav-setup" onclick="showSection('setup')"><div class="nav-dot"></div> Inställningar</div>
+    <div id="nav-league-section" class="hidden"><div class="nav-section">Divisioner</div><div id="nav-divisions"></div></div>
+    <div class="sidebar-footer">
+      <div class="sidebar-user" id="sidebar-user"></div>
+      <button class="btn-logout" onclick="logout()">Logga ut</button>
+    </div>
+  </nav>
+  <main class="main">
+    <div id="print-view-container"></div>
+    <div id="setup-section">
+      <div style="margin-bottom:1.5rem;"><h1>Sätt upp seriespel</h1><p style="color:var(--muted);margin-top:0.3rem;">Format: Set-spel – bäst av 3 set till 13 poäng.</p></div>
+      <div class="setup-grid">
+        <div class="card"><div class="card-title">Divisioner</div><div class="input-row"><input type="text" id="div-input" placeholder="Namn" style="flex:1"><button class="btn btn-primary" onclick="addDivision()">Skapa</button></div><div id="div-list"></div></div>
+        <div class="card"><div class="card-title">Lägg till lag</div><div class="input-row"><input type="text" id="team-input" placeholder="Lagnamn" style="flex:1"><select id="div-select"><option value="">Välj division...</option></select><button class="btn btn-success" onclick="addTeam()">Lägg till</button></div><div id="division-preview"></div><button class="btn btn-primary btn-xl hidden" id="start-btn" onclick="generateTournament()">STARTA SERIESPELET</button></div>
+      </div>
+    </div>
+    <div id="active-leagues-section" class="hidden"><div id="active-content"></div></div>
+  </main>
+</div>
+
+<div id="bottom-bar" class="bottom-bar hidden no-print">
+  <button class="btn btn-ghost" onclick="openPrintModal()">🖨 Skriv ut</button>
+  <button class="btn btn-danger" onclick="resetAll()">Nollställ allt</button>
+</div>
+
+<!-- ═══ FIREBASE – REDIRECT (fixar GitHub Pages COOP-problem) ═══ -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey:            "AIzaSyCwzdwGEjN5LVw3RSLz2dy7f70Reafbe2c",
+    authDomain:        "databas-serie.firebaseapp.com",
+    databaseURL:       "https://databas-serie-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId:         "databas-serie",
+    storageBucket:     "databas-serie.firebasestorage.app",
+    messagingSenderId: "672666417012",
+    appId:             "1:672666417012:web:93613783fe51cd2ce81e21"
+  };
+
+  const fbApp = initializeApp(firebaseConfig);
+  const auth  = getAuth(fbApp);
+  const db    = getDatabase(fbApp);
+  window._signIn  = (email, pass) => signInWithEmailAndPassword(auth, email, pass);
+  window._signOut = () => signOut(auth);
+  window._saveState = (s) => set(ref(db,'petanque'), s);
+  window._loadState = async () => { const snap=await get(ref(db,'petanque')); return snap.exists()?snap.val():null; };
+
+  onAuthStateChanged(auth, async (user) => {
+    document.getElementById('loading-screen').style.display = 'none';
+    if (user) {
+      document.getElementById('sidebar-user').textContent = user.email;
+      document.getElementById('login-overlay').style.display = 'none';
+      document.getElementById('app').style.display = 'flex';
+      const saved = await window._loadState();
+      if (saved) window._initFromSaved(saved);
+      else window._initFresh();
+    } else {
+      document.getElementById('login-overlay').style.display = 'flex';
+      document.getElementById('app').style.display = 'none';
+    }
+  });
+</script>
+
+<script>
+let divisions=[], activeDivId=null, activePrintDivIdx=0;
+
+window._initFresh = function() { showSection('setup'); };
+window._initFromSaved = function(saved) {
+  divisions=(saved.divisions||[]).map(normalizeDivision);
+  if(divisions.length>0&&divisions[0].rounds&&divisions[0].rounds.length>0){activeDivId=divisions[0].id;showLeague();}
+  else{showSection('setup');updateSetupUI();}
+};
+
+function normalizeDivision(div){
+  div.rounds=(div.rounds||[]).map(round=>round.map(m=>({home:m.home,away:m.away,s1:m.s1||{h:null,a:null},s2:m.s2||{h:null,a:null},s3:m.s3||{h:null,a:null}})));
+  return div;
+}
+function saveState(){window._saveState({format:'sets',divisions});}
+
+function tryLogin(){
+  const email=document.getElementById('login-email').value.trim();
+  const pass=document.getElementById('login-pass').value;
+  const errEl=document.getElementById('login-error');
+  const btnEl=document.getElementById('login-btn');
+  if(!email||!pass){errEl.classList.add('show');return;}
+  errEl.classList.remove('show');
+  btnEl.disabled=true;btnEl.textContent='Loggar in…';
+  window._signIn(email,pass).catch(()=>{
+    errEl.classList.add('show');
+    btnEl.disabled=false;btnEl.textContent='Logga in';
+    document.getElementById('login-pass').value='';
+  });
+}
+function logout(){if(confirm('Logga ut?'))window._signOut();}
+
+function showSection(s){
+  document.getElementById('setup-section').classList.toggle('hidden',s!=='setup');
+  document.getElementById('active-leagues-section').classList.toggle('hidden',s!=='league');
+  document.getElementById('nav-setup').classList.toggle('active',s==='setup');
+}
+function showLeague(){
+  showSection('league');
+  document.getElementById('bottom-bar').classList.remove('hidden');
+  document.getElementById('nav-league-section').classList.remove('hidden');
+  buildNavDivisions();renderActiveLeague();
+}
+function buildNavDivisions(){
+  document.getElementById('nav-divisions').innerHTML=divisions.map(d=>
+    `<div class="nav-item ${activeDivId===d.id?'active':''}" onclick="switchDivision(${d.id})"><div class="nav-dot"></div>${d.name}</div>`
+  ).join('');
+}
+function switchDivision(id){activeDivId=id;buildNavDivisions();renderActiveLeague();}
+
+function addDivision(){
+  const name=document.getElementById('div-input').value.trim();if(!name)return;
+  divisions.push({id:Date.now(),name,teams:[],rounds:[]});
+  document.getElementById('div-input').value='';updateSetupUI();
+}
+function addTeam(){
+  const name=document.getElementById('team-input').value.trim();
+  const divId=parseInt(document.getElementById('div-select').value);
+  if(!name||!divId)return;
+  const div=divisions.find(d=>d.id===divId);if(div)div.teams.push(name);
+  document.getElementById('team-input').value='';updateSetupUI();
+}
+function updateSetupUI(){
+  document.getElementById('div-list').innerHTML=divisions.map(d=>
+    `<div style="background:var(--bg3);border:1px solid var(--border);padding:10px 12px;margin-bottom:5px;border-radius:0.5rem;font-size:0.85rem;"><strong>${d.name}</strong> <span style="color:var(--muted)">${d.teams.length} lag</span></div>`
+  ).join('');
+  document.getElementById('div-select').innerHTML='<option value="">Välj...</option>'+divisions.map(d=>`<option value="${d.id}">${d.name}</option>`).join('');
+  document.getElementById('division-preview').innerHTML=divisions.map(d=>`<div style="margin-bottom:0.5rem"><strong>${d.name}:</strong> <span style="color:var(--muted)">${d.teams.join(', ')||'–'}</span></div>`).join('');
+  document.getElementById('start-btn').classList.toggle('hidden',divisions.length===0);
+}
+function generateTournament(){
+  divisions.forEach(div=>{
+    const teams=[...div.teams];if(teams.length%2!==0)teams.push('Vilohelg');
+    const n=teams.length;div.rounds=[];
+    for(let j=0;j<n-1;j++){
+      const matches=[];
+      for(let i=0;i<n/2;i++)matches.push({home:teams[i],away:teams[n-1-i],s1:{h:null,a:null},s2:{h:null,a:null},s3:{h:null,a:null}});
+      div.rounds.push(matches);teams.splice(1,0,teams.pop());
+    }
+  });
+  activeDivId=divisions[0]?.id;saveState();showLeague();
+}
+
+function renderActiveLeague(){
+  const el=document.getElementById('active-content');
+  const div=divisions.find(d=>d.id===activeDivId);if(!div){el.innerHTML='';return;}
+  el.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:0.5rem;"><h2>${div.name}</h2></div>
+    <div class="tabs"><div class="tab active" id="tab-btn-matches" onclick="switchTab('matches')">📅 Spelprogram & Resultat</div><div class="tab" id="tab-btn-standings" onclick="switchTab('standings')">📊 Tabell</div></div>
+    <div id="tab-matches">${buildMatchesHTML(div)}</div>
+    <div id="tab-standings" class="hidden">${buildStandingsHTML(div)}</div>`;
+}
+function switchTab(tab){
+  document.getElementById('tab-btn-matches').classList.toggle('active',tab==='matches');
+  document.getElementById('tab-btn-standings').classList.toggle('active',tab==='standings');
+  document.getElementById('tab-matches').classList.toggle('hidden',tab!=='matches');
+  document.getElementById('tab-standings').classList.toggle('hidden',tab!=='standings');
+}
+
+function buildMatchesHTML(div){
+  return div.rounds.map((round,rIdx)=>{
+    const playable=round.filter(m=>m.home!=='Vilohelg'&&m.away!=='Vilohelg');
+    const done=playable.filter(m=>matchWinner(m)!==null).length;
+    const isOpen=rIdx===div.rounds.findIndex(r=>r.some(m=>m.home!=='Vilohelg'&&m.away!=='Vilohelg'&&matchWinner(m)===null));
+    return`<div class="round-section"><div class="round-header" onclick="toggleRound(this)"><div class="round-header-left"><span>Omgång ${rIdx+1}</span><span class="round-progress">${done}/${playable.length} klara</span></div><span class="round-chevron ${isOpen?'open':''}">▼</span></div><div class="round-body ${isOpen?'':'collapsed'}">${round.map((m,mIdx)=>buildMatchRow(div.id,rIdx,mIdx,m)).join('')}</div></div>`;
+  }).join('');
+}
+function toggleRound(h){h.nextElementSibling.classList.toggle('collapsed');h.querySelector('.round-chevron').classList.toggle('open');}
+
+function needsSet3(m){
+  if(m.s1.h===null||m.s1.a===null||m.s2.h===null||m.s2.a===null)return false;
+  return(m.s1.h>m.s1.a?'h':'a')!==(m.s2.h>m.s2.a?'h':'a');
+}
+function matchWinner(m){
+  if(m.home==='Vilohelg'||m.away==='Vilohelg')return null;
+  if(m.s1.h===null||m.s1.a===null||m.s2.h===null||m.s2.a===null)return null;
+  const w1=m.s1.h>m.s1.a?'h':'a',w2=m.s2.h>m.s2.a?'h':'a';
+  if(w1===w2)return w1;
+  if(m.s3.h===null||m.s3.a===null)return null;
+  return m.s3.h>m.s3.a?'h':'a';
+}
+function buildMatchRow(divId,rIdx,mIdx,m){
+  if(m.home==='Vilohelg'||m.away==='Vilohelg'){
+    const team=m.home==='Vilohelg'?m.away:m.home;
+    return`<div class="match-row"><div class="match-num">${mIdx+1}</div><div class="match-team">${team}</div><div style="text-align:center;color:var(--muted);font-size:0.8rem;font-style:italic">Vilohelg</div><div></div><div class="match-status pending"></div></div>`;
+  }
+  const did=`d${divId}_r${rIdx}_m${mIdx}`,winner=matchWinner(m),need3=needsSet3(m),s3dis=!need3;
+  let setSum='';
+  if(winner){let hS=0,aS=0;if(m.s1.h>m.s1.a)hS++;else aS++;if(m.s2.h>m.s2.a)hS++;else aS++;if(need3&&m.s3.h!==null){if(m.s3.h>m.s3.a)hS++;else aS++;}setSum=`<span style="font-size:0.75rem;color:var(--accent2);font-weight:800;margin:0 0.5rem">${hS}–${aS}</span>`;}
+  return`<div class="match-row" id="row_${did}">
+    <div class="match-num">${mIdx+1}</div>
+    <div class="match-team">${winner==='h'?'✓ ':''}<span style="${winner==='h'?'color:var(--green)':''}">${m.home}</span></div>
+    <div class="sets-input-area">
+      <div class="set-group" style="position:relative;padding-top:18px;"><span class="set-label">Set 1</span>
+        <input type="number" min="0" max="13" id="${did}_s1h" value="${m.s1.h!==null?m.s1.h:''}" placeholder="–" onchange="onScoreChange('${divId}',${rIdx},${mIdx})">
+        <span class="score-sep">–</span>
+        <input type="number" min="0" max="13" id="${did}_s1a" value="${m.s1.a!==null?m.s1.a:''}" placeholder="–" onchange="onScoreChange('${divId}',${rIdx},${mIdx})"></div>
+      <div class="set-divider" style="margin-top:18px"></div>
+      <div class="set-group" style="position:relative;padding-top:18px;"><span class="set-label">Set 2</span>
+        <input type="number" min="0" max="13" id="${did}_s2h" value="${m.s2.h!==null?m.s2.h:''}" placeholder="–" onchange="onScoreChange('${divId}',${rIdx},${mIdx})">
+        <span class="score-sep">–</span>
+        <input type="number" min="0" max="13" id="${did}_s2a" value="${m.s2.a!==null?m.s2.a:''}" placeholder="–" onchange="onScoreChange('${divId}',${rIdx},${mIdx})"></div>
+      <div class="set-divider" style="margin-top:18px"></div>
+      <div class="set-group ${s3dis?'disabled':''}" style="position:relative;padding-top:18px;" id="${did}_s3group"><span class="set-label" style="${s3dis?'color:var(--border)':''}">Set 3</span>
+        <input type="number" min="0" max="13" id="${did}_s3h" value="${m.s3.h!==null?m.s3.h:''}" placeholder="–" ${s3dis?'disabled':''} onchange="onScoreChange('${divId}',${rIdx},${mIdx})">
+        <span class="score-sep">–</span>
+        <input type="number" min="0" max="13" id="${did}_s3a" value="${m.s3.a!==null?m.s3.a:''}" placeholder="–" ${s3dis?'disabled':''} onchange="onScoreChange('${divId}',${rIdx},${mIdx})"></div>
+      ${setSum}
+    </div>
+    <div class="match-team right"><span style="${winner==='a'?'color:var(--red)':''}">${m.away}</span>${winner==='a'?' ✓':''}</div>
+    <div class="match-status ${winner?'done':'pending'}" id="status_${did}"></div>
+  </div>`;
+}
+
+function onScoreChange(divId,rIdx,mIdx){
+  const div=divisions.find(d=>d.id==divId),m=div.rounds[rIdx][mIdx];
+  const did=`d${divId}_r${rIdx}_m${mIdx}`;
+  const rv=(id)=>{const v=document.getElementById(id)?.value;return(v!==''&&v!=null)?parseInt(v):null;};
+  m.s1={h:rv(`${did}_s1h`),a:rv(`${did}_s1a`)};
+  m.s2={h:rv(`${did}_s2h`),a:rv(`${did}_s2a`)};
+  const need3=needsSet3(m);
+  const s3g=document.getElementById(`${did}_s3group`),s3h=document.getElementById(`${did}_s3h`),s3a=document.getElementById(`${did}_s3a`);
+  if(s3g)s3g.classList.toggle('disabled',!need3);
+  if(s3h){s3h.disabled=!need3;if(!need3)s3h.value='';}
+  if(s3a){s3a.disabled=!need3;if(!need3)s3a.value='';}
+  m.s3=need3?{h:rv(`${did}_s3h`),a:rv(`${did}_s3a`)}:{h:null,a:null};
+  const winner=matchWinner(m);
+  const dot=document.getElementById(`status_${did}`);
+  if(dot)dot.className=`match-status ${winner?'done':'pending'}`;
+  saveState();
+}
+
+// ─── INBÖRDES MÖTEN ──────────────────────────────────────────────────────────
+function headToHeadPoints(rounds, teamA, teamB) {
+  let ptsA=0, ptsB=0;
+  rounds.forEach(round=>round.forEach(m=>{
+    const isMatch=(m.home===teamA&&m.away===teamB)||(m.home===teamB&&m.away===teamA);
+    if(!isMatch)return;
+    const w=matchWinner(m);if(!w)return;
+    if((m.home===teamA&&w==='h')||(m.away===teamA&&w==='a'))ptsA+=2;
+    else ptsB+=2;
+  }));
+  return{ptsA,ptsB};
+}
+
+function buildStandingsHTML(div){
+  const stats={};
+  div.teams.filter(t=>t!=='Vilohelg').forEach(t=>{
+    stats[t]={name:t,played:0,wins:0,losses:0,setsFor:0,setsAgainst:0,kF:0,kA:0,pts:0};
+  });
+  div.rounds.forEach(round=>round.forEach(m=>{
+    const w=matchWinner(m);if(!w||!stats[m.home]||!stats[m.away])return;
+    let hS=0,aS=0,hK=0,aK=0;
+    [m.s1,m.s2,m.s3].forEach((s,i)=>{
+      if(!s||s.h===null||s.a===null)return;
+      if(i===2&&!needsSet3(m))return;
+      hK+=s.h;aK+=s.a;
+      if(s.h>s.a)hS++;else aS++;
+    });
+    stats[m.home].played++;stats[m.away].played++;
+    stats[m.home].setsFor+=hS;stats[m.home].setsAgainst+=aS;
+    stats[m.away].setsFor+=aS;stats[m.away].setsAgainst+=hS;
+    stats[m.home].kF+=hK;stats[m.home].kA+=aK;
+    stats[m.away].kF+=aK;stats[m.away].kA+=hK;
+    if(w==='h'){stats[m.home].wins++;stats[m.home].pts+=2;stats[m.away].losses++;}
+    else{stats[m.away].wins++;stats[m.away].pts+=2;stats[m.home].losses++;}
+  }));
+
+  const teams=Object.values(stats).map(s=>({...s,sd:s.setsFor-s.setsAgainst,kd:s.kF-s.kA}));
+  teams.sort((a,b)=>{
+    if(b.pts!==a.pts)return b.pts-a.pts;
+    if(b.wins!==a.wins)return b.wins-a.wins;
+    if(b.sd!==a.sd)return b.sd-a.sd;
+    if(b.kd!==a.kd)return b.kd-a.kd;
+    // Inbördes möten
+    const h2h=headToHeadPoints(div.rounds,a.name,b.name);
+    return h2h.ptsB-h2h.ptsA;
+  });
+
+  if(!teams.length)return'<p style="color:var(--muted);padding:1rem">Inga resultat ännu.</p>';
+  const rows=teams.map((t,i)=>{
+    const rc=i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-n';
+    return`<tr>
+      <td><span class="rank-badge ${rc}">${i+1}</span></td>
+      <td style="font-weight:600">${t.name}</td>
+      <td class="num">${t.played}</td>
+      <td class="num" style="color:var(--green)">${t.wins}</td>
+      <td class="num" style="color:var(--red)">${t.losses}</td>
+      <td class="num" style="color:${t.sd>0?'var(--green)':t.sd<0?'var(--red)':'var(--muted)'}">${t.sd>0?'+':''  }${t.sd}</td>
+      <td class="num" style="color:${t.kd>0?'var(--green)':t.kd<0?'var(--red)':'var(--muted)'}">${t.kd>0?'+':''  }${t.kd}</td>
+      <td class="num pts-badge">${t.pts}</td>
+    </tr>`;
+  }).join('');
+  return`<div style="overflow-x:auto"><table class="standings-table">
+    <thead><tr>
+      <th>#</th><th>Lag</th>
+      <th class="num">S</th><th class="num">V</th><th class="num">F</th>
+      <th class="num" title="Setskillnad">SS</th>
+      <th class="num" title="Klotdifferens">KD</th>
+      <th class="num">Pts</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+function openPrintModal(){buildPrintModal();document.getElementById('print-modal').classList.remove('hidden');}
+function closePrintModal(){document.getElementById('print-modal').classList.add('hidden');}
+function buildPrintModal(){
+  document.getElementById('print-modal-div-tabs').innerHTML=divisions.map((d,i)=>`<button class="round-btn" style="${i===activePrintDivIdx?'border-color:var(--accent);color:var(--accent2)':''}" onclick="activePrintDivIdx=${i};buildPrintModal()">${d.name}</button>`).join('');
+  const div=divisions[activePrintDivIdx];
+  document.getElementById('print-modal-rounds').innerHTML=div?div.rounds.map((_,rIdx)=>`<button class="round-btn" onclick="printRound(${activePrintDivIdx},${rIdx});closePrintModal()">Omgång ${rIdx+1}</button>`).join(''):'';
+  document.getElementById('print-modal-tables').innerHTML=divisions.map((d,i)=>`<button class="div-select-item" onclick="printTable(${i});closePrintModal()">📋 Tabell: ${d.name}</button>`).join('');
+}
+function printRound(divIdx,roundIdx){const div=divisions[divIdx];document.getElementById('print-view-container').innerHTML=buildRoundPage(div,div.rounds[roundIdx],roundIdx,div.rounds.length);window.print();document.getElementById('print-view-container').innerHTML='';}
+function buildRoundPage(div,round,roundIdx,totalRounds){
+  const now=new Date().toLocaleDateString('sv-SE');
+  return`<div class="print-page"><div class="print-header"><div class="print-header-left"><h1>${div.name} – Omgång ${roundIdx+1}</h1><p>Set-spel, bäst av 3 set till 13 &nbsp;·&nbsp; ${round.length} matcher</p></div><div class="print-header-right">Utskrivet: ${now}<br>Pétanque Pro</div></div><div class="print-round"><div class="print-round-header">Omgång ${roundIdx+1} av ${totalRounds}</div>${round.map((m,mIdx)=>`<div class="print-match"><div class="print-match-num">${mIdx+1}</div><div class="print-team right">${m.home}</div><div class="print-score-area"><div class="print-set-group"><div class="print-score-box"></div><span class="print-vs">–</span><div class="print-score-box"></div></div><span class="print-separator">|</span><div class="print-set-group"><div class="print-score-box"></div><span class="print-vs">–</span><div class="print-score-box"></div></div><span class="print-separator">|</span><div class="print-set-group"><div class="print-score-box"></div><span class="print-vs">–</span><div class="print-score-box"></div></div></div><div class="print-team">${m.away}</div></div>`).join('')}</div></div>`;
+}
+function printAllRounds(){closePrintModal();const div=divisions[activePrintDivIdx];document.getElementById('print-view-container').innerHTML=div.rounds.map((r,i)=>buildRoundPage(div,r,i,div.rounds.length)).join('');window.print();document.getElementById('print-view-container').innerHTML='';}
+function printTable(divIdx){
+  const div=divisions[divIdx],now=new Date().toLocaleDateString('sv-SE'),stats={};
+  div.teams.filter(t=>t!=='Vilohelg').forEach(t=>{stats[t]={name:t,played:0,wins:0,losses:0,setsFor:0,setsAgainst:0,pts:0};});
+  div.rounds.forEach(round=>round.forEach(m=>{const w=matchWinner(m);if(!w||!stats[m.home]||!stats[m.away])return;let hS=0,aS=0;if(m.s1.h>m.s1.a)hS++;else aS++;if(m.s2.h>m.s2.a)hS++;else aS++;if(needsSet3(m)&&m.s3.h!==null){if(m.s3.h>m.s3.a)hS++;else aS++;}stats[m.home].played++;stats[m.away].played++;stats[m.home].setsFor+=hS;stats[m.home].setsAgainst+=aS;stats[m.away].setsFor+=aS;stats[m.away].setsAgainst+=hS;if(w==='h'){stats[m.home].wins++;stats[m.home].pts+=2;stats[m.away].losses++;}else{stats[m.away].wins++;stats[m.away].pts+=2;stats[m.home].losses++;}}));
+  const sorted=Object.values(stats).sort((a,b)=>b.pts-a.pts||(b.setsFor-b.setsAgainst)-(a.setsFor-a.setsAgainst));
+  const rows=sorted.map((t,i)=>{const sd=t.setsFor-t.setsAgainst;return`<tr><td class="num rank">${i+1}</td><td>${t.name}</td><td class="num">${t.played}</td><td class="num">${t.wins}</td><td class="num">${t.losses}</td><td class="num">${sd>0?'+':''}${sd}</td><td class="num" style="font-weight:900">${t.pts}</td></tr>`;}).join('');
+  document.getElementById('print-view-container').innerHTML=`<div class="print-table-page"><div class="print-header"><div class="print-header-left"><h1>Tabell: ${div.name}</h1><p>Set-spel, bäst av 3</p></div><div class="print-header-right">Utskrivet: ${now}<br>Pétanque Pro</div></div><table class="print-standings"><thead><tr><th class="num">#</th><th>Lag</th><th class="num">S</th><th class="num">V</th><th class="num">F</th><th class="num">+/–</th><th class="num">Pts</th></tr></thead><tbody>${rows}</tbody></table><div class="print-footer">S=Spelade · V=Vinster · F=Förluster · +/–=Setskillnad · Pts=Poäng</div></div>`;
+  window.print();document.getElementById('print-view-container').innerHTML='';
+}
+
+async function resetAll(){
+  if(!confirm('Nollställ hela seriespelet? Detta går inte att ångra.'))return;
+  divisions=[];await window._saveState({format:'sets',divisions:[]});location.reload();
+}
+</script>
+</body>
+</html>

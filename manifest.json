@@ -1,0 +1,120 @@
+{
+  "id": "/",
+  "name": "Petanque Träning",
+  "short_name": "Petanque",
+  "description": "Träningsappar för petanquespelare - Skjutträning, läggträning, poängräknare och dagbok",
+  "start_url": "./index.html?utm_source=pwa",
+  "display": "standalone",
+  "background_color": "#080810",
+  "theme_color": "#080810",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "categories": ["sports", "health", "fitness"],
+  "lang": "sv-SE",
+  "dir": "auto",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "./screenshot-narrow-192x540.png",
+      "sizes": "192x540",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "./screenshot-wide-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Skjutträning",
+      "short_name": "Skytte",
+      "description": "Träna skjutning och följa precisionen per avstånd",
+      "url": "./skjuttraning.html?utm_source=pwa-shortcut",
+      "icons": [
+        {
+          "src": "./icon-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Läggträning",
+      "short_name": "Läggning",
+      "description": "Träna läggning, avståndszoner och 3-boulerserie",
+      "url": "./laggtraning.html?utm_source=pwa-shortcut",
+      "icons": [
+        {
+          "src": "./icon-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Poängräknare",
+      "short_name": "Match",
+      "description": "Digital poängräknare för singel och lag",
+      "url": "./tavlingssimulator.html?utm_source=pwa-shortcut",
+      "icons": [
+        {
+          "src": "./icon-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Träningsdagbok",
+      "short_name": "Dagbok",
+      "description": "Logga och följa dina träningspass",
+      "url": "./dagbok.html?utm_source=pwa-shortcut",
+      "icons": [
+        {
+          "src": "./icon-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "share_target": {
+    "action": "./index.html",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
+}

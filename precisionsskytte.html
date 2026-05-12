@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="sv">
+<script src="./storage-manager.js"></script> <script
+src="./lang-manager.js"></script> <script src="./offline-indicator.js"></script>
+<head>  
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Precisionsskytte – Petanque</title>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <!-- SyncManager -->
+  <script src="./sync-manager.js"></script>
+  <style>
+    #sync-status-badge {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      z-index: 999;
+      color: #999;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-weight: bold;
+    }
+  </style>
+  <title>
+<meta name="theme-color" content="#080810">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XT4NB1HR2J"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date()); gtag("config", "G-XT4NB1HR2J");
+</script>
+<style>
+:root {
+  --bg: #080810; --bg2: #0d0d1a; --surface: #111120;
+  --card: #161628; --card2: #1c1c34;
+  --border: rgba(255,255,255,0.06); --border2: rgba(255,255,255,0.12);
+  --text: #f0f0f8; --muted: #5a5a78; --muted2: #8888aa;
+  --accent: #e8ff47; --accent-dim: rgba(232,255,71,0.12); --accent-glow: rgba(232,255,71,0.3);
+  --p5: #3dffa0; --p3: #f5c842; --p1: #a78bfa; --p0: #ff4d4d;
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-body: 'Barlow', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-body); background: var(--bg); color: var(--text);
+  min-height: 100vh; overscroll-behavior-y: contain; touch-action: manipulation;
+}
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0; opacity: 0.5;
+}
+.top-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px; background: var(--surface);
+  border-bottom: 1px solid var(--border); position: relative; z-index: 10;
+}
+.back-link {
+  background: none; border: 1px solid var(--border2); border-radius: 8px;
+  padding: 5px 12px; font-family: var(--font-display); font-size: 0.78rem;
+  font-weight: 700; color: var(--muted2); text-decoration: none;
+  letter-spacing: 1px; text-transform: uppercase; transition: all 0.2s;
+  display: flex; align-items: center; gap: 6px;
+}
+.back-link:hover { border-color: var(--accent); color: var(--accent); }
+.top-title { font-family: var(--font-display); font-size: 0.95rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+.tab-bar {
+  display: flex; background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 20;
+}
+.tab-btn {
+  flex: 1; padding: 16px 8px; background: none; border: none;
+  border-bottom: 2px solid transparent; color: var(--muted);
+  font-family: var(--font-display); font-size: 0.9rem; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer;
+  transition: color 0.2s, border-color 0.2s; -webkit-tap-highlight-color: transparent;
+}
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.wrap { max-width: 480px; margin: 0 auto; padding: 24px 16px 120px; position: relative; z-index: 1; }
+
+/* STARTVY */
+.hero { text-align: center; padding: 40px 0 32px; position: relative; }
+.hero::before {
+  content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 260px; height: 260px;
+  background: radial-gradient(circle, rgba(232,255,71,0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-label { font-family: var(--font-display); font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 3px; text-transform: uppercase; color: var(--muted2); margin-bottom: 10px; }
+.hero-big { font-family: var(--font-display); font-size: 5rem; font-weight: 900;
+  line-height: 1; color: var(--accent); text-shadow: 0 0 60px var(--accent-glow); letter-spacing: -2px; }
+.hero-sub { font-size: 0.88rem; color: var(--muted2); margin-top: 12px; line-height: 1.6; }
+.start-btn {
+  display: block; width: 100%; background: var(--accent); color: #080810;
+  border: none; border-radius: 18px; padding: 20px;
+  font-family: var(--font-display); font-size: 1.2rem; font-weight: 900;
+  letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s; margin-top: 8px;
+  box-shadow: 0 4px 24px var(--accent-glow); -webkit-tap-highlight-color: transparent;
+}
+.start-btn:active { transform: scale(0.98); opacity: 0.9; }
+
+/* SPELVY */
+.game-header {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 18px 20px; margin-bottom: 16px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.total-lbl { font-family: var(--font-display); font-size: 0.68rem; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--muted2); margin-bottom: 4px; }
+.total-val { font-family: var(--font-display); font-size: 3.5rem; font-weight: 900;
+  color: var(--accent); letter-spacing: -2px; text-shadow: 0 0 30px var(--accent-glow); line-height: 1; }
+.shot-lbl { font-family: var(--font-display); font-size: 0.68rem; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--muted2); margin-bottom: 4px; text-align: right; }
+.shot-val { font-family: var(--font-display); font-size: 1.6rem; font-weight: 900; text-align: right; }
+.pills { display: flex; gap: 3px; margin-bottom: 16px; }
+.pill { flex: 1; height: 4px; background: var(--card2); border-radius: 999px; transition: background 0.2s; }
+.pill.done { background: var(--muted); }
+.pill.active { background: var(--accent); box-shadow: 0 0 6px var(--accent-glow); }
+
+/* STATION CARD */
+.station-card {
+  background: var(--card); border: 1px solid var(--border2);
+  border-radius: 20px; padding: 22px 20px; margin-bottom: 16px;
+  position: relative; overflow: hidden;
+}
+.station-top-bar { position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.st1 { background: linear-gradient(90deg,#6366f1,#a78bfa); }
+.st2 { background: linear-gradient(90deg,#f59e0b,#fcd34d); }
+.st3 { background: linear-gradient(90deg,#ef4444,#f97316); }
+.st4 { background: linear-gradient(90deg,#06b6d4,#3b82f6); }
+.st5 { background: linear-gradient(90deg,#3dffa0,#22c55e); }
+.station-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; margin-top: 4px; }
+.station-name { font-family: var(--font-display); font-size: 1.2rem; font-weight: 800; }
+.station-desc { font-size: 0.82rem; color: var(--muted2); margin-bottom: 16px; }
+.station-dist { font-family: var(--font-display); font-size: 2.8rem; font-weight: 900;
+  color: var(--accent); letter-spacing: -1px; line-height: 1; }
+.station-dist span { font-size: 1rem; color: var(--muted2); }
+.point-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn-point {
+  border-radius: 16px; padding: 16px 8px; border: 1.5px solid;
+  background: transparent; display: flex; flex-direction: column;
+  align-items: center; gap: 6px; cursor: pointer; text-align: center;
+  transition: transform 0.1s, opacity 0.15s; -webkit-tap-highlight-color: transparent;
+}
+.btn-point:active { transform: scale(0.95); opacity: 0.85; }
+.btn-point .pts { font-family: var(--font-display); font-size: 2.2rem; font-weight: 900; line-height: 1; }
+.btn-point .lbl { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.3; opacity: 0.85; }
+.bp5 { border-color: rgba(61,255,160,0.4); color: var(--p5); background: rgba(61,255,160,0.06); }
+.bp3 { border-color: rgba(245,200,66,0.4); color: var(--p3); background: rgba(245,200,66,0.06); }
+.bp1 { border-color: rgba(167,139,250,0.35); color: var(--p1); background: rgba(167,139,250,0.06); }
+.bp0 { border-color: rgba(255,77,77,0.35); color: var(--p0); background: rgba(255,77,77,0.06); }
+
+/* MODALS */
+.overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.88); backdrop-filter: blur(12px);
+  z-index: 50; justify-content: center; align-items: flex-end; padding: 16px;
+}
+.overlay.show { display: flex; }
+.sheet {
+  background: var(--card); border: 1px solid var(--border2); border-radius: 24px;
+  padding: 28px 24px; width: 100%; max-width: 440px;
+  margin-bottom: env(safe-area-inset-bottom);
+  animation: slideUp 0.3s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 -20px 60px rgba(0,0,0,0.5);
+}
+@keyframes slideUp { from{transform:translateY(50px);opacity:0;}to{transform:translateY(0);opacity:1;} }
+.sheet-title { font-family: var(--font-display); font-size: 1.3rem; font-weight: 800;
+  letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+.sheet-sub { color: var(--muted2); font-size: 0.85rem; margin-bottom: 14px; }
+.rule-row { display: flex; align-items: flex-start; gap: 10px;
+  background: var(--card2); border-radius: 10px; padding: 10px 12px; margin-bottom: 6px; }
+.rule-badge { font-family: var(--font-display); font-size: 1rem; font-weight: 900;
+  width: 32px; height: 32px; border-radius: 8px; display: flex;
+  align-items: center; justify-content: center; flex-shrink: 0; }
+.rb5{background:rgba(61,255,160,0.15);color:var(--p5);}
+.rb3{background:rgba(245,200,66,0.15);color:var(--p3);}
+.rb1{background:rgba(167,139,250,0.15);color:var(--p1);}
+.rb0{background:rgba(255,77,77,0.12);color:var(--p0);}
+.rule-text { color: var(--muted2); font-size: 0.8rem; line-height: 1.4; padding-top: 7px; }
+.mbtn {
+  border: none; border-radius: 14px; padding: 15px; width: 100%;
+  font-family: var(--font-display); font-size: 1rem; font-weight: 800;
+  letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s; -webkit-tap-highlight-color: transparent; margin-top: 8px;
+}
+.mbtn:active { transform: scale(0.98); opacity: 0.9; }
+.mbtn-accent { background: var(--accent); color: #080810; box-shadow: 0 4px 20px var(--accent-glow); }
+.mbtn-ghost { background: rgba(255,255,255,0.06); color: var(--text); border: 1px solid var(--border2); }
+.mbtn-danger { background: linear-gradient(135deg,#8b0000,#ff4d4d); color: white; }
+
+/* RESULTAT */
+.result-block { background: var(--card); border: 1px solid var(--border);
+  border-radius: 20px; padding: 32px 20px; text-align: center; margin-bottom: 16px; }
+.result-lbl { font-family: var(--font-display); font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--muted2); margin-bottom: 8px; }
+.result-score { font-family: var(--font-display); font-size: 7rem; font-weight: 900;
+  line-height: 1; color: var(--accent); text-shadow: 0 0 60px var(--accent-glow); letter-spacing: -3px; }
+.result-max { font-size: 0.88rem; color: var(--muted2); margin-top: 4px; }
+.result-grade { font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; margin-top: 12px; }
+
+/* STATISTIK */
+.ov-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 20px; }
+.ov-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px 8px; text-align: center; }
+.ov-card .sv { font-family: var(--font-display); font-size: 1.8rem; font-weight: 900; display: block; }
+.ov-card .sk { font-family: var(--font-display); font-size: 0.6rem; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted2); margin-top: 3px; display: block; }
+.hist-list { display: flex; flex-direction: column; gap: 8px; }
+.hist-item { background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+  padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
+.hist-score { font-family: var(--font-display); font-size: 2rem; font-weight: 900; letter-spacing: -1px; }
+.hist-date { font-size: 0.75rem; color: var(--muted2); margin-top: 3px; }
+.empty { text-align: center; color: var(--muted2); padding: 60px 20px; }
+.empty-icon { font-size: 3rem; margin-bottom: 14px; opacity: 0.6; }
+.empty p { font-size: 0.9rem; line-height: 1.7; }
+
+@keyframes bump{0%{transform:scale(1);}40%{transform:scale(1.22);}100%{transform:scale(1);}}
+.bump{animation:bump 0.2s cubic-bezier(.4,0,.2,1);}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a class="back-link" href="index.html">← Hem</a>
+  <span class="top-title">🎯 Precisionsskytte</span>
+  <div style="width:80px"></div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('training',this)">Träning</button>
+  <button class="tab-btn" onclick="switchTab('stats',this)">Statistik</button>
+</div>
+
+<!-- TRÄNING -->
+<div id="tab-training" class="tab-content active">
+  <div class="wrap">
+
+    <!-- Startvy -->
+    <div id="view-start">
+      <div class="hero">
+        <div class="hero-label">Svenska regler §1.4</div>
+        <div class="hero-big">100p</div>
+        <div class="hero-sub">20 skott · 5 stationer · 4 avstånd<br>6m · 7m · 8m · 9m</div>
+      </div>
+      <button class="start-btn" onclick="startGame()">Starta ny serie</button>
+    </div>
+
+    <!-- Spelvy -->
+    <div id="view-game" style="display:none">
+      <div class="game-header">
+        <div>
+          <div class="total-lbl">Totalt</div>
+          <div class="total-val" id="game-total">0</div>
+        </div>
+        <div>
+          <div class="shot-lbl">Skott</div>
+          <div class="shot-val" id="shot-count">1 / 20</div>
+        </div>
+      </div>
+      <div class="pills" id="pills-container"></div>
+      <div id="station-card-area"></div>
+      <button class="mbtn mbtn-ghost" onclick="confirmAbort()">Avbryt serie</button>
+    </div>
+
+    <!-- Resultatvy -->
+    <div id="view-results" style="display:none">
+      <div class="result-block">
+        <div class="result-lbl">Slutresultat</div>
+        <div class="result-score" id="res-score">0</div>
+        <div class="result-max">av 100 möjliga poäng</div>
+        <div class="result-grade" id="res-grade"></div>
+      </div>
+      <button class="start-btn" onclick="startGame()">Ny serie</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- STATISTIK -->
+<div id="tab-stats" class="tab-content">
+  <div class="wrap">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <span style="font-family:var(--font-display);font-size:1.3rem;font-weight:800;letter-spacing:2px;text-transform:uppercase">Statistik</span>
+      <button onclick="clearHistory()" style="background:none;border:1px solid var(--border2);color:var(--muted2);font-family:var(--font-body);font-size:0.72rem;font-weight:600;padding:6px 12px;border-radius:8px;cursor:pointer">Rensa allt</button>
+    </div>
+    <div class="ov-cards">
+      <div class="ov-card"><span class="sv" id="ov-sessions" style="color:var(--accent)">0</span><span class="sk">Serier</span></div>
+      <div class="ov-card"><span class="sv" id="ov-avg" style="color:var(--p5)">–</span><span class="sk">Snitt</span></div>
+      <div class="ov-card"><span class="sv" id="ov-best" style="color:var(--p3)">–</span><span class="sk">Bästa</span></div>
+    </div>
+    <div class="hist-list" id="hist-list"></div>
+  </div>
+</div>
+
+<!-- Station info modal -->
+<div class="overlay" id="station-modal">
+  <div class="sheet">
+    <div class="sheet-title" id="modal-title"></div>
+    <div class="sheet-sub" id="modal-sub"></div>
+    <div id="modal-rules"></div>
+    <button class="mbtn mbtn-accent" onclick="closeModal()">Starta station</button>
+  </div>
+</div>
+
+<!-- Avbryt-bekräftelse -->
+<div class="overlay" id="abort-modal">
+  <div class="sheet">
+    <div class="sheet-title">Avbryt serie?</div>
+    <div class="sheet-sub">Pågående serie sparas inte.</div>
+    <button class="mbtn mbtn-danger" onclick="abortGame()">Ja, avbryt</button>
+    <button class="mbtn mbtn-ghost" onclick="document.getElementById('abort-modal').classList.remove('show')">Fortsätt spela</button>
+  </div>
+</div>
+
+<script>
+const STATIONS = [
+  { name:"Station 1", desc:"Ensamt klot", info:"Målklotet ligger ensamt i mitten av cirkeln.",
+    rules:[{pts:5,label:"Mål ut, skytte kvar (Carreau)"},{pts:3,label:"Träff – båda ut ur cirkeln"},{pts:1,label:"Touch – mål stannar kvar i cirkeln"},{pts:0,label:"Miss"}] },
+  { name:"Station 2", desc:"Klot bakom lillen", info:"Lillen ligger 10 cm framför målklotet.",
+    rules:[{pts:5,label:"Mål ut, skytte kvar – ingen nudd av lillen"},{pts:3,label:"Träff – båda ut, ingen nudd av lillen"},{pts:1,label:"Mål kvar ELLER nudd av lillen efter träff"},{pts:0,label:"Miss eller nudd av lillen före träff"}] },
+  { name:"Station 3", desc:"Klot mellan klot", info:"Målklot mellan två hinderklot med 3 cm lucka.",
+    rules:[{pts:5,label:"Mål ut, skytte kvar – ingen nudd av hinder"},{pts:3,label:"Träff – båda ut, ingen nudd av hinder"},{pts:1,label:"Mål kvar ELLER nudd av hinder efter träff"},{pts:0,label:"Miss eller hinderklot lämnar cirkeln"}] },
+  { name:"Station 4", desc:"Klot bakom klot", info:"Hinderklot ligger 10 cm framför målklotet.",
+    rules:[{pts:5,label:"Mål ut, skytte kvar – ingen nudd av hinder"},{pts:3,label:"Träff – båda ut, ingen nudd av hinder"},{pts:1,label:"Mål kvar ELLER nudd av hinder efter träff"},{pts:0,label:"Miss eller nudd av hinder före träff"}] },
+  { name:"Station 5", desc:"Lillen", info:"Lillen ligger ensam i cirkeln, 20 cm från kanten.",
+    rules:[{pts:5,label:"Träff – lillen lämnar cirkeln"},{pts:3,label:"Touch – lillen flyttas men stannar kvar"},{pts:0,label:"Miss"}] },
+];
+const DISTANCES=[6,7,8,9];
+const STBAR=['st1','st2','st3','st4','st5'];
+const RBCLS={5:'rb5',3:'rb3',1:'rb1',0:'rb0'};
+const BPCLS={5:'bp5',3:'bp3',1:'bp1',0:'bp0'};
+
+let currentShotIndex=0, scores=[];
+let history=JSON.parse(localStorage.getItem('pt_precision_v2')||'[]');
+
+function switchTab(name,btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='stats') renderStats();
+}
+
+function showGameView(v){
+  ['start','game','results'].forEach(n=>{
+    document.getElementById('view-'+n).style.display=(n===v)?'block':'none';
+  });
+}
+
+function startGame(){
+  currentShotIndex=0; scores=[];
+  showGameView('game');
+  showStationModal(0);
+  updateUI();
+}
+
+function showStationModal(stIdx){
+  const s=STATIONS[stIdx];
+  document.getElementById('modal-title').textContent=s.name+' – '+s.desc;
+  document.getElementById('modal-sub').textContent=s.info;
+  document.getElementById('modal-rules').innerHTML=s.rules.map(r=>
+    `<div class="rule-row">
+      <div class="rule-badge ${RBCLS[r.pts]}">${r.pts}</div>
+      <div class="rule-text">${r.label}</div>
+    </div>`
+  ).join('');
+  document.getElementById('station-modal').classList.add('show');
+}
+
+function closeModal(){document.getElementById('station-modal').classList.remove('show');}
+
+function updateUI(){
+  const stIdx=Math.floor(currentShotIndex/4);
+  const distIdx=currentShotIndex%4;
+  const s=STATIONS[stIdx];
+  const d=DISTANCES[distIdx];
+  const total=scores.reduce((a,b)=>a+b,0);
+
+  const el=document.getElementById('game-total');
+  el.textContent=total;
+  el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump');
+  document.getElementById('shot-count').textContent=`${currentShotIndex+1} / 20`;
+
+  document.getElementById('pills-container').innerHTML=
+    Array.from({length:20},(_,i)=>
+      `<div class="pill${i===currentShotIndex?' active':i<currentShotIndex?' done':''}"></div>`
+    ).join('');
+
+  document.getElementById('station-card-area').innerHTML=`
+    <div class="station-card">
+      <div class="station-top-bar ${STBAR[stIdx]}"></div>
+      <div class="station-header">
+        <div>
+          <div class="station-name">${s.name} – ${s.desc}</div>
+          <div class="station-desc">Avstånd ${distIdx+1} av 4</div>
+        </div>
+        <div class="station-dist">${d}<span>m</span></div>
+      </div>
+      <div class="point-grid">
+        ${s.rules.map(r=>`
+          <button class="btn-point ${BPCLS[r.pts]}" onclick="recordShot(${r.pts})">
+            <span class="pts">${r.pts}</span>
+            <span class="lbl">${r.label.split(' –')[0].split(' (')[0]}</span>
+          </button>`).join('')}
+      </div>
+    </div>`;
+}
+
+function recordShot(pts){
+  scores.push(pts);
+  if(window.navigator.vibrate) navigator.vibrate(30);
+  const oldSt=Math.floor(currentShotIndex/4);
+  if(currentShotIndex<19){
+    currentShotIndex++;
+    const newSt=Math.floor(currentShotIndex/4);
+    if(newSt!==oldSt) showStationModal(newSt);
+    updateUI();
+  } else {
+    finishGame();
+  }
+}
+
+function finishGame(){
+  const total=scores.reduce((a,b)=>a+b,0);
+  history.unshift({date:Date.now(),score:total});
+  localStorage.setItem('pt_precision_v2',JSON.stringify(history.slice(0,50)));
+  document.getElementById('res-score').textContent=total;
+  const g=grade(total);
+  document.getElementById('res-grade').innerHTML=`<span style="color:${g.color}">${g.text}</span>`;
+  showGameView('results');
+}
+
+function grade(s){
+  if(s>=90)return{text:'Utmärkt',color:'var(--p5)'};
+  if(s>=70)return{text:'Mycket bra',color:'var(--p5)'};
+  if(s>=50)return{text:'Bra',color:'var(--p3)'};
+  if(s>=30)return{text:'Godkänt',color:'var(--p1)'};
+  return{text:'Fortsätt träna!',color:'var(--muted2)'};
+}
+
+function confirmAbort(){document.getElementById('abort-modal').classList.add('show');}
+function abortGame(){
+  document.getElementById('abort-modal').classList.remove('show');
+  showGameView('start');
+}
+
+function renderStats(){
+  if(!history.length){
+    document.getElementById('ov-sessions').textContent='0';
+    document.getElementById('ov-avg').textContent='–';
+    document.getElementById('ov-best').textContent='–';
+    document.getElementById('hist-list').innerHTML=`
+      <div class="empty"><div class="empty-icon">🎯</div>
+      <p>Inga serier sparade ännu.<br>Slutför en träning för att se din statistik.</p></div>`;
+    return;
+  }
+  const n=history.length;
+  const avg=Math.round(history.reduce((a,e)=>a+e.score,0)/n);
+  const best=Math.max(...history.map(e=>e.score));
+  document.getElementById('ov-sessions').textContent=n;
+  document.getElementById('ov-avg').textContent=avg;
+  document.getElementById('ov-best').textContent=best;
+  document.getElementById('hist-list').innerHTML=history.map(e=>{
+    const d=new Date(e.date);
+    const g=grade(e.score);
+    return`<div class="hist-item">
+      <div>
+        <div style="font-family:var(--font-display);font-size:1rem;font-weight:700">Precisionsserie</div>
+        <div class="hist-date">${d.toLocaleDateString('sv-SE')} ${d.toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'})}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="hist-score" style="color:${g.color}">${e.score}</div>
+        <div style="font-family:var(--font-display);font-size:0.7rem;font-weight:700;color:${g.color}">${g.text}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function clearHistory(){
+  if(!confirm('Rensa all historik för precisionsskytte?')) return;
+  history=[];
+  localStorage.removeItem('pt_precision_v2');
+  renderStats();
+}
+
+showGameView('start');
+</script>
+<div id="sync-status-badge">📱 Offline</div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCwzdwGEjN5LVw3RSLz2dy7f70Reafbe2c",
+    authDomain: "databas-serie.firebaseapp.com",
+    databaseURL: "https://databas-serie-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "databas-serie",
+    storageBucket: "databas-serie.firebasestorage.app",
+    messagingSenderId: "672666417012",
+    appId: "1:672666417012:web:93613783fe51cd2ce81e21"
+  };
+
+  if (typeof initSyncManager !== 'undefined') {
+    initSyncManager(firebaseConfig);
+    
+    syncManager.onStatusChange((status) => {
+      const badge = document.getElementById('sync-status-badge');
+      if (!badge) return;
+
+      let icon = '📱';
+      let text = 'Lokalt';
+      let color = '#999';
+
+      if (!navigator.onLine) {
+        icon = '📵';
+        text = 'Offline';
+        color = '#ff6b6b';
+      } else if (status.status === 'syncing') {
+        icon = '⏳';
+        text = 'Synkar...';
+        color = '#e8ff47';
+      } else if (status.queueLength > 0) {
+        icon = '⏳';
+        text = status.queueLength + ' väntande';
+        color = '#ffa500';
+      } else if (status.status === 'idle') {
+        icon = '☁️';
+        text = 'Synkat';
+        color = '#4caf50';
+      }
+
+      badge.textContent = icon + ' ' + text;
+      badge.style.color = color;
+    });
+  }
+</script>
+
+<!-- Firebase Config & Sync Manager -->
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCwzdwGEjN5LVw3RSLz2dy7f70Reafbe2c",
+    authDomain: "databas-serie.firebaseapp.com",
+    databaseURL: "https://databas-serie-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "databas-serie",
+    storageBucket: "databas-serie.firebasestorage.app",
+    messagingSenderId: "672666417012",
+    appId: "1:672666417012:web:93613783fe51cd2ce81e21"
+  };
+  
+  if (typeof initSyncManager === 'function') {
+    initSyncManager(firebaseConfig);
+  }
+</script>
+</body>
+</html>

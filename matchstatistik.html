@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matchstatistik</title>
+    <meta name="theme-color" content="#e8ff47">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="petanquelogo.png">
+    <link rel="apple-touch-icon" href="icon192.png">
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0A0E27 0%, #1a1f3a 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .container { max-width: 1000px; margin: 0 auto; }
+
+        /* HEADER */
+        header {
+            text-align: center; padding: 1.25rem;
+            background: rgba(232,255,71,0.05);
+            border: 1px solid rgba(232,255,71,0.2);
+            border-radius: 12px; margin-bottom: 1.5rem; margin-top: 0.5rem;
+        }
+        header h1 { font-size: 26px; color: #e8ff47; font-weight: 700; }
+        .match-meta { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+        .meta-item { text-align: center; }
+        .meta-label { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; }
+        .meta-value { font-size: 17px; font-weight: 700; color: #e8ff47; }
+
+        /* LANG TOGGLE */
+        .lang-toggle {
+            position: fixed; top: 1rem; right: 1rem;
+            padding: 0.4rem 0.9rem;
+            background: rgba(232,255,71,0.1);
+            border: 1px solid rgba(232,255,71,0.3);
+            border-radius: 8px; color: #e8ff47;
+            font-weight: 700; cursor: pointer; font-size: 13px; z-index: 200;
+        }
+
+        /* CARD */
+        .card {
+            background: rgba(26,31,58,0.8);
+            border: 1px solid rgba(232,255,71,0.15);
+            border-radius: 10px; padding: 1.25rem; margin-bottom: 1.25rem;
+        }
+        .card-title { font-size: 15px; font-weight: 600; color: #e8ff47; margin-bottom: 1rem; }
+
+        /* LOGIN SCREEN */
+        #screen-login { max-width: 420px; margin: 3rem auto; }
+        .login-logo { text-align: center; margin-bottom: 2rem; }
+        .login-logo h2 { font-size: 22px; color: #e8ff47; font-weight: 700; }
+        .login-logo p { font-size: 13px; color: #999; margin-top: 0.4rem; }
+
+        .code-display {
+            font-size: 28px; font-weight: 900; letter-spacing: 4px;
+            color: #e8ff47; text-align: center; padding: 1rem;
+            background: rgba(232,255,71,0.05);
+            border: 1px solid rgba(232,255,71,0.2);
+            border-radius: 8px; margin: 1rem 0;
+            min-height: 64px; font-family: monospace;
+        }
+        .keypad {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 0.6rem; margin-bottom: 1rem;
+        }
+        .key {
+            padding: 1rem; font-size: 18px; font-weight: 700;
+            background: rgba(232,255,71,0.08);
+            border: 1px solid rgba(232,255,71,0.2);
+            border-radius: 8px; color: #e8ff47;
+            cursor: pointer; text-align: center; transition: all 0.15s;
+            user-select: none;
+        }
+        .key:hover { background: rgba(232,255,71,0.18); }
+        .key:active { transform: scale(0.95); background: rgba(232,255,71,0.28); }
+        .key.del { color: #ff6b6b; border-color: rgba(255,107,107,0.2); background: rgba(255,107,107,0.08); }
+        .key.enter { color: #0A0E27; background: #e8ff47; border-color: #e8ff47; }
+        .key.enter:hover { background: #f5ff99; }
+
+        .login-error { color: #ff6b6b; text-align: center; font-size: 13px; margin-top: 0.5rem; min-height: 20px; }
+        .trainer-display {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.5rem 0.75rem;
+            background: rgba(232,255,71,0.05);
+            border: 1px solid rgba(232,255,71,0.15);
+            border-radius: 8px; margin-bottom: 1.25rem;
+            font-size: 13px;
+        }
+        .trainer-code-badge { color: #e8ff47; font-weight: 700; font-family: monospace; font-size: 15px; }
+        .btn-logout { background: none; border: none; color: #999; cursor: pointer; font-size: 12px; padding: 0.25rem 0.5rem; border-radius: 4px; }
+        .btn-logout:hover { color: #ff6b6b; }
+
+        /* TABS */
+        .tabs {
+            display: flex; gap: 0.5rem;
+            border-bottom: 1px solid rgba(232,255,71,0.15);
+            margin-bottom: 1.5rem; flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 0.65rem 1.25rem; background: none; border: none;
+            color: #999; cursor: pointer; font-weight: 600;
+            border-bottom: 2px solid transparent; transition: all 0.2s; font-size: 14px;
+        }
+        .tab-btn.active { color: #e8ff47; border-bottom-color: #e8ff47; }
+        .tab-btn:hover { color: #e8ff47; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* INPUT */
+        .input-group { margin-bottom: 0.9rem; }
+        .input-group label { display: block; font-size: 13px; color: #999; margin-bottom: 0.4rem; }
+        .input-group input {
+            width: 100%; padding: 0.7rem;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(232,255,71,0.2);
+            border-radius: 8px; color: #e0e0e0; font-size: 14px;
+        }
+        .input-group input:focus { outline: none; border-color: #e8ff47; }
+
+        /* BUTTONS */
+        .btn { padding: 0.75rem 1.25rem; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 14px; border: none; }
+        .btn:active { transform: scale(0.97); }
+        .btn-primary { background: #e8ff47; color: #0A0E27; width: 100%; font-size: 15px; padding: 1rem; }
+        .btn-primary:hover { background: #f5ff99; }
+        .btn-outline { background: rgba(232,255,71,0.1); color: #e8ff47; border: 1px solid rgba(232,255,71,0.3); }
+        .btn-outline:hover { background: rgba(232,255,71,0.2); }
+        .btn-danger { background: rgba(255,107,107,0.1); color: #ff6b6b; border: 1px solid rgba(255,107,107,0.3); }
+        .btn-danger:hover { background: rgba(255,107,107,0.2); }
+
+        /* LOG BUTTONS */
+        .btn-success-log {
+            background: rgba(81,207,102,0.15); color: #51cf66;
+            border: 1px solid rgba(81,207,102,0.3);
+            flex: 1; padding: 0.9rem; font-size: 15px; font-weight: 700;
+            border-radius: 8px; cursor: pointer; transition: all 0.15s;
+        }
+        .btn-success-log:hover { background: rgba(81,207,102,0.25); }
+        .btn-success-log:active { transform: scale(0.96); }
+        .btn-miss-log {
+            background: rgba(255,107,107,0.15); color: #ff6b6b;
+            border: 1px solid rgba(255,107,107,0.3);
+            flex: 1; padding: 0.9rem; font-size: 15px; font-weight: 700;
+            border-radius: 8px; cursor: pointer; transition: all 0.15s;
+        }
+        .btn-miss-log:hover { background: rgba(255,107,107,0.25); }
+        .btn-miss-log:active { transform: scale(0.96); }
+
+        /* PLAYER GRID */
+        .player-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap: 1.25rem; margin-bottom: 1.25rem; }
+        .player-card { background: rgba(26,31,58,0.8); border: 1px solid rgba(232,255,71,0.15); border-radius: 10px; padding: 1.25rem; }
+        .player-card-name { font-size: 16px; font-weight: 700; color: #e8ff47; margin-bottom: 1rem; }
+        .stat-group { margin-bottom: 1rem; }
+        .stat-group-label { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.6rem; display: block; }
+        .btn-row { display: flex; gap: 0.6rem; }
+
+        /* LIVE TABLE */
+        .live-table { width: 100%; border-collapse: collapse; background: rgba(26,31,58,0.8); border: 1px solid rgba(232,255,71,0.15); border-radius: 10px; overflow: hidden; margin-bottom: 1.25rem; }
+        .live-table th { background: rgba(232,255,71,0.1); border-bottom: 1px solid rgba(232,255,71,0.2); padding: 0.7rem; font-size: 11px; font-weight: 700; color: #e8ff47; text-transform: uppercase; text-align: left; }
+        .live-table td { padding: 0.7rem; border-bottom: 1px solid rgba(232,255,71,0.08); font-size: 14px; }
+        .live-table tr:last-child td { border-bottom: none; }
+        .tc { text-align: center; }
+        .pname { font-weight: 600; color: #e8ff47; }
+        .acc-good { color: #51cf66; font-weight: 700; }
+        .acc-bad { color: #ff6b6b; font-weight: 700; }
+        .acc-neutral { color: #999; }
+
+        /* MATCH ACTIONS */
+        .match-actions { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+        .match-actions .btn { flex: 1; min-width: 140px; }
+
+        /* CHART */
+        .chart-wrap { background: rgba(26,31,58,0.8); border: 1px solid rgba(232,255,71,0.15); border-radius: 10px; padding: 1.25rem; margin-bottom: 1.25rem; position: relative; height: 320px; }
+        .chart-title { font-size: 14px; font-weight: 600; color: #e8ff47; margin-bottom: 0.75rem; }
+        .chart-wrap canvas { max-height: 260px; }
+
+        /* LIVE BADGE */
+        .live-badge { display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(81,207,102,0.1); border: 1px solid rgba(81,207,102,0.3); border-radius: 20px; padding: 0.25rem 0.75rem; font-size: 11px; font-weight: 700; color: #51cf66; margin-bottom: 1rem; }
+        .live-dot { width: 7px; height: 7px; background: #51cf66; border-radius: 50%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+        /* EXPORT */
+        .export-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+        .export-row .btn { flex: 1; min-width: 140px; }
+
+        /* HISTORY */
+        .history-item { background: rgba(0,0,0,0.2); border: 1px solid rgba(232,255,71,0.1); border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; cursor: pointer; transition: all 0.2s; }
+        .history-item:hover { border-color: rgba(232,255,71,0.35); background: rgba(232,255,71,0.04); }
+        .history-header { display: flex; justify-content: space-between; align-items: center; }
+        .history-name { font-weight: 700; color: #e8ff47; font-size: 15px; }
+        .history-sub { font-size: 12px; color: #999; margin-top: 0.2rem; }
+        .history-dur { font-size: 12px; color: #999; }
+        .history-preview { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.6rem; }
+        .history-preview-pill { font-size: 12px; color: #aaa; background: rgba(232,255,71,0.05); border-radius: 4px; padding: 0.2rem 0.5rem; }
+
+        /* SYNC BADGE */
+        .sync-badge { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 11px; padding: 0.2rem 0.6rem; border-radius: 20px; margin-left: 0.5rem; }
+        .sync-ok { background: rgba(81,207,102,0.1); color: #51cf66; border: 1px solid rgba(81,207,102,0.2); }
+        .sync-fail { background: rgba(255,107,107,0.1); color: #ff6b6b; border: 1px solid rgba(255,107,107,0.2); }
+        .sync-pending { background: rgba(232,255,71,0.1); color: #e8ff47; border: 1px solid rgba(232,255,71,0.2); }
+
+        /* DETAIL */
+        #detail-view { display: none; }
+        .detail-back { display: flex; align-items: center; gap: 0.5rem; color: #e8ff47; cursor: pointer; font-weight: 600; margin-bottom: 1.25rem; background: none; border: none; font-size: 14px; }
+        .detail-back:hover { opacity: 0.8; }
+        .detail-title { font-size: 22px; font-weight: 700; color: #e8ff47; }
+        .detail-meta { font-size: 13px; color: #999; margin-top: 0.3rem; margin-bottom: 1.25rem; }
+        .player-stat-card { background: rgba(0,0,0,0.2); border: 1px solid rgba(232,255,71,0.1); border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; }
+        .pscard-name { font-weight: 700; color: #e8ff47; margin-bottom: 0.75rem; font-size: 15px; }
+        .pscard-stats { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .pscard-stat { flex: 1; min-width: 90px; text-align: center; background: rgba(232,255,71,0.05); border-radius: 8px; padding: 0.6rem; }
+        .pscard-stat-label { font-size: 11px; color: #999; text-transform: uppercase; }
+        .pscard-stat-value { font-size: 20px; font-weight: 700; margin-top: 0.2rem; }
+        .pscard-stat-sub { font-size: 11px; color: #999; margin-top: 0.1rem; }
+        .progress-bar-wrap { height: 5px; background: rgba(255,255,255,0.08); border-radius: 3px; margin-top: 0.4rem; overflow: hidden; }
+        .progress-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s; }
+        .trend-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid rgba(232,255,71,0.05); font-size: 13px; }
+        .trend-row:last-child { border-bottom: none; }
+        .trend-label { color: #999; }
+        .trend-val { font-weight: 600; color: #e8ff47; }
+        .trend-up { color: #51cf66; }
+        .trend-down { color: #ff6b6b; }
+        .trend-flat { color: #999; }
+
+        /* TIMELINE */
+        .timeline-item { display: flex; gap: 0.75rem; align-items: flex-start; padding: 0.5rem 0; border-bottom: 1px solid rgba(232,255,71,0.05); }
+        .timeline-item:last-child { border-bottom: none; }
+        .timeline-time { font-size: 11px; color: #666; min-width: 40px; padding-top: 3px; }
+        .timeline-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+        .dot-lagg-hit { background: #51cf66; }
+        .dot-lagg-miss { background: #ff6b6b; }
+        .dot-skott-hit { background: #e8ff47; }
+        .dot-skott-miss { background: #ff6b6b; }
+        .timeline-text { font-size: 13px; color: #ccc; }
+
+        /* EMPTY */
+        .empty { text-align: center; padding: 2rem; color: #666; font-size: 14px; }
+
+        /* OFFLINE */
+        .offline-badge { position: fixed; bottom: 1rem; left: 1rem; padding: 0.4rem 0.9rem; background: #ff6b6b; color: white; border-radius: 8px; font-size: 12px; display: none; z-index: 100; }
+        .offline-badge.show { display: block; }
+
+        /* LOADING */
+        .loading { text-align: center; padding: 2rem; color: #999; }
+        .spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid rgba(232,255,71,0.2); border-top-color: #e8ff47; border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 0.5rem; vertical-align: middle; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 600px) {
+            .player-grid { grid-template-columns: 1fr; gap: 0.75rem; }
+            .player-card { padding: 0.85rem; }
+            .player-card-name { font-size: 14px; margin-bottom: 0.75rem; }
+            .stat-group { margin-bottom: 0.75rem; }
+            .stat-group-label { font-size: 10px; margin-bottom: 0.4rem; }
+            .btn-row { gap: 0.3rem; }
+            .btn-success-log { padding: 0.4rem; font-size: 11px; border-radius: 6px; }
+            .btn-miss-log { padding: 0.4rem; font-size: 11px; border-radius: 6px; }
+            .match-actions { flex-direction: column; gap: 0.75rem; }
+            .match-actions .btn { min-width: auto; }
+            .chart-wrap { height: 260px; }
+            .chart-wrap canvas { max-height: 200px; }
+            header h1 { font-size: 22px; }
+            .header h2 { font-size: 18px; }
+            .keypad { gap: 0.5rem; }
+            .key { padding: 0.85rem; font-size: 16px; }
+        }
+    </style>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="./sync-manager.js"></script>
+</head>
+<body>
+
+<button class="lang-toggle" id="lang-btn">🇸🇪 SV</button>
+
+<div class="container">
+
+    <header>
+        <h1 data-sv="Matchstatistik" data-en="Match Statistics" data-es="Estadísticas">Matchstatistik</h1>
+        <div class="match-meta">
+            <div class="meta-item">
+                <div class="meta-label">MATCH-ID</div>
+                <div class="meta-value" id="hdr-id">---</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label" data-sv="STARTTID" data-en="START TIME" data-es="INICIO">STARTTID</div>
+                <div class="meta-value" id="hdr-time">---</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label" data-sv="VARAKTIGHET" data-en="DURATION" data-es="DURACIÓN">VARAKTIGHET</div>
+                <div class="meta-value" id="hdr-dur">0 min</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== LOGIN SCREEN ===== -->
+    <div id="screen-login">
+        <div class="login-logo">
+            <h2 data-sv="Tränarens kod" data-en="Trainer code" data-es="Código del entrenador">Tränarens kod</h2>
+            <p data-sv="<!-- ===== SETUP + HOME SCREEN ===== -->
+    <div id="screen-setup" style="display:none;">
+
+        <!-- Trainer badge -->
+        <div class="trainer-display">
+            <div>
+                <span style="color:#999; font-size:12px;" data-sv="Inloggad som: " data-en="Logged in as: " data-es="Conectado como: ">Inloggad som: </span>
+                <span class="trainer-code-badge" id="trainer-badge"></span>
+            </div>
+            <button class="btn-logout" id="btn-logout" data-sv="Byt kod" data-en="Change code" data-es="Cambiar código">Byt kod</button>
+        </div>
+
+        <div class="card">
+            <div class="card-title" data-sv="Ny match" data-en="New match" data-es="Nuevo partido">Ny match</div>
+            <div class="input-group">
+                <label data-sv="Matchnamn" data-en="Match name" data-es="Nombre del partido">Matchnamn</label>
+                <input type="text" id="inp-matchname" placeholder="T.ex. Träning mot Västra">
+            </div>
+            <div class="input-group">
+                <label data-sv="Lagnamn" data-en="Team name" data-es="Nombre del equipo">Lagnamn</label>
+                <input type="text" id="inp-teamname" placeholder="T.ex. Stockholm A">
+            </div>
+            <div class="input-group">
+                <label data-sv="Läggare" data-en="Pointer" data-es="Colocador">Läggare</label>
+                <input type="text" id="inp-p1" placeholder="T.ex. Anders">
+            </div>
+            <div class="input-group">
+                <label data-sv="Mittspelare" data-en="Middle player" data-es="Centrocampista">Mittspelare</label>
+                <input type="text" id="inp-p2" placeholder="T.ex. Lisa">
+            </div>
+            <div class="input-group">
+                <label data-sv="Skytt" data-en="Shooter" data-es="Tirador">Skytt</label>
+                <input type="text" id="inp-p3" placeholder="T.ex. Per">
+            </div>
+            <button class="btn btn-primary" id="btn-start" data-sv="STARTA MATCH" data-en="START MATCH" data-es="INICIAR PARTIDO">STARTA MATCH</button>
+        </div>
+
+        <!-- HOME HISTORY -->
+        <div class="card" id="home-history-card">
+            <div class="card-title">
+                <span data-sv="Tidigare matcher" data-en="Previous matches" data-es="Partidos anteriores">Tidigare matcher</span>
+                <span class="sync-badge sync-ok" id="sync-status-home">☁️ Firebase</span>
+            </div>
+            <div id="home-history-list"><div class="empty" data-sv="Ingen matchhistorik än" data-en="No match history yet" data-es="Sin historial aún">Ingen matchhistorik än</div></div>
+        </div>
+
+        <!-- HOME DETAIL VIEW -->
+        <div id="home-detail-view" style="display:none;">
+            <button class="detail-back" id="btn-back-home-detail">← <span>Tillbaka</span></button>
+            <div class="detail-title" id="home-detail-title"></div>
+            <div class="detail-meta" id="home-detail-meta"></div>
+
+            <div class="chart-wrap" style="height:280px;">
+                <div class="chart-title">📊 Träffprocent per spelare</div>
+                <canvas id="home-detail-chart-accuracy"></canvas>
+            </div>
+            <div class="chart-wrap" style="height:280px;">
+                <div class="chart-title">🔢 Antal försök per spelare</div>
+                <canvas id="home-detail-chart-attempts"></canvas>
+            </div>
+            <div class="chart-wrap" style="height:280px;">
+                <div class="chart-title">📈 Denna match vs historiskt genomsnitt</div>
+                <canvas id="home-detail-chart-compare"></canvas>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Laginsnitt</div>
+                <div id="home-detail-team"></div>
+            </div>
+            <div class="card">
+                <div class="card-title">Tidslinje</div>
+                <div id="home-detail-timeline"></div>
+            </div>
+
+            <div class="export-row">
+                <button class="btn btn-outline" id="btn-export-pdf-home">📄 PDF</button>
+                <button class="btn btn-outline" id="btn-export-csv-home">📊 CSV</button>
+            </div>
+            <button class="btn btn-danger" id="btn-delete-home-detail" style="width:100%;margin-top:0.5rem;">🗑 Radera match</button>
+        </div>
+    </div>
+
+    <!-- ===== MATCH SCREEN ===== -->
+    <div id="screen-match" style="display:none;">
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="live" data-sv="LIVE LOGGNING" data-en="LIVE LOGGING" data-es="REGISTRO">LIVE LOGGNING</button>
+            <button class="tab-btn" data-tab="analys" data-sv="ANALYS & GRAFER" data-en="ANALYSIS & CHARTS" data-es="ANÁLISIS">ANALYS & GRAFER</button>
+            <button class="tab-btn" data-tab="historik" data-sv="HISTORIK" data-en="HISTORY" data-es="HISTORIAL">HISTORIK</button>
+        </div>
+
+        <!-- TAB: LIVE -->
+        <div class="tab-content active" id="tab-live">
+            <div class="player-grid" id="player-grid"></div>
+            <table class="live-table">
+                <thead>
+                    <tr>
+                        <th data-sv="Spelare" data-en="Player" data-es="Jugador">Spelare</th>
+                        <th data-sv="Lägg Poängkula/Tot" data-en="Lägg Ball/Tot" data-es="Colocación">Lägg Poängkula/Tot</th>
+                        <th class="tc">Lägg %</th>
+                        <th data-sv="Skott Träff/Tot" data-en="Shot Hit/Tot" data-es="Tiro">Skott Träff/Tot</th>
+                        <th class="tc">Skott %</th>
+                    </tr>
+                </thead>
+                <tbody id="live-table-body"></tbody>
+            </table>
+            <div class="match-actions">
+                <button class="btn btn-danger" id="btn-reset" data-sv="ÅTERSTÄLL" data-en="RESET" data-es="RESTABLECER">ÅTERSTÄLL</button>
+                <button class="btn btn-primary" id="btn-finish" data-sv="AVSLUTA MATCH" data-en="FINISH MATCH" data-es="FINALIZAR">AVSLUTA MATCH</button>
+            </div>
+        </div>
+
+        <!-- TAB: ANALYS -->
+        <div class="tab-content" id="tab-analys">
+            <div class="live-badge"><div class="live-dot"></div> <span data-sv="Uppdateras var 10:e sekund" data-en="Updates every 10 seconds" data-es="Actualiza cada 10 segundos">Uppdateras var 10:e sekund</span></div>
+            <div class="chart-wrap">
+                <div class="chart-title" data-sv="Träffprocent — Pågående match" data-en="Accuracy — Current match" data-es="Precisión actual">Träffprocent — Pågående match</div>
+                <canvas id="chart-live"></canvas>
+            </div>
+            <div class="chart-wrap">
+                <div class="chart-title" data-sv="Träffar vs Missar" data-en="Hits vs Misses" data-es="Aciertos vs Fallos">Träffar vs Missar</div>
+                <canvas id="chart-compare"></canvas>
+            </div>
+            <div class="export-row">
+                <button class="btn btn-outline" id="btn-pdf">📄 PDF</button>
+                <button class="btn btn-outline" id="btn-csv">📊 CSV</button>
+            </div>
+        </div>
+
+        <!-- TAB: HISTORIK -->
+        <div class="tab-content" id="tab-historik">
+            <div id="hist-list-view">
+                <div id="match-history-list"><div class="empty">Ingen matchhistorik än</div></div>
+            </div>
+            <div id="detail-view" style="display:none;">
+                <button class="detail-back" id="btn-back-detail">← <span data-sv="Tillbaka" data-en="Back" data-es="Volver">Tillbaka</span></button>
+                <div class="detail-title" id="detail-title"></div>
+                <div class="detail-meta" id="detail-meta"></div>
+
+                <!-- Chart 1: Lägg % och Skott % per spelare -->
+                <div class="chart-wrap" style="height:280px;">
+                    <div class="chart-title">📊 Träffprocent per spelare</div>
+                    <canvas id="detail-chart-accuracy"></canvas>
+                </div>
+
+                <!-- Chart 2: Försök totalt per spelare -->
+                <div class="chart-wrap" style="height:280px;">
+                    <div class="chart-title">🔢 Antal försök per spelare</div>
+                    <canvas id="detail-chart-attempts"></canvas>
+                </div>
+
+                <!-- Chart 3: Denna match vs historiskt genomsnitt -->
+                <div class="chart-wrap" style="height:280px;">
+                    <div class="chart-title">📈 Denna match vs historiskt genomsnitt</div>
+                    <canvas id="detail-chart-compare"></canvas>
+                </div>
+
+                <!-- Laginsnitt -->
+                <div class="card">
+                    <div class="card-title" data-sv="Laginsnitt" data-en="Team Average" data-es="Promedio del equipo">Laginsnitt</div>
+                    <div id="detail-team"></div>
+                </div>
+
+                <!-- Tidslinje -->
+                <div class="card">
+                    <div class="card-title" data-sv="Tidslinje" data-en="Timeline" data-es="Línea de tiempo">Tidslinje</div>
+                    <div id="detail-timeline"></div>
+                </div>
+
+                <div class="export-row">
+                    <button class="btn btn-outline" id="btn-export-pdf-detail">📄 PDF</button>
+                    <button class="btn btn-outline" id="btn-export-csv-detail">📊 CSV</button>
+                </div>
+                <button class="btn btn-danger" id="btn-delete-detail" style="width:100%;margin-top:0.5rem;" data-sv="Radera match" data-en="Delete match" data-es="Eliminar partido">Radera match</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="offline-badge" id="offline-badge" data-sv="Offline — sparar lokalt" data-en="Offline — saving locally" data-es="Offline — guardando localmente">Offline — sparar lokalt</div>
+
+<script>
+// ============================================================
+// FIREBASE CONFIG
+// Ersätt med din egen config från Firebase Console
+// ============================================================
+const firebaseConfig = {
+    apiKey: "AIzaSyCwzdwGEjN5LVw3RSLz2dy7f70Reafbe2c",
+    authDomain: "databas-serie.firebaseapp.com",
+    databaseURL: "https://databas-serie-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "databas-serie",
+    storageBucket: "databas-serie.firebasestorage.app",
+    messagingSenderId: "672666417012",
+    appId: "1:672666417012:web:93613783fe51cd2ce81e21"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ============================================================
+// LANGUAGE MANAGER
+// ============================================================
+const LANGS = ['sv','en','es'];
+const langMgr = {
+    lang: localStorage.getItem('petanque-lang') || 'sv',
+    apply() {
+        document.querySelectorAll('[data-sv]').forEach(el => {
+            const t = el.dataset[this.lang];
+            if (!t) return;
+            if (el.tagName === 'INPUT') el.placeholder = t;
+            else el.textContent = t;
+        });
+        const flags = {sv:'🇸🇪 SV', en:'🇬🇧 EN', es:'🇪🇸 ES'};
+        const btn = document.getElementById('lang-btn');
+        if (btn) btn.textContent = flags[this.lang];
+    },
+    toggle() {
+        const i = LANGS.indexOf(this.lang);
+        this.lang = LANGS[(i+1) % LANGS.length];
+        localStorage.setItem('petanque-lang', this.lang);
+        this.apply();
+    }
+};
+document.getElementById('lang-btn').addEventListener('click', () => langMgr.toggle());
+
+// ============================================================
+// MAIN APP
+// ============================================================
+class MatchApp {
+    constructor() {
+        this.trainerCode = null;
+        this.history = [];
+        this.match = null;
+        this.matchStart = null;
+        this.timerInterval = null;
+        this.chartInterval = null;
+        this.liveChart = null;
+        this.compareChart = null;
+        this.detailChart = null;
+        this.currentDetailIdx = null;
+        this.currentHomeDetailIdx = null;
+        this.homeDetailCharts = {};
+        this.positions = ['Läggare','Mittspelare','Skytt'];
+        this.codeBuffer = '';
+        this.isOnline = navigator.onLine;
+        this.fbRef = null;
+    }
+
+    // ---- BOOT ----
+    init() {
+        this.setupKeypad();
+        this.setupEventListeners();
+
+        window.addEventListener('online', () => { this.isOnline = true; this.checkOnline(); this.syncOfflineData(); });
+        window.addEventListener('offline', () => { this.isOnline = false; this.checkOnline(); });
+
+        // Auto-login if code saved
+        const saved = localStorage.getItem('trainer-code');
+        if (saved) this.login(saved);
+
+        this.checkOnline();
+        langMgr.apply();
+    }
+
+    // ---- KEYPAD ----
+    setupKeypad() {
+        document.querySelectorAll('.key[data-char]').forEach(key => {
+            key.addEventListener('click', () => {
+                const ch = key.dataset.char;
+                if (ch === 'DEL') {
+                    this.codeBuffer = this.codeBuffer.slice(0,-1);
+                } else if (ch !== 'ENTER') {
+                    if (this.codeBuffer.length < 12) this.codeBuffer += ch;
+                }
+                this.updateCodeDisplay();
+            });
+        });
+        document.getElementById('btn-login').addEventListener('click', () => {
+            if (this.codeBuffer.length < 3) {
+                document.getElementById('login-error').textContent = 'Koden måste vara minst 3 tecken';
+                return;
+            }
+            this.login(this.codeBuffer);
+        });
+    }
+
+    updateCodeDisplay() {
+        const d = document.getElementById('code-display');
+        d.textContent = this.codeBuffer.length ? this.codeBuffer : '_';
+        document.getElementById('login-error').textContent = '';
+    }
+
+    // ---- LOGIN ----
+    login(code) {
+        this.trainerCode = code.toUpperCase();
+        localStorage.setItem('trainer-code', this.trainerCode);
+
+        document.getElementById('trainer-badge').textContent = this.trainerCode;
+        document.getElementById('screen-login').style.display = 'none';
+        document.getElementById('screen-setup').style.display = 'block';
+
+        this.fbRef = db.ref(`coaches/${this.trainerCode}/matches`);
+        this.loadHistory();
+        langMgr.apply();
+    }
+
+    logout() {
+        this.trainerCode = null;
+        this.history = [];
+        this.codeBuffer = '';
+        localStorage.removeItem('trainer-code');
+        this.updateCodeDisplay();
+        document.getElementById('screen-setup').style.display = 'none';
+        document.getElementById('screen-match').style.display = 'none';
+        document.getElementById('screen-login').style.display = 'block';
+    }
+
+    // ---- FIREBASE LOAD ----
+    async loadHistory() {
+        const listEl = document.getElementById('home-history-list');
+        listEl.innerHTML = '<div class="loading"><span class="spinner"></span> Laddar...</div>';
+
+        if (this.isOnline && this.fbRef) {
+            try {
+                const snap = await this.fbRef.orderByChild('startTime').once('value');
+                const data = snap.val();
+                if (data) {
+                    // Convert object to array, newest first
+                    this.history = Object.values(data).sort((a,b) => new Date(b.startTime) - new Date(a.startTime));
+                } else {
+                    // Try to migrate from localStorage
+                    const local = JSON.parse(localStorage.getItem('match-history') || '[]');
+                    if (local.length) {
+                        await this.migrateLocalToFirebase(local);
+                    } else {
+                        this.history = [];
+                    }
+                }
+                document.getElementById('sync-status-home').textContent = '☁️ Firebase';
+                document.getElementById('sync-status-home').className = 'sync-badge sync-ok';
+            } catch(e) {
+                console.warn('[Firebase] Load error, using localStorage:', e);
+                this.history = JSON.parse(localStorage.getItem(`match-history-${this.trainerCode}`) || '[]');
+                document.getElementById('sync-status-home').textContent = '⚠️ Offline';
+                document.getElementById('sync-status-home').className = 'sync-badge sync-fail';
+            }
+        } else {
+            this.history = JSON.parse(localStorage.getItem(`match-history-${this.trainerCode}`) || '[]');
+            document.getElementById('sync-status-home').textContent = '📱 Lokalt';
+            document.getElementById('sync-status-home').className = 'sync-badge sync-pending';
+        }
+
+        this.renderHistory();
+    }
+
+    // ---- FIREBASE SAVE ----
+    async saveMatch(matchData) {
+        // Always save to localStorage first (offline backup)
+        const localKey = `match-history-${this.trainerCode}`;
+        const local = JSON.parse(localStorage.getItem(localKey) || '[]');
+        local.unshift(matchData);
+        localStorage.setItem(localKey, JSON.stringify(local));
+
+        if (this.isOnline && this.fbRef) {
+            try {
+                await this.fbRef.child(matchData.id).set(matchData);
+                console.log('[Firebase] Match saved:', matchData.id);
+            } catch(e) {
+                console.warn('[Firebase] Save failed, saved locally:', e);
+                // Mark as pending sync
+                const pending = JSON.parse(localStorage.getItem(`pending-sync-${this.trainerCode}`) || '[]');
+                pending.push(matchData.id);
+                localStorage.setItem(`pending-sync-${this.trainerCode}`, JSON.stringify(pending));
+            }
+        } else {
+            // Queue for sync when back online
+            const pending = JSON.parse(localStorage.getItem(`pending-sync-${this.trainerCode}`) || '[]');
+            pending.push(matchData.id);
+            localStorage.setItem(`pending-sync-${this.trainerCode}`, JSON.stringify(pending));
+        }
+    }
+
+    // ---- FIREBASE DELETE ----
+    async deleteMatch(idx) {
+        const m = this.history[idx];
+        if (!m) return;
+
+        this.history.splice(idx, 1);
+
+        const localKey = `match-history-${this.trainerCode}`;
+        localStorage.setItem(localKey, JSON.stringify(this.history));
+
+        if (this.isOnline && this.fbRef) {
+            try {
+                await this.fbRef.child(m.id).remove();
+            } catch(e) {
+                console.warn('[Firebase] Delete failed:', e);
+            }
+        }
+
+        this.renderHistory();
+        this.showHistList();
+    }
+
+    // ---- MIGRATE localStorage → Firebase ----
+    async migrateLocalToFirebase(localData) {
+        console.log('[Firebase] Migrating', localData.length, 'matches from localStorage');
+        this.history = localData;
+        if (this.isOnline && this.fbRef) {
+            for (const m of localData) {
+                try { await this.fbRef.child(m.id).set(m); } catch(e) {}
+            }
+        }
+    }
+
+    // ---- SYNC PENDING ----
+    async syncOfflineData() {
+        if (!this.trainerCode || !this.fbRef) return;
+        const pendingKey = `pending-sync-${this.trainerCode}`;
+        const pending = JSON.parse(localStorage.getItem(pendingKey) || '[]');
+        if (!pending.length) return;
+
+        const local = JSON.parse(localStorage.getItem(`match-history-${this.trainerCode}`) || '[]');
+        let synced = 0;
+
+        for (const id of pending) {
+            const m = local.find(x => x.id === id);
+            if (m) {
+                try {
+                    await this.fbRef.child(id).set(m);
+                    synced++;
+                } catch(e) { console.warn('[Firebase] Sync failed for:', id); }
+            }
+        }
+
+        if (synced > 0) {
+            localStorage.removeItem(pendingKey);
+            console.log(`[Firebase] Synced ${synced} offline matches`);
+            this.loadHistory();
+        }
+    }
+
+    // ---- EVENT LISTENERS ----
+    setupEventListeners() {
+        const on = (id, evt, fn) => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener(evt, fn);
+        };
+
+        on('btn-start', 'click', () => this.startMatch());
+        on('btn-finish', 'click', () => this.finishMatch());
+        on('btn-reset', 'click', () => this.resetStats());
+        on('btn-pdf', 'click', () => this.exportPDF());
+        on('btn-csv', 'click', () => this.exportCSV());
+        on('btn-export-pdf-detail', 'click', () => this.exportDetailPDF());
+        on('btn-export-csv-detail', 'click', () => this.exportDetailCSV());
+        on('btn-export-pdf-home', 'click', () => this.exportHomePDF());
+        on('btn-export-csv-home', 'click', () => this.exportHomeCSV());
+        on('btn-logout', 'click', () => this.logout());
+        on('btn-back-home-detail', 'click', () => this.showHomeList());
+        on('btn-back-detail', 'click', () => this.showHistList());
+        on('btn-delete-home-detail', 'click', () => {
+            if (this.currentHomeDetailIdx !== null && confirm('Radera denna match?')) {
+                this.deleteMatch(this.currentHomeDetailIdx);
+                this.showHomeList();
+            }
+        });
+        on('btn-delete-detail', 'click', () => {
+            if (this.currentDetailIdx !== null && confirm('Radera denna match?')) {
+                this.deleteMatch(this.currentDetailIdx);
+            }
+        });
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', e => {
+                const tab = e.target.dataset.tab;
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                e.target.classList.add('active');
+                document.getElementById('tab-' + tab).classList.add('active');
+                if (tab === 'analys') setTimeout(() => this.renderLiveCharts(), 100);
+                if (tab === 'historik') this.renderHistory();
+            });
+        });
+    }
+
+    // ---- START MATCH ----
+    startMatch() {
+        const name = document.getElementById('inp-matchname').value.trim() || 'Utan namn';
+        const team = document.getElementById('inp-teamname').value.trim() || 'Mitt lag';
+        const names = [
+            document.getElementById('inp-p1').value.trim() || 'Läggare',
+            document.getElementById('inp-p2').value.trim() || 'Mittspelare',
+            document.getElementById('inp-p3').value.trim() || 'Skytt'
+        ];
+
+        this.matchStart = new Date();
+        this.match = {
+            id: Date.now().toString(),
+            name, team,
+            startTime: this.matchStart.toISOString(),
+            trainerCode: this.trainerCode,
+            players: names.map((n,i) => ({
+                name: n, position: this.positions[i],
+                stats: { lagg:{hit:0,total:0}, skott:{hit:0,total:0} }
+            })),
+            timeline: []
+        };
+
+        document.getElementById('hdr-id').textContent = this.match.id.slice(-8);
+        document.getElementById('hdr-time').textContent = this.matchStart.toLocaleTimeString('sv-SE', {hour:'2-digit',minute:'2-digit'});
+
+        document.getElementById('screen-setup').style.display = 'none';
+        document.getElementById('screen-match').style.display = 'block';
+
+        this.buildPlayerGrid();
+        this.renderLiveTable();
+
+        this.timerInterval = setInterval(() => {
+            const mins = Math.floor((new Date() - this.matchStart) / 60000);
+            document.getElementById('hdr-dur').textContent = `${mins} min`;
+        }, 5000);
+
+        this.chartInterval = setInterval(() => {
+            if (document.getElementById('tab-analys').classList.contains('active')) {
+                this.renderLiveCharts();
+            }
+        }, 10000);
+
+        langMgr.apply();
+    }
+
+    // ---- PLAYER GRID ----
+    buildPlayerGrid() {
+        const grid = document.getElementById('player-grid');
+        grid.innerHTML = '';
+        this.match.players.forEach((p, idx) => {
+            const card = document.createElement('div');
+            card.className = 'player-card';
+            card.innerHTML = `
+                <div class="player-card-name">${p.name} <span style="font-size:12px;color:#999;font-weight:400;">(${p.position})</span></div>
+                <div class="stat-group">
+                    <span class="stat-group-label">LÄGG</span>
+                    <div class="btn-row">
+                        <button class="btn-success-log" onclick="app.log(${idx},'lagg',true)">Poängkula ✓</button>
+                        <button class="btn-miss-log" onclick="app.log(${idx},'lagg',false)">Miss ✗</button>
+                    </div>
+                </div>
+                <div class="stat-group">
+                    <span class="stat-group-label">SKOTT</span>
+                    <div class="btn-row">
+                        <button class="btn-success-log" onclick="app.log(${idx},'skott',true)">Träff ✓</button>
+                        <button class="btn-miss-log" onclick="app.log(${idx},'skott',false)">Miss ✗</button>
+                    </div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    // ---- LOG ----
+    log(playerIdx, type, hit) {
+        const p = this.match.players[playerIdx];
+        p.stats[type].total++;
+        if (hit) p.stats[type].hit++;
+
+        const elapsed = Math.floor((new Date() - this.matchStart) / 60000);
+        const label = type === 'lagg' ? (hit ? 'Poängkula ✓' : 'Lägg miss ✗') : (hit ? 'Skott träff ✓' : 'Skott miss ✗');
+        this.match.timeline.push({ time: elapsed, player: p.name, type, hit, label });
+
+        // Haptic feedback - längre vibration för träff, kort för miss
+        if (navigator.vibrate) {
+            navigator.vibrate(hit ? 80 : 40);
+        }
+
+        this.renderLiveTable();
+    }
+
+    // ---- LIVE TABLE ----
+    renderLiveTable() {
+        const tbody = document.getElementById('live-table-body');
+        tbody.innerHTML = '';
+        this.match.players.forEach(p => {
+            const la = this.acc(p.stats.lagg);
+            const sa = this.acc(p.stats.skott);
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="pname">${p.name}</td>
+                <td>${p.stats.lagg.hit}/${p.stats.lagg.total}</td>
+                <td class="tc ${this.accClass(la, p.stats.lagg.total)}">${la}%</td>
+                <td>${p.stats.skott.hit}/${p.stats.skott.total}</td>
+                <td class="tc ${this.accClass(sa, p.stats.skott.total)}">${sa}%</td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    // ---- LIVE CHARTS ----
+    renderLiveCharts() {
+        if (!this.match) return;
+        const players = this.match.players;
+        const labels = players.map(p => p.name);
+        const chartOpts = {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { labels: { color:'#ccc' } } },
+            scales: {
+                x: { ticks:{color:'#999'}, grid:{color:'rgba(232,255,71,0.05)'} },
+                y: { ticks:{color:'#999'}, grid:{color:'rgba(232,255,71,0.05)'}, min:0, max:100 }
+            }
+        };
+
+        if (this.liveChart) this.liveChart.destroy();
+        this.liveChart = new Chart(document.getElementById('chart-live'), {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [
+                    { label: 'Lägg %', data: players.map(p => this.acc(p.stats.lagg)), backgroundColor: '#51cf66' },
+                    { label: 'Skott %', data: players.map(p => this.acc(p.stats.skott)), backgroundColor: '#e8ff47' }
+                ]
+            },
+            options: chartOpts
+        });
+
+        if (this.compareChart) this.compareChart.destroy();
+        this.compareChart = new Chart(document.getElementById('chart-compare'), {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [
+                    { label: 'Poängkula (lägg)', data: players.map(p => p.stats.lagg.hit), backgroundColor: '#51cf66' },
+                    { label: 'Lägg miss', data: players.map(p => p.stats.lagg.total - p.stats.lagg.hit), backgroundColor: 'rgba(81,207,102,0.25)' },
+                    { label: 'Skott träff', data: players.map(p => p.stats.skott.hit), backgroundColor: '#e8ff47' },
+                    { label: 'Skott miss', data: players.map(p => p.stats.skott.total - p.stats.skott.hit), backgroundColor: 'rgba(232,255,71,0.2)' },
+                ]
+            },
+            options: { ...chartOpts, scales: { x: { ticks:{color:'#999'}, grid:{color:'rgba(232,255,71,0.05)'} }, y: { ticks:{color:'#999'}, grid:{color:'rgba(232,255,71,0.05)'}, min:0 } } }
+        });
+    }
+
+    // ---- RESET ----
+    resetStats() {
+        if (!confirm('Återställ all statistik?')) return;
+        this.match.players.forEach(p => { p.stats = { lagg:{hit:0,total:0}, skott:{hit:0,total:0} }; });
+        this.match.timeline = [];
+        this.renderLiveTable();
+    }
+
+    // ---- FINISH MATCH ----
+    async finishMatch() {
+        if (!confirm('Avsluta och spara matchen?')) return;
+        clearInterval(this.timerInterval);
+        clearInterval(this.chartInterval);
+
+        this.match.duration = Math.floor((new Date() - this.matchStart) / 60000);
+        this.match.endTime = new Date().toISOString();
+
+        await this.saveMatch(this.match);
+        this.history.unshift(this.match);
+
+        if (this.liveChart) { this.liveChart.destroy(); this.liveChart = null; }
+        if (this.compareChart) { this.compareChart.destroy(); this.compareChart = null; }
+
+        this.match = null;
+        this.matchStart = null;
+
+        ['inp-matchname','inp-teamname','inp-p1','inp-p2','inp-p3'].forEach(id => { document.getElementById(id).value = ''; });
+        document.getElementById('hdr-id').textContent = '---';
+        document.getElementById('hdr-time').textContent = '---';
+        document.getElementById('hdr-dur').textContent = '0 min';
+
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelector('[data-tab="live"]').classList.add('active');
+        document.getElementById('tab-live').classList.add('active');
+
+        document.getElementById('screen-match').style.display = 'none';
+        document.getElementById('screen-setup').style.display = 'block';
+
+        this.renderHistory();
+        langMgr.apply();
+    }
+
+    // ---- RENDER HISTORY ----
+    renderHistory() {
+        const homeEl = document.getElementById('home-history-list');
+        const matchEl = document.getElementById('match-history-list');
+
+        if (!this.history.length) {
+            const empty = '<div class="empty">Ingen matchhistorik än</div>';
+            if (homeEl) homeEl.innerHTML = empty;
+            if (matchEl) matchEl.innerHTML = empty;
+            return;
+        }
+
+        const homeHtml = this.history.map((m, idx) => {
+            const date = new Date(m.startTime).toLocaleDateString('sv-SE');
+            const time = new Date(m.startTime).toLocaleTimeString('sv-SE', {hour:'2-digit',minute:'2-digit'});
+            const previews = m.players.map(p => {
+                const la = this.acc(p.stats.lagg);
+                const sa = this.acc(p.stats.skott);
+                return `<span class="history-preview-pill">${p.name}: L${la}% S${sa}%</span>`;
+            }).join('');
+            return `
+                <div class="history-item" onclick="app.showHomeDetail(${idx})">
+                    <div class="history-header">
+                        <div>
+                            <div class="history-name">${m.name}</div>
+                            <div class="history-sub">${m.team} • ${date} ${time}</div>
+                        </div>
+                        <div class="history-dur">${m.duration ?? 0} min</div>
+                    </div>
+                    <div class="history-preview">${previews}</div>
+                </div>
+            `;
+        }).join('');
+
+        const matchHtml = this.history.map((m, idx) => {
+            const date = new Date(m.startTime).toLocaleDateString('sv-SE');
+            const time = new Date(m.startTime).toLocaleTimeString('sv-SE', {hour:'2-digit',minute:'2-digit'});
+            const previews = m.players.map(p => {
+                const la = this.acc(p.stats.lagg);
+                const sa = this.acc(p.stats.skott);
+                return `<span class="history-preview-pill">${p.name}: L${la}% S${sa}%</span>`;
+            }).join('');
+            return `
+                <div class="history-item" onclick="app.showDetail(${idx})">
+                    <div class="history-header">
+                        <div>
+                            <div class="history-name">${m.name}</div>
+                            <div class="history-sub">${m.team} • ${date} ${time}</div>
+                        </div>
+                        <div class="history-dur">${m.duration ?? 0} min</div>
+                    </div>
+                    <div class="history-preview">${previews}</div>
+                </div>
+            `;
+        }).join('');
+
+        if (homeEl) homeEl.innerHTML = homeHtml;
+        if (matchEl) matchEl.innerHTML = matchHtml;
+    }
+
+    // ---- DETAIL VIEW ----
+    showDetail(idx) {
+        this.currentDetailIdx = idx;
+        const m = this.history[idx];
+
+        const date = new Date(m.startTime).toLocaleDateString('sv-SE');
+        const time = new Date(m.startTime).toLocaleTimeString('sv-SE', {hour:'2-digit',minute:'2-digit'});
+        document.getElementById('detail-title').textContent = m.name;
+        document.getElementById('detail-meta').textContent = `${m.team} • ${date} ${time} • ${m.duration ?? 0} min`;
+
+        const labels = m.players.map(p => p.name);
+        const chartBase = {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { labels: { color:'#ccc', font:{ size:12 } } } },
+            scales: {
+                x: { ticks:{color:'#999'}, grid:{color:'rgba(232,255,71,0.05)'} },
+                y: { ticks:{color:'#999'}, grid:{color:'rgba(232,255,71,0.05)'}, min:0, max:100 }
+            }
+        };
+
+        // Destroy old charts
+        ['detailChartAccuracy','detailChartAttempts','detailChartCompare'].forEach(k => {
+            if (this[k]) { this[k].destroy(); this[k] = null; }
+        });
+
+        // ---- CHART 1: Träffprocent (Lägg % + Skott %) ----
+        this.detailChartAccuracy = new Chart(
+            document.getElementById('detail-chart-accuracy'), {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [
+                    {
+                        label: 'Lägg % (poängkula)',
+                        data: m.players.map(p => this.acc(p.stats.lagg)),
+                        backgroundColor: '#51cf66',
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Skott %',
+                        data: m.players.map(p => this.acc(p.stats.skott)),
+                        backgroundColor: '#e8ff47',
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                ...chartBase,
+                plugins: {
+                    ...chartBase.plugins,
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}%`
+                        }
+                    }
+                }
+            }
+        });
+
+        // ---- CHART 2: Antal försök (Lägg + Skott) ----
+        this.detailChartAttempts = new Chart(
+            document.getElementById('detail-chart-attempts'), {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [
+                    {
+                        label: 'Lägg poängkulor',
+                        data: m.players.map(p => p.stats.lagg.hit),
+                        backgroundColor: '#51cf66',
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Lägg miss',
+                        data: m.players.map(p => p.stats.lagg.total - p.stats.lagg.hit),
+                        backgroundColor: 'rgba(81,207,102,0.25)',
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Skott träff',
+                        data: m.players.map(p => p.stats.skott.hit),
+                        backgroundColor: '#e8ff47',
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Skott miss',
+                        data: m.players.map(p => p.stats.skott.total - p.stats.skott.hit),
+                        backgroundColor: 'rgba(232,255,71,0.2)',
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                ...chartBase,
+                scales: {
+                    x: { ticks:{color:'#999'}, grid:{color:'rgba(232,255,71,0.05)'} },
+                    y: { ticks:{color:'#999', stepSize:1}, grid:{color:'rgba(232,255,71,0.05)'}, min:0, beginAtZero:true }
+                }
+            }
+        });
+
+        // ---- CHART 3: Denna match vs historiskt genomsnitt per spelare ----
+        // Beräkna historiskt genomsnitt per spelare (alla matcher utom denna)
+        const otherMatches = this.history.filter((_, i) => i !== idx);
+        const compareDatasets = [];
+
+        const thisLagg = m.players.map(p => this.acc(p.stats.lagg));
+        const thisSkott = m.players.map(p => this.acc(p.stats.skott));
+
+        // Historiskt genomsnitt lägg
+        const histLagg = m.players.map(p => {
+            const playerMatches = otherMatches.filter(om =>
+                om.players.some(op => op.name === p.name)
+            );
+            if (!playerMatches.length) return null;
+            const avg = playerMatches.reduce((sum, om) => {
+                const op = om.players.find(x => x.name === p.name);
+                return sum + (op ? this.acc(op.stats.lagg) : 0);
+            }, 0) / playerMatches.length;
+            return Math.round(avg);
+        });
+
+        const histSkott = m.players.map(p => {
+            const playerMatches = otherMatches.filter(om =>
+                om.players.some(op => op.name === p.name)
+            );
+            if (!playerMatches.length) return null;
+            const avg = playerMatches.reduce((sum, om) => {
+                const op = om.players.find(x => x.name === p.name);
+                return sum + (op ? this.acc(op.stats.skott) : 0);
+            }, 0) / playerMatches.length;
+            return Math.round(avg);
+        });
+
+        this.detailChartCompare = new Chart(
+            document.getElementById('detail-chart-compare'), {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [
+                    { label: 'Lägg % (denna match)', data: thisLagg, backgroundColor: '#51cf66', borderRadius: 4 },
+                    { label: 'Lägg % (historiskt snitt)', data: histLagg, backgroundColor: 'rgba(81,207,102,0.3)', borderRadius: 4, borderWidth: 2, borderColor: '#51cf66' },
+                    { label: 'Skott % (denna match)', data: thisSkott, backgroundColor: '#e8ff47', borderRadius: 4 },
+                    { label: 'Skott % (historiskt snitt)', data: histSkott, backgroundColor: 'rgba(232,255,71,0.25)', borderRadius: 4, borderWidth: 2, borderColor: '#e8ff47' }
+                ]
+            },
+            options: {
+                ...chartBase,
+                plugins: {
+                    ...chartBase.plugins,
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => {
+                                const v = ctx.parsed.y;
+                                return v !== null ? ` ${ctx.dataset.label}: ${v}%` : ' Ingen historik';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // ---- LAGINSNITT ----
+        const tLagg = Math.round(m.players.reduce((s,p) => s+this.acc(p.stats.lagg), 0) / m.players.length);
+        const tSkott = Math.round(m.players.reduce((s,p) => s+this.acc(p.stats.skott), 0) / m.players.length);
+        const totalForsok = m.players.reduce((s,p) => s+p.stats.lagg.total+p.stats.skott.total, 0);
+        document.getElementById('detail-team').innerHTML = `
+            <div class="trend-row"><span class="trend-label">Lag — Lägg genomsnitt</span><span class="trend-val">${tLagg}%</span></div>
+            <div class="trend-row"><span class="trend-label">Lag — Skott genomsnitt</span><span class="trend-val">${tSkott}%</span></div>
+            <div class="trend-row"><span class="trend-label">Lag — Totalt genomsnitt</span><span class="trend-val">${Math.round((tLagg+tSkott)/2)}%</span></div>
+            <div class="trend-row"><span class="trend-label">Totalt antal försök</span><span class="trend-val">${totalForsok} st</span></div>
+        `;
+
+        // ---- TIDSLINJE ----
+        const tl = document.getElementById('detail-timeline');
+        if (!m.timeline || !m.timeline.length) {
+            tl.innerHTML = '<div style="color:#666;font-size:13px;padding:1rem;text-align:center;">Ingen tidslinje registrerad</div>';
+        } else {
+            tl.innerHTML = m.timeline.map(t => {
+                const dc = t.type==='lagg'?(t.hit?'dot-lagg-hit':'dot-lagg-miss'):(t.hit?'dot-skott-hit':'dot-skott-miss');
+                return `<div class="timeline-item"><div class="timeline-time">${t.time}m</div><div class="timeline-dot ${dc}"></div><div class="timeline-text"><strong>${t.player}</strong> — ${t.label}</div></div>`;
+            }).join('');
+        }
+
+        document.getElementById('hist-list-view').style.display = 'none';
+        document.getElementById('detail-view').style.display = 'block';
+    }
+
+    showHistList() {
+        document.getElementById('detail-view').style.display = 'none';
+        document.getElementById('hist-list-view').style.display = 'block';
+        ['detailChartAccuracy','detailChartAttempts','detailChartCompare'].forEach(k => {
+            if (this[k]) { this[k].destroy(); this[k] = null; }
+        });
+        this.currentDetailIdx = null;
+    }
+
+    // ---- HOME DETAIL VIEW ----
+    showHomeDetail(idx) {
+        this.currentHomeDetailIdx = idx;
+        const m = this.history[idx];
+
+        const date = new Date(m.startTime).toLocaleDateString('sv-SE');
+        const time = new Date(m.startTime).toLocaleTimeString('sv-SE', {hour:'2-digit',minute:'2-digit'});
+        document.getElementById('home-detail-title').textContent = m.name;
+        document.getElementById('home-detail-meta').textContent = `${m.team} • ${date} ${time} • ${m.duration ?? 0} min`;
+
+        const labels = m.players.map(p => p.name);
+        const chartBase = {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { labels: { color:'#ccc', font:{size:12} } } },
+            scales: {
+                x: { ticks:{color:'#999'}, grid:{color:'rgba(232,255,71,0.05)'} },
+                y: { ticks:{color:'#999'}, grid:{color:'rgba(232,255,71,0.05)'}, min:0, max:100 }
+            }
+        };
+
+        // Destroy old home charts
+        Object.values(this.homeDetailCharts).forEach(c => { if(c) c.destroy(); });
+        this.homeDetailCharts = {};
+
+        // Chart 1: Träffprocent
+        this.homeDetailCharts.accuracy = new Chart(
+            document.getElementById('home-detail-chart-accuracy'), {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [
+                    { label:'Lägg % (poängkula)', data:m.players.map(p=>this.acc(p.stats.lagg)), backgroundColor:'#51cf66', borderRadius:4 },
+                    { label:'Skott %', data:m.players.map(p=>this.acc(p.stats.skott)), backgroundColor:'#e8ff47', borderRadius:4 }
+                ]
+            },
+            options: chartBase
+        });
+
+        // Chart 2: Försök totalt
+        this.homeDetailCharts.attempts = new Chart(
+            document.getElementById('home-detail-chart-attempts'), {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [
+                    { label:'Lägg poängkulor', data:m.players.map(p=>p.stats.lagg.hit), backgroundColor:'#51cf66', borderRadius:4 },
+                    { label:'Lägg miss', data:m.players.map(p=>p.stats.lagg.total-p.stats.lagg.hit), backgroundColor:'rgba(81,207,102,0.25)', borderRadius:4 },
+                    { label:'Skott träff', data:m.players.map(p=>p.stats.skott.hit), backgroundColor:'#e8ff47', borderRadius:4 },
+                    { label:'Skott miss', data:m.players.map(p=>p.stats.skott.total-p.stats.skott.hit), backgroundColor:'rgba(232,255,71,0.2)', borderRadius:4 }
+                ]
+            },
+            options: { ...chartBase, scales: { x:{ticks:{color:'#999'},grid:{color:'rgba(232,255,71,0.05)'}}, y:{ticks:{color:'#999',stepSize:1},grid:{color:'rgba(232,255,71,0.05)'},min:0,beginAtZero:true} } }
+        });
+
+        // Chart 3: Denna match vs historiskt genomsnitt
+        const otherMatches = this.history.filter((_,i) => i !== idx);
+        const histLagg = m.players.map(p => {
+            const pm = otherMatches.filter(om => om.players.some(op => op.name === p.name));
+            if (!pm.length) return null;
+            return Math.round(pm.reduce((s,om) => { const op = om.players.find(x=>x.name===p.name); return s+(op?this.acc(op.stats.lagg):0); },0) / pm.length);
+        });
+        const histSkott = m.players.map(p => {
+            const pm = otherMatches.filter(om => om.players.some(op => op.name === p.name));
+            if (!pm.length) return null;
+            return Math.round(pm.reduce((s,om) => { const op = om.players.find(x=>x.name===p.name); return s+(op?this.acc(op.stats.skott):0); },0) / pm.length);
+        });
+
+        this.homeDetailCharts.compare = new Chart(
+            document.getElementById('home-detail-chart-compare'), {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [
+                    { label:'Lägg % (denna match)', data:m.players.map(p=>this.acc(p.stats.lagg)), backgroundColor:'#51cf66', borderRadius:4 },
+                    { label:'Lägg % (historiskt snitt)', data:histLagg, backgroundColor:'rgba(81,207,102,0.3)', borderRadius:4, borderWidth:2, borderColor:'#51cf66' },
+                    { label:'Skott % (denna match)', data:m.players.map(p=>this.acc(p.stats.skott)), backgroundColor:'#e8ff47', borderRadius:4 },
+                    { label:'Skott % (historiskt snitt)', data:histSkott, backgroundColor:'rgba(232,255,71,0.25)', borderRadius:4, borderWidth:2, borderColor:'#e8ff47' }
+                ]
+            },
+            options: chartBase
+        });
+
+        // Laginsnitt
+        const tLagg = Math.round(m.players.reduce((s,p)=>s+this.acc(p.stats.lagg),0)/m.players.length);
+        const tSkott = Math.round(m.players.reduce((s,p)=>s+this.acc(p.stats.skott),0)/m.players.length);
+        const totalForsok = m.players.reduce((s,p)=>s+p.stats.lagg.total+p.stats.skott.total,0);
+        document.getElementById('home-detail-team').innerHTML = `
+            <div class="trend-row"><span class="trend-label">Lag — Lägg genomsnitt</span><span class="trend-val">${tLagg}%</span></div>
+            <div class="trend-row"><span class="trend-label">Lag — Skott genomsnitt</span><span class="trend-val">${tSkott}%</span></div>
+            <div class="trend-row"><span class="trend-label">Lag — Totalt genomsnitt</span><span class="trend-val">${Math.round((tLagg+tSkott)/2)}%</span></div>
+            <div class="trend-row"><span class="trend-label">Totalt antal försök</span><span class="trend-val">${totalForsok} st</span></div>
+        `;
+
+        // Tidslinje
+        const tl = document.getElementById('home-detail-timeline');
+        if (!m.timeline || !m.timeline.length) {
+            tl.innerHTML = '<div style="color:#666;font-size:13px;padding:1rem;text-align:center;">Ingen tidslinje registrerad</div>';
+        } else {
+            tl.innerHTML = m.timeline.map(t => {
+                const dc = t.type==='lagg'?(t.hit?'dot-lagg-hit':'dot-lagg-miss'):(t.hit?'dot-skott-hit':'dot-skott-miss');
+                return `<div class="timeline-item"><div class="timeline-time">${t.time}m</div><div class="timeline-dot ${dc}"></div><div class="timeline-text"><strong>${t.player}</strong> — ${t.label}</div></div>`;
+            }).join('');
+        }
+
+        document.getElementById('home-history-card').style.display = 'none';
+        document.getElementById('home-detail-view').style.display = 'block';
+        window.scrollTo(0,0);
+    }
+
+    showHomeList() {
+        document.getElementById('home-detail-view').style.display = 'none';
+        document.getElementById('home-history-card').style.display = 'block';
+        Object.values(this.homeDetailCharts).forEach(c => { if(c) c.destroy(); });
+        this.homeDetailCharts = {};
+        this.currentHomeDetailIdx = null;
+    }
+
+    // ---- EXPORT SINGLE MATCH PDF (from Detail View) ----
+    exportDetailPDF() {
+        if (this.currentDetailIdx === null) return;
+        const m = this.history[this.currentDetailIdx];
+        const {jsPDF} = window.jspdf;
+        const doc = new jsPDF();
+        let y = 15;
+        
+        // HEADER
+        doc.setFont(undefined,'bold'); doc.setFontSize(16);
+        doc.text('Petanque Matchstatistik', 15, y); y+=8;
+        doc.setFont(undefined,'normal'); doc.setFontSize(9);
+        const date = new Date(m.startTime).toLocaleDateString('sv-SE');
+        const time = new Date(m.startTime).toLocaleTimeString('sv-SE', {hour:'2-digit',minute:'2-digit'});
+        doc.text(`Tränarkod: ${this.trainerCode} | ${date} ${time} | ${m.duration??0} min`, 15, y); y+=6;
+        
+        // MATCH INFO
+        doc.setFont(undefined,'bold'); doc.setFontSize(11);
+        doc.text(m.name, 15, y); y+=5;
+        doc.setFont(undefined,'normal'); doc.setFontSize(9);
+        doc.text(`Lag: ${m.team}`, 15, y); y+=5;
+        
+        // SPELARE STATS
+        y+=2;
+        doc.setFont(undefined,'bold'); doc.setFontSize(10);
+        doc.text('SPELARE STATISTIK', 15, y); y+=5;
+        doc.setFont(undefined,'normal'); doc.setFontSize(8);
+        
+        const streaks = this.calcStreaks(m);
+        const hist = {};
+        m.players.forEach(p => hist[p.name] = this.getHistoricalAvg(p.name));
+        
+        m.players.forEach((p,idx) => {
+            if (y > 250) { doc.addPage(); y = 15; }
+            doc.setFont(undefined,'bold'); doc.setFontSize(9);
+            doc.text(`${p.name} (${p.position})`, 15, y); y+=4;
+            doc.setFont(undefined,'normal'); doc.setFontSize(8);
+            
+            const laggAcc = this.acc(p.stats.lagg);
+            const skottAcc = this.acc(p.stats.skott);
+            doc.text(`Lägg: ${p.stats.lagg.hit}/${p.stats.lagg.total} (${laggAcc}%) | Skott: ${p.stats.skott.hit}/${p.stats.skott.total} (${skottAcc}%)`, 15, y); y+=3;
+            
+            const lagStreaks = streaks[p.name];
+            doc.text(`Streaks - Lägg: ${lagStreaks.lagg.maxHit}h/${lagStreaks.lagg.maxMiss}m | Skott: ${lagStreaks.skott.maxHit}h/${lagStreaks.skott.maxMiss}m`, 15, y); y+=3;
+            
+            const ha = hist[p.name];
+            const laggDiff = laggAcc - ha.laggAvg;
+            const skottDiff = skottAcc - ha.skottAvg;
+            doc.text(`Vs snitt (${ha.totalMatches} matcher): Lägg ${laggAcc}% (${laggDiff>0?'+':''}${laggDiff}%) | Skott ${skottAcc}% (${skottDiff>0?'+':''}${skottDiff}%)`, 15, y); y+=3;
+            y+=2;
+        });
+        
+        // POSITION ANALYS
+        if (y > 240) { doc.addPage(); y = 15; }
+        y+=3;
+        doc.setFont(undefined,'bold'); doc.setFontSize(10);
+        doc.text('POSITION-ANALYS', 15, y); y+=5;
+        doc.setFont(undefined,'normal'); doc.setFontSize(8);
+        
+        const posStats = this.getPositionStats(m);
+        Object.entries(posStats).forEach(([pos, stats]) => {
+            if (stats) {
+                const laggAcc = stats.lagg.t ? Math.round((stats.lagg.h/stats.lagg.t)*100) : 0;
+                const skottAcc = stats.skott.t ? Math.round((stats.skott.h/stats.skott.t)*100) : 0;
+                doc.text(`${pos}: Lägg ${stats.lagg.h}/${stats.lagg.t} (${laggAcc}%) | Skott ${stats.skott.h}/${stats.skott.t} (${skottAcc}%)`, 15, y); y+=4;
+            }
+        });
+        
+        doc.save(`petanque-${m.name.replace(/[^a-z0-9]/gi,'_')}.pdf`);
+    }
+
+    // ---- EXPORT SINGLE MATCH CSV (from Detail View) ----
+    exportDetailCSV() {
+        if (this.currentDetailIdx === null) return;
+        const m = this.history[this.currentDetailIdx];
+        const date = new Date(m.startTime).toLocaleDateString('sv-SE');
+        const time = new Date(m.startTime).toLocaleTimeString('sv-SE', {hour:'2-digit',minute:'2-digit'});
+        
+        let csv = `Match: ${m.name}\nLag: ${m.team}\nDatum: ${date}\nTid: ${time}\nVaraktighet: ${m.duration??0} min\nTränarkod: ${this.trainerCode}\n\n`;
+        csv += `SPELARE STATISTIK\n`;
+        csv += `Spelare,Position,Lägg träffar,Lägg totalt,Lägg %,Skott träffar,Skott totalt,Skott %,Längsta träffsekvens Lägg,Längsta misssekvens Lägg,Längsta träffsekvens Skott,Längsta misssekvens Skott,Lägg vs snitt,Skott vs snitt\n`;
+        
+        const streaks = this.calcStreaks(m);
+        const hist = {};
+        m.players.forEach(p => hist[p.name] = this.getHistoricalAvg(p.name));
+        
+        m.players.forEach(p => {
+            const laggAcc = this.acc(p.stats.lagg);
+            const skottAcc = this.acc(p.stats.skott);
+            const ha = hist[p.name];
+            const laggDiff = laggAcc - ha.laggAvg;
+            const skottDiff = skottAcc - ha.skottAvg;
+            const lagStreaks = streaks[p.name];
+            
+            csv += `"${p.name}","${p.position}",${p.stats.lagg.hit},${p.stats.lagg.total},${laggAcc},${p.stats.skott.hit},${p.stats.skott.total},${skottAcc},${lagStreaks.lagg.maxHit},${lagStreaks.lagg.maxMiss},${lagStreaks.skott.maxHit},${lagStreaks.skott.maxMiss},"${laggAcc}% (${laggDiff>0?'+':''}${laggDiff}%)","${skottAcc}% (${skottDiff>0?'+':''}${skottDiff}%)"\n`;
+        });
+        
+        csv += `\nPOSITION-ANALYS\nPosition,Lägg träffar,Lägg totalt,Lägg %,Skott träffar,Skott totalt,Skott %\n`;
+        const posStats = this.getPositionStats(m);
+        Object.entries(posStats).forEach(([pos, stats]) => {
+            if (stats) {
+                const laggAcc = stats.lagg.t ? Math.round((stats.lagg.h/stats.lagg.t)*100) : 0;
+                const skottAcc = stats.skott.t ? Math.round((stats.skott.h/stats.skott.t)*100) : 0;
+                csv += `"${pos}",${stats.lagg.h},${stats.lagg.t},${laggAcc},${stats.skott.h},${stats.skott.t},${skottAcc}\n`;
+            }
+        });
+        
+        const blob = new Blob([csv], {type:'text/csv'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href=url; a.download=`petanque-${m.name.replace(/[^a-z0-9]/gi,'_')}.csv`; a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    // ---- EXPORT SINGLE MATCH PDF (from Home Screen) ----
+    exportHomePDF() {
+        if (this.currentHomeDetailIdx === null) return;
+        const m = this.history[this.currentHomeDetailIdx];
+        const {jsPDF} = window.jspdf;
+        const doc = new jsPDF();
+        let y = 15;
+        
+        // HEADER
+        doc.setFont(undefined,'bold'); doc.setFontSize(16);
+        doc.text('Petanque Matchstatistik', 15, y); y+=8;
+        doc.setFont(undefined,'normal'); doc.setFontSize(9);
+        const date = new Date(m.startTime).toLocaleDateString('sv-SE');
+        const time = new Date(m.startTime).toLocaleTimeString('sv-SE', {hour:'2-digit',minute:'2-digit'});
+        doc.text(`Tränarkod: ${this.trainerCode} | ${date} ${time} | ${m.duration??0} min`, 15, y); y+=6;
+        
+        // MATCH INFO
+        doc.setFont(undefined,'bold'); doc.setFontSize(11);
+        doc.text(m.name, 15, y); y+=5;
+        doc.setFont(undefined,'normal'); doc.setFontSize(9);
+        doc.text(`Lag: ${m.team}`, 15, y); y+=5;
+        
+        // SPELARE STATS
+        y+=2;
+        doc.setFont(undefined,'bold'); doc.setFontSize(10);
+        doc.text('SPELARE STATISTIK', 15, y); y+=5;
+        doc.setFont(undefined,'normal'); doc.setFontSize(8);
+        
+        const streaks = this.calcStreaks(m);
+        const hist = {};
+        m.players.forEach(p => hist[p.name] = this.getHistoricalAvg(p.name));
+        
+        m.players.forEach((p,idx) => {
+            if (y > 250) { doc.addPage(); y = 15; }
+            doc.setFont(undefined,'bold'); doc.setFontSize(9);
+            doc.text(`${p.name} (${p.position})`, 15, y); y+=4;
+            doc.setFont(undefined,'normal'); doc.setFontSize(8);
+            
+            const laggAcc = this.acc(p.stats.lagg);
+            const skottAcc = this.acc(p.stats.skott);
+            doc.text(`Lägg: ${p.stats.lagg.hit}/${p.stats.lagg.total} (${laggAcc}%) | Skott: ${p.stats.skott.hit}/${p.stats.skott.total} (${skottAcc}%)`, 15, y); y+=3;
+            
+            const lagStreaks = streaks[p.name];
+            doc.text(`Streaks - Lägg: ${lagStreaks.lagg.maxHit}h/${lagStreaks.lagg.maxMiss}m | Skott: ${lagStreaks.skott.maxHit}h/${lagStreaks.skott.maxMiss}m`, 15, y); y+=3;
+            
+            const ha = hist[p.name];
+            const laggDiff = laggAcc - ha.laggAvg;
+            const skottDiff = skottAcc - ha.skottAvg;
+            doc.text(`Vs snitt (${ha.totalMatches} matcher): Lägg ${laggAcc}% (${laggDiff>0?'+':''}${laggDiff}%) | Skott ${skottAcc}% (${skottDiff>0?'+':''}${skottDiff}%)`, 15, y); y+=3;
+            y+=2;
+        });
+        
+        // POSITION ANALYS
+        if (y > 240) { doc.addPage(); y = 15; }
+        y+=3;
+        doc.setFont(undefined,'bold'); doc.setFontSize(10);
+        doc.text('POSITION-ANALYS', 15, y); y+=5;
+        doc.setFont(undefined,'normal'); doc.setFontSize(8);
+        
+        const posStats = this.getPositionStats(m);
+        Object.entries(posStats).forEach(([pos, stats]) => {
+            if (stats) {
+                const laggAcc = stats.lagg.t ? Math.round((stats.lagg.h/stats.lagg.t)*100) : 0;
+                const skottAcc = stats.skott.t ? Math.round((stats.skott.h/stats.skott.t)*100) : 0;
+                doc.text(`${pos}: Lägg ${stats.lagg.h}/${stats.lagg.t} (${laggAcc}%) | Skott ${stats.skott.h}/${stats.skott.t} (${skottAcc}%)`, 15, y); y+=4;
+            }
+        });
+        
+        doc.save(`petanque-${m.name.replace(/[^a-z0-9]/gi,'_')}.pdf`);
+    }
+
+    // ---- EXPORT SINGLE MATCH CSV (from Home Screen) ----
+    exportHomeCSV() {
+        if (this.currentHomeDetailIdx === null) return;
+        const m = this.history[this.currentHomeDetailIdx];
+        const date = new Date(m.startTime).toLocaleDateString('sv-SE');
+        const time = new Date(m.startTime).toLocaleTimeString('sv-SE', {hour:'2-digit',minute:'2-digit'});
+        
+        let csv = `Match: ${m.name}\nLag: ${m.team}\nDatum: ${date}\nTid: ${time}\nVaraktighet: ${m.duration??0} min\nTränarkod: ${this.trainerCode}\n\n`;
+        csv += `SPELARE STATISTIK\n`;
+        csv += `Spelare,Position,Lägg träffar,Lägg totalt,Lägg %,Skott träffar,Skott totalt,Skott %,Längsta träffsekvens Lägg,Längsta misssekvens Lägg,Längsta träffsekvens Skott,Längsta misssekvens Skott,Lägg vs snitt,Skott vs snitt\n`;
+        
+        const streaks = this.calcStreaks(m);
+        const hist = {};
+        m.players.forEach(p => hist[p.name] = this.getHistoricalAvg(p.name));
+        
+        m.players.forEach(p => {
+            const laggAcc = this.acc(p.stats.lagg);
+            const skottAcc = this.acc(p.stats.skott);
+            const ha = hist[p.name];
+            const laggDiff = laggAcc - ha.laggAvg;
+            const skottDiff = skottAcc - ha.skottAvg;
+            const lagStreaks = streaks[p.name];
+            
+            csv += `"${p.name}","${p.position}",${p.stats.lagg.hit},${p.stats.lagg.total},${laggAcc},${p.stats.skott.hit},${p.stats.skott.total},${skottAcc},${lagStreaks.lagg.maxHit},${lagStreaks.lagg.maxMiss},${lagStreaks.skott.maxHit},${lagStreaks.skott.maxMiss},"${laggAcc}% (${laggDiff>0?'+':''}${laggDiff}%)","${skottAcc}% (${skottDiff>0?'+':''}${skottDiff}%)"\n`;
+        });
+        
+        csv += `\nPOSITION-ANALYS\nPosition,Lägg träffar,Lägg totalt,Lägg %,Skott träffar,Skott totalt,Skott %\n`;
+        const posStats = this.getPositionStats(m);
+        Object.entries(posStats).forEach(([pos, stats]) => {
+            if (stats) {
+                const laggAcc = stats.lagg.t ? Math.round((stats.lagg.h/stats.lagg.t)*100) : 0;
+                const skottAcc = stats.skott.t ? Math.round((stats.skott.h/stats.skott.t)*100) : 0;
+                csv += `"${pos}",${stats.lagg.h},${stats.lagg.t},${laggAcc},${stats.skott.h},${stats.skott.t},${skottAcc}\n`;
+            }
+        });
+        
+        const blob = new Blob([csv], {type:'text/csv'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href=url; a.download=`petanque-${m.name.replace(/[^a-z0-9]/gi,'_')}.csv`; a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    // ---- EXPORT ALL MATCHES PDF ----
+    exportPDF() {
+        if (!this.history.length) { alert('Ingen matchdata att exportera'); return; }
+        const {jsPDF} = window.jspdf;
+        const doc = new jsPDF();
+        let y = 20;
+        doc.setFont(undefined,'bold'); doc.setFontSize(16);
+        doc.text('Petanque Matchstatistik', 20, y); y+=10;
+        doc.setFont(undefined,'normal'); doc.setFontSize(10);
+        doc.text(`Tränarkod: ${this.trainerCode} | Exportdatum: ${new Date().toLocaleDateString('sv-SE')}`, 20, y); y+=10;
+
+        this.history.forEach((m,i) => {
+            if (y>250) { doc.addPage(); y=20; }
+            doc.setFont(undefined,'bold'); doc.setFontSize(12);
+            doc.text(`${i+1}. ${m.name}`, 20, y); y+=7;
+            doc.setFont(undefined,'normal'); doc.setFontSize(9);
+            const date = new Date(m.startTime).toLocaleDateString('sv-SE');
+            doc.text(`${m.team} | ${date} | ${m.duration??0} min`, 20, y); y+=5;
+            m.players.forEach(p => {
+                const la = this.acc(p.stats.lagg);
+                const sa = this.acc(p.stats.skott);
+                doc.text(`  ${p.name}: Lägg ${p.stats.lagg.hit}/${p.stats.lagg.total} (${la}%) | Skott ${p.stats.skott.hit}/${p.stats.skott.total} (${sa}%)`, 20, y); y+=5;
+            });
+            y+=5;
+        });
+        doc.save(`petanque-${this.trainerCode}-statistik.pdf`);
+    }
+
+    // ---- EXPORT CSV ----
+    exportCSV() {
+        if (!this.history.length) { alert('Ingen matchdata att exportera'); return; }
+        let csv = 'Match,Lag,Datum,Tid,Varaktighet,Spelare,Position,Lägg poängkula,Lägg totalt,Lägg %,Skott träff,Skott totalt,Skott %\n';
+        this.history.forEach(m => {
+            const date = new Date(m.startTime).toLocaleDateString('sv-SE');
+            const time = new Date(m.startTime).toLocaleTimeString('sv-SE', {hour:'2-digit',minute:'2-digit'});
+            m.players.forEach(p => {
+                csv += `"${m.name}","${m.team}","${date}","${time}","${m.duration??0}","${p.name}","${p.position}",${p.stats.lagg.hit},${p.stats.lagg.total},${this.acc(p.stats.lagg)},${p.stats.skott.hit},${p.stats.skott.total},${this.acc(p.stats.skott)}\n`;
+            });
+        });
+        const blob = new Blob([csv], {type:'text/csv'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href=url; a.download=`petanque-${this.trainerCode}-statistik.csv`; a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    // ---- HELPERS ----
+    acc(stat) { return stat.total ? Math.round((stat.hit/stat.total)*100) : 0; }
+    accClass(acc, total) { return !total ? 'acc-neutral' : acc>=50 ? 'acc-good' : 'acc-bad'; }
+
+    // ---- STREAKS: Längsta träff/miss-sekvens ----
+    calcStreaks(match) {
+        const streaks = {};
+        match.players.forEach(p => {
+            streaks[p.name] = { lagg: {maxHit:0,maxMiss:0}, skott: {maxHit:0,maxMiss:0} };
+        });
+        
+        let currentStreaks = {};
+        match.timeline.forEach(ev => {
+            if (!currentStreaks[ev.player]) {
+                currentStreaks[ev.player] = { lagg:{hits:0,misses:0}, skott:{hits:0,misses:0} };
+            }
+            const type = ev.type;
+            if (ev.hit) {
+                currentStreaks[ev.player][type].hits++;
+                currentStreaks[ev.player][type].misses = 0;
+                streaks[ev.player][type].maxHit = Math.max(streaks[ev.player][type].maxHit, currentStreaks[ev.player][type].hits);
+            } else {
+                currentStreaks[ev.player][type].misses++;
+                currentStreaks[ev.player][type].hits = 0;
+                streaks[ev.player][type].maxMiss = Math.max(streaks[ev.player][type].maxMiss, currentStreaks[ev.player][type].misses);
+            }
+        });
+        return streaks;
+    }
+
+    // ---- PROGRESSION: Träffprocent över tid ----
+    calcProgression(match) {
+        const progression = {};
+        match.players.forEach(p => progression[p.name] = { lagg: [], skott: [] });
+        
+        let running = {};
+        match.timeline.forEach(ev => {
+            if (!running[ev.player]) {
+                running[ev.player] = { lagg:{h:0,t:0}, skott:{h:0,t:0} };
+            }
+            const s = running[ev.player][ev.type];
+            s.t++;
+            if (ev.hit) s.h++;
+            const pct = s.t ? Math.round((s.h/s.t)*100) : 0;
+            progression[ev.player][ev.type].push({time: ev.time, pct, h: s.h, t: s.t});
+        });
+        return progression;
+    }
+
+    // ---- HISTORISKA SNITT: Jämför med tidigare matcher ----
+    getHistoricalAvg(playerName) {
+        const avgData = { laggAvg: 0, skottAvg: 0, totalMatches: 0 };
+        if (!this.history || this.history.length === 0) return avgData;
+        
+        let laggSum = 0, laggCnt = 0, skottSum = 0, skottCnt = 0;
+        this.history.forEach(m => {
+            const p = m.players.find(x => x.name === playerName);
+            if (p) {
+                const lagg = this.acc(p.stats.lagg);
+                const skott = this.acc(p.stats.skott);
+                if (p.stats.lagg.total > 0) { laggSum += lagg; laggCnt++; }
+                if (p.stats.skott.total > 0) { skottSum += skott; skottCnt++; }
+            }
+        });
+        return {
+            laggAvg: laggCnt > 0 ? Math.round(laggSum / laggCnt) : 0,
+            skottAvg: skottCnt > 0 ? Math.round(skottSum / skottCnt) : 0,
+            totalMatches: this.history.length
+        };
+    }
+
+    // ---- POSITION-ANALYS ----
+    getPositionStats(match) {
+        const stats = { Läggare: null, Mittspelare: null, Skytt: null };
+        match.players.forEach(p => {
+            const pos = p.position;
+            if (stats[pos] === null) {
+                stats[pos] = { lagg: {h:0,t:0}, skott: {h:0,t:0} };
+            }
+            stats[pos].lagg.h += p.stats.lagg.hit;
+            stats[pos].lagg.t += p.stats.lagg.total;
+            stats[pos].skott.h += p.stats.skott.hit;
+            stats[pos].skott.t += p.stats.skott.total;
+        });
+        return stats;
+    }
+
+    checkOnline() {
+        document.getElementById('offline-badge').classList.toggle('show', !navigator.onLine);
+    }
+}
+
+// ---- BOOT ----
+const app = new MatchApp();
+document.addEventListener('DOMContentLoaded', () => app.init());
+</script>
+<!-- Firebase Config & Sync Manager -->
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCwzdwGEjN5LVw3RSLz2dy7f70Reafbe2c",
+    authDomain: "databas-serie.firebaseapp.com",
+    databaseURL: "https://databas-serie-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "databas-serie",
+    storageBucket: "databas-serie.firebasestorage.app",
+    messagingSenderId: "672666417012",
+    appId: "1:672666417012:web:93613783fe51cd2ce81e21"
+  };
+  
+  if (typeof initSyncManager === 'function') {
+    initSyncManager(firebaseConfig);
+  }
+</script>
+</body>
+</html>

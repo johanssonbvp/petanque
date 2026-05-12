@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pétanque Pro – Seriespelet</title>
+<style>
+  :root{--bg:#0d0f14;--bg2:#13161e;--bg3:#1a1e2a;--border:#252a38;--accent:#6366f1;--accent2:#818cf8;--gold:#f59e0b;--green:#22c55e;--red:#ef4444;--text:#e2e8f0;--muted:#64748b;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;}
+  ::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--bg2);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+  .app{display:flex;min-height:100vh;}
+  .sidebar{width:230px;min-width:230px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:1.5rem 1rem;gap:0.5rem;position:sticky;top:0;height:100vh;overflow-y:auto;}
+  .main{flex:1;padding:2rem;overflow-x:hidden;}
+  @media(max-width:900px){.sidebar{display:none;}}
+  .sidebar-logo{font-size:1.1rem;font-weight:900;color:var(--accent2);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+  .sidebar-logo span{color:var(--gold);}
+  .nav-item{display:flex;align-items:center;gap:0.6rem;padding:0.55rem 0.75rem;border-radius:0.5rem;font-size:0.85rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all 0.15s;border:none;background:none;width:100%;text-align:left;}
+  .nav-item:hover{background:var(--bg3);color:var(--text);}
+  .nav-item.active{background:rgba(99,102,241,0.15);color:var(--accent2);}
+  .nav-dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;}
+  .nav-item.active .nav-dot{background:var(--accent);}
+  .nav-section{font-size:0.65rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin:1rem 0 0.3rem 0.75rem;}
+  .sidebar-footer{margin-top:auto;font-size:0.72rem;color:var(--muted);text-align:center;padding-top:1rem;border-top:1px solid var(--border);}
+  .live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:0.3rem;animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+  .page-header{margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+  .page-header-text h1{font-size:1.8rem;font-weight:900;}
+  .page-header-text p{color:var(--muted);font-size:0.9rem;margin-top:0.25rem;}
+  .format-badge{font-size:0.68rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:9999px;background:rgba(99,102,241,0.15);color:var(--accent2);border:1px solid rgba(99,102,241,0.2);}
+  .badge-gold{background:rgba(245,158,11,0.15);color:var(--gold);border:1px solid rgba(245,158,11,0.2);font-size:0.65rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:9999px;}
+  .badge-archive{background:rgba(100,116,139,0.15);color:var(--muted);border:1px solid rgba(100,116,139,0.2);font-size:0.65rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:9999px;}
+  .card{background:var(--bg2);border:1px solid var(--border);border-radius:0.75rem;box-shadow:0 4px 24px rgba(0,0,0,0.4);}
+  .division-block{margin-bottom:3rem;scroll-margin-top:2rem;}
+  .division-header{display:flex;align-items:center;gap:1rem;margin-bottom:1rem;}
+  .division-header h2{font-size:1.5rem;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;}
+  .division-header .line{flex:1;height:1px;background:var(--border);}
+
+  /* TABS */
+  .div-tabs{display:flex;gap:0.5rem;margin-bottom:1.25rem;flex-wrap:wrap;}
+  .div-tab{padding:0.45rem 1rem;border-radius:0.5rem;font-size:0.82rem;font-weight:600;color:var(--muted);cursor:pointer;border:1px solid var(--border);background:var(--bg3);transition:all 0.15s;}
+  .div-tab.active{background:rgba(99,102,241,0.15);color:var(--accent2);border-color:var(--accent);}
+
+  /* STANDINGS */
+  table{width:100%;border-collapse:collapse;font-size:0.82rem;}
+  thead th{background:var(--bg3);color:var(--muted);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;padding:0.6rem 0.5rem;text-align:center;border-bottom:1px solid var(--border);}
+  thead th:first-child,thead th:nth-child(2){text-align:left;}
+  tbody tr{border-bottom:1px solid var(--border);transition:background 0.1s;}
+  tbody tr:hover{background:var(--bg3);}
+  tbody tr:last-child{border-bottom:none;}
+  td{padding:0.6rem 0.5rem;text-align:center;}
+  td:first-child{text-align:left;color:var(--muted);font-weight:700;font-size:0.72rem;width:28px;}
+  td:nth-child(2){text-align:left;font-weight:600;}
+  .pts-cell{font-weight:800;color:var(--accent2);background:rgba(99,102,241,0.08);}
+  .gold-row td:nth-child(2)::before{content:'👑 ';}
+  .diff-pos{color:var(--green);}.diff-neg{color:var(--red);}
+
+  /* ROUNDS */
+  .rounds-list{display:flex;flex-direction:column;gap:1rem;}
+  .round-card{background:var(--bg2);border:1px solid var(--border);border-radius:0.75rem;overflow:hidden;}
+  .round-card.done{border-color:rgba(34,197,94,0.3);}
+  .round-header{background:var(--bg3);border-bottom:1px solid var(--border);padding:0.6rem 1rem;display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;}
+  .round-label{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);}
+  .done-badge{font-size:0.65rem;font-weight:700;color:var(--green);background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);padding:0.1rem 0.5rem;border-radius:9999px;}
+  .progress-bar{height:3px;background:var(--border);}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));}
+  .round-body{padding:0.75rem;display:flex;flex-direction:column;gap:0.75rem;}
+  .round-body.collapsed{display:none;}
+  .round-chevron{transition:transform 0.2s;color:var(--muted);font-size:0.75rem;}
+  .round-chevron.open{transform:rotate(180deg);}
+
+  /* MATCH CARDS */
+  .match-card{background:var(--bg3);border:1px solid var(--border);border-radius:0.6rem;overflow:hidden;}
+  .match-teams{display:flex;align-items:center;padding:0.6rem 0.75rem;gap:0.5rem;}
+  .match-team{flex:1;font-size:0.85rem;font-weight:700;}
+  .match-team.right{text-align:right;}
+  .match-set-score{font-size:1rem;font-weight:900;min-width:44px;text-align:center;color:var(--accent2);}
+  .win-h{color:var(--green);}.win-a{color:var(--red);}
+
+  /* SET DETAILS */
+  .sets-area{padding:0.5rem 0.75rem;display:flex;flex-direction:column;gap:0.3rem;border-top:1px solid var(--border);}
+  .set-row-pub{display:flex;align-items:center;gap:0.5rem;font-size:0.78rem;}
+  .set-label-pub{color:var(--muted);font-weight:700;width:36px;flex-shrink:0;font-size:0.68rem;text-transform:uppercase;}
+  .set-score-pub{font-weight:800;display:flex;align-items:center;gap:0.3rem;margin:0 auto;}
+  .set-score-pub .sh{min-width:22px;text-align:right;}
+  .set-score-pub .sa{min-width:22px;text-align:left;}
+  .set-score-pub .sep{color:var(--border);font-size:0.7rem;}
+  .set-winner-pub{font-size:0.68rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:9999px;margin-left:auto;}
+  .set-winner-pub.home{background:rgba(34,197,94,0.15);color:var(--green);}
+  .set-winner-pub.away{background:rgba(239,68,68,0.15);color:var(--red);}
+
+  .empty-state{text-align:center;padding:5rem 2rem;color:var(--muted);}
+  .empty-state .icon{font-size:3.5rem;margin-bottom:1rem;}
+  .empty-state h2{font-size:1.2rem;font-weight:700;margin-bottom:0.5rem;color:var(--text);}
+  .loading{text-align:center;padding:4rem;color:var(--muted);font-size:0.9rem;}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="sidebar">
+    <div class="sidebar-logo">Pétanque <span>Pro</span></div>
+    <div id="nav-live" class="nav-item active" onclick="showCurrentSeason()">
+      <div class="nav-dot"></div> Aktuell säsong
+    </div>
+    <div class="nav-section hidden" id="nav-archive-header">Arkiv</div>
+    <div id="nav-archive-list"></div>
+    <div class="sidebar-footer"><span class="live-dot"></span>Live-uppdatering</div>
+  </nav>
+  <main class="main">
+    <div class="page-header">
+      <div class="page-header-text">
+        <h1 id="main-title">Seriespelet</h1>
+        <p id="main-subtitle">Live-tabeller och resultat</p>
+      </div>
+      <span class="format-badge hidden" id="format-badge-display"></span>
+    </div>
+    <div id="content"><div class="loading">Laddar data…</div></div>
+  </main>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey:            "AIzaSyAw-cizjTdKHd3-FOmxyaXvD-vQTum-NSk",
+  authDomain:        "databas-serie.firebaseapp.com",
+  databaseURL:       "https://databas-serie-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:         "databas-serie",
+  storageBucket:     "databas-serie.firebasestorage.app",
+  messagingSenderId: "672666417012",
+  appId:             "1:672666417012:web:93613783fe51cd2ce81e21"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+let currentData    = { format:'sets', divisions:[] };
+let archivedSeasons = [];
+let viewingArchive  = null;
+
+db.ref('petanque').on('value', snap => {
+  const val  = snap.val() || {};
+  currentData = { format: val.format||'sets', divisions: val.divisions||[] };
+  if (!viewingArchive) renderSeason(currentData, false);
+});
+
+db.ref('archive').on('value', snap => {
+  const raw = snap.val() || {};
+  archivedSeasons = Object.entries(raw)
+    .map(([key,val]) => ({key,...val}))
+    .sort((a,b) => new Date(b.date)-new Date(a.date));
+  buildArchiveNav();
+});
+
+function buildArchiveNav() {
+  const header = document.getElementById('nav-archive-header');
+  const list   = document.getElementById('nav-archive-list');
+  if (!archivedSeasons.length) { header.classList.add('hidden'); list.innerHTML=''; return; }
+  header.classList.remove('hidden');
+  list.innerHTML = archivedSeasons.map(s => `
+    <div class="nav-item" id="nav-arc-${s.key}" onclick="showArchiveSeason('${s.key}')">
+      <div class="nav-dot"></div>${s.name}
+    </div>`).join('');
+}
+
+function showCurrentSeason() {
+  viewingArchive = null;
+  document.getElementById('main-title').textContent    = 'Seriespelet';
+  document.getElementById('main-subtitle').textContent = 'Live-tabeller och resultat';
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('nav-live')?.classList.add('active');
+  renderSeason(currentData, false);
+}
+
+function showArchiveSeason(key) {
+  viewingArchive = key;
+  const s = archivedSeasons.find(x => x.key===key);
+  if (!s) return;
+  document.getElementById('main-title').textContent    = s.name;
+  document.getElementById('main-subtitle').textContent = 'Arkiverad ' + new Date(s.date).toLocaleDateString('sv-SE');
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('nav-arc-'+key)?.classList.add('active');
+  renderSeason({ format: s.format||'sets', divisions: s.divisions||[] }, true);
+}
+
+// Normalisera så s1/s2/s3 alltid finns
+function normalizeDivisions(divisions) {
+  return (divisions||[]).map(div => ({
+    ...div,
+    rounds: (div.rounds||[]).map(round =>
+      (round||[]).map(m => ({
+        ...m,
+        s1: m.s1 || {h:null,a:null},
+        s2: m.s2 || {h:null,a:null},
+        s3: m.s3 || {h:null,a:null}
+      }))
+    )
+  }));
+}
+
+function needsSet3(m) {
+  if (m.s1.h===null||m.s2.h===null) return false;
+  return (m.s1.h>m.s1.a?'h':'a') !== (m.s2.h>m.s2.a?'h':'a');
+}
+
+function matchWinner(m) {
+  if (m.s1.h===null||m.s1.a===null||m.s2.h===null||m.s2.a===null) return null;
+  const w1 = m.s1.h>m.s1.a?'h':'a';
+  const w2 = m.s2.h>m.s2.a?'h':'a';
+  if (w1===w2) return w1;
+  if (m.s3.h===null||m.s3.a===null) return null;
+  return m.s3.h>m.s3.a?'h':'a';
+}
+
+function toggleRound(header) {
+  const body    = header.nextElementSibling;
+  const chevron = header.querySelector('.round-chevron');
+  body.classList.toggle('collapsed');
+  chevron.classList.toggle('open', !body.classList.contains('collapsed'));
+}
+
+function switchDivTab(divId, tab) {
+  document.getElementById(`tab-btn-standings-${divId}`).classList.toggle('active', tab==='standings');
+  document.getElementById(`tab-btn-rounds-${divId}`).classList.toggle('active', tab==='rounds');
+  document.getElementById(`tab-standings-${divId}`).classList.toggle('hidden', tab!=='standings');
+  document.getElementById(`tab-rounds-${divId}`).classList.toggle('hidden', tab!=='rounds');
+}
+
+// ─── RENDER ───────────────────────────────────────────────
+function renderSeason(data, isArchive) {
+  const fmt       = data.format || 'sets';
+  const divisions = normalizeDivisions(data.divisions);
+
+  const badge = document.getElementById('format-badge-display');
+  badge.textContent = fmt==='sets' ? 'Set-format' : 'Enkelt resultat';
+  badge.classList.remove('hidden');
+
+  const cont  = document.getElementById('content');
+  cont.innerHTML = '';
+
+  const active = divisions.filter(d => d.rounds && d.rounds.length > 0);
+  if (!active.length) {
+    cont.innerHTML = `<div class="empty-state">
+      <div class="icon">${isArchive?'📦':'🎯'}</div>
+      <h2>${isArchive?'Inga data':'Seriespelet har inte startat än'}</h2>
+      <p>${isArchive?'':'Resultaten visas här automatiskt när säsongen startar.'}</p>
+    </div>`;
+    return;
+  }
+
+  active.forEach(div => {
+    const block = document.createElement('div');
+    block.className = 'division-block';
+    block.id = 'div-block-' + div.id;
+    block.innerHTML = `
+      <div class="division-header">
+        <h2>${div.name}</h2>
+        <div class="line"></div>
+        <span class="${isArchive?'badge-archive':'badge-gold'}">${isArchive?'ARKIV':'LIVE'}</span>
+      </div>
+      <div class="div-tabs">
+        <div class="div-tab active" id="tab-btn-standings-${div.id}" onclick="switchDivTab('${div.id}','standings')">📊 Tabell</div>
+        <div class="div-tab" id="tab-btn-rounds-${div.id}" onclick="switchDivTab('${div.id}','rounds')">📅 Omgångar & Resultat</div>
+      </div>
+      <div id="tab-standings-${div.id}">${buildTableHTML(div)}</div>
+      <div id="tab-rounds-${div.id}" class="hidden">${buildRoundsHTML(div)}</div>
+    `;
+    cont.appendChild(block);
+  });
+}
+
+// ─── INBÖRDES MÖTEN ───────────────────────────────────────
+function headToHeadPoints(rounds, teamA, teamB) {
+  let ptsA=0, ptsB=0;
+  rounds.forEach(round => round.forEach(m => {
+    const isMatch = (m.home===teamA&&m.away===teamB)||(m.home===teamB&&m.away===teamA);
+    if (!isMatch) return;
+    const w = matchWinner(m); if (!w) return;
+    if ((m.home===teamA&&w==='h')||(m.away===teamA&&w==='a')) ptsA+=2;
+    else ptsB+=2;
+  }));
+  return { ptsA, ptsB };
+}
+
+// ─── TABELL ───────────────────────────────────────────────
+function buildTableHTML(div) {
+  const stats = {};
+  (div.teams||[]).filter(t => t!=='Vilohelg').forEach(t => {
+    stats[t] = { name:t, played:0, wins:0, losses:0, sF:0, sA:0, kF:0, kA:0, pts:0 };
+  });
+
+  div.rounds.forEach(round => round.forEach(m => {
+    const w = matchWinner(m);
+    if (!w || m.home==='Vilohelg' || m.away==='Vilohelg') return;
+    if (!stats[m.home] || !stats[m.away]) return;
+
+    let hS=0, aS=0, hK=0, aK=0;
+    [m.s1, m.s2, m.s3].forEach((s, i) => {
+      if (!s||s.h===null||s.a===null) return;
+      if (i===2 && !needsSet3(m)) return;
+      hK+=s.h; aK+=s.a;
+      if (s.h>s.a) hS++; else aS++;
+    });
+
+    stats[m.home].played++; stats[m.away].played++;
+    stats[m.home].sF+=hS;  stats[m.home].sA+=aS;
+    stats[m.away].sF+=aS;  stats[m.away].sA+=hS;
+    stats[m.home].kF+=hK;  stats[m.home].kA+=aK;
+    stats[m.away].kF+=aK;  stats[m.away].kA+=hK;
+
+    if (w==='h'){stats[m.home].wins++;stats[m.home].pts+=2;stats[m.away].losses++;}
+    else        {stats[m.away].wins++;stats[m.away].pts+=2;stats[m.home].losses++;}
+  }));
+
+  const teams = Object.values(stats).map(s => ({...s, sd:s.sF-s.sA, kd:s.kF-s.kA}));
+  teams.sort((a,b) => {
+    if (b.pts !== a.pts) return b.pts - a.pts;
+    if (b.wins !== a.wins) return b.wins - a.wins;
+    if (b.sd !== a.sd) return b.sd - a.sd;
+    if (b.kd !== a.kd) return b.kd - a.kd;
+    const h2h = headToHeadPoints(div.rounds, a.name, b.name);
+    return h2h.ptsB - h2h.ptsA;
+  });
+
+  const rows = teams.map((t,i) => `
+    <tr class="${i===0&&t.pts>0?'gold-row':''}">
+      <td>${i+1}</td>
+      <td>${t.name}</td>
+      <td>${t.played}</td>
+      <td style="color:var(--green)">${t.wins}</td>
+      <td style="color:var(--red)">${t.losses}</td>
+      <td class="${t.sd>0?'diff-pos':t.sd<0?'diff-neg':''}">${t.sd>0?'+':''}${t.sd}</td>
+      <td class="${t.kd>0?'diff-pos':t.kd<0?'diff-neg':''}">${t.kd>0?'+':''}${t.kd}</td>
+      <td class="pts-cell">${t.pts}</td>
+    </tr>`).join('');
+
+  return `<div class="card" style="overflow:hidden">
+    <table>
+      <thead><tr>
+        <th>#</th><th>Lag</th><th>S</th>
+        <th title="Vinster">V</th>
+        <th title="Förluster">F</th>
+        <th title="Setskillnad">SS</th>
+        <th title="Klotdifferens">KD</th>
+        <th>P</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+}
+
+// ─── OMGÅNGAR ─────────────────────────────────────────────
+function buildRoundsHTML(div) {
+  const rounds = div.rounds.map((round, rIdx) => {
+    const playable = round.filter(m => m.home!=='Vilohelg'&&m.away!=='Vilohelg');
+    const done     = playable.filter(m => matchWinner(m)!==null).length;
+    const total    = playable.length;
+    const allDone  = done===total && total>0;
+    const isOpen   = rIdx === div.rounds.findIndex(r =>
+      r.some(m => m.home!=='Vilohelg'&&m.away!=='Vilohelg'&&matchWinner(m)===null)
+    );
+
+    const matchesHTML = round.map(m => {
+      if (m.home==='Vilohelg'||m.away==='Vilohelg') {
+        const team = m.home==='Vilohelg'?m.away:m.home;
+        return `<div class="match-card">
+          <div class="match-teams">
+            <span class="match-team right">${team}</span>
+            <span class="match-set-score" style="color:var(--muted);font-size:0.75rem">Vila</span>
+            <span class="match-team"></span>
+          </div>
+        </div>`;
+      }
+
+      const w     = matchWinner(m);
+      const need3 = needsSet3(m);
+      let hS=0, aS=0;
+      if (w) {
+        [m.s1,m.s2,m.s3].forEach((s,i)=>{
+          if(!s||s.h===null) return;
+          if(i===2&&!need3) return;
+          if(s.h>s.a) hS++; else aS++;
+        });
+      }
+
+      const setsHTML = [m.s1, m.s2, m.s3].map((s, i) => {
+        if (i===2 && !need3 && (!s||s.h===null)) return '';
+        const has = s && s.h!==null && s.a!==null;
+        if (!has) return `<div class="set-row-pub">
+          <span class="set-label-pub">Set ${i+1}</span>
+          <span style="color:var(--muted);font-size:0.75rem">Ej spelat</span>
+        </div>`;
+        const sv = s.h>s.a?'home':s.a>s.h?'away':null;
+        return `<div class="set-row-pub">
+          <span class="set-label-pub">Set ${i+1}</span>
+          <div class="set-score-pub">
+            <span class="sh ${sv==='home'?'win-h':''}">${s.h}</span>
+            <span class="sep">–</span>
+            <span class="sa ${sv==='away'?'win-a':''}">${s.a}</span>
+          </div>
+          ${sv?`<span class="set-winner-pub ${sv}">${sv==='home'?m.home:m.away}</span>`:''}
+        </div>`;
+      }).join('');
+
+      return `<div class="match-card">
+        <div class="match-teams">
+          <span class="match-team right ${w==='h'?'win-h':''}">${w==='h'?'✓ ':''}${m.home}</span>
+          <span class="match-set-score">${w?hS+'–'+aS:'–'}</span>
+          <span class="match-team ${w==='a'?'win-a':''}">${w==='a'?'✓ ':''}${m.away}</span>
+        </div>
+        <div class="sets-area">${setsHTML}</div>
+      </div>`;
+    }).join('');
+
+    return `<div class="round-card ${allDone?'done':''}">
+      <div class="round-header" onclick="toggleRound(this)">
+        <span class="round-label">Omgång ${rIdx+1}</span>
+        <div style="display:flex;align-items:center;gap:0.75rem">
+          ${allDone
+            ? '<span class="done-badge">✓ Klar</span>'
+            : `<span style="font-size:0.7rem;color:var(--muted)">${done}/${total}</span>`}
+          <span class="round-chevron ${isOpen?'open':''}">▼</span>
+        </div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${total?Math.round(done/total*100):0}%"></div></div>
+      <div class="round-body ${isOpen?'':'collapsed'}">${matchesHTML}</div>
+    </div>`;
+  }).join('');
+
+  return `<div class="rounds-list">${rounds}</div>`;
+}
+</script>
+</body>
+</html>
