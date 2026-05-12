@@ -6,27 +6,6 @@ src="./lang-manager.js"></script> <script src="./offline-indicator.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Träningsdagbok – Petanque</title>
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-  <!-- SyncManager -->
-  <script src="./sync-manager.js"></script>
-  <style>
-    #sync-status-badge {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      background: rgba(0, 0, 0, 0.8);
-      padding: 8px 14px;
-      border-radius: 20px;
-      font-size: 12px;
-      z-index: 999;
-      color: #999;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      font-weight: bold;
-    }
-  </style>
-  <title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#080810">
@@ -183,6 +162,10 @@ input[type="date"].text-input{color-scheme:dark;}
 .dep-note{font-size:0.88rem;color:var(--text);line-height:1.6;white-space:pre-wrap;}
 .dep-place{font-size:0.78rem;color:var(--muted2);margin-bottom:6px;}
 </style>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="./sync-manager.js"></script>
 </head>
 <body>
 
@@ -610,8 +593,7 @@ function getSessionId() {
   return sessionId;
 }
 </script>
-<div id="sync-status-badge">📱 Offline</div>
-
+<!-- Firebase Config -->
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyCwzdwGEjN5LVw3RSLz2dy7f70Reafbe2c",
@@ -622,43 +604,11 @@ function getSessionId() {
     messagingSenderId: "672666417012",
     appId: "1:672666417012:web:93613783fe51cd2ce81e21"
   };
-
-  if (typeof initSyncManager !== 'undefined') {
+  if (typeof initSyncManager === 'function') {
     initSyncManager(firebaseConfig);
-    
-    syncManager.onStatusChange((status) => {
-      const badge = document.getElementById('sync-status-badge');
-      if (!badge) return;
-
-      let icon = '📱';
-      let text = 'Lokalt';
-      let color = '#999';
-
-      if (!navigator.onLine) {
-        icon = '📵';
-        text = 'Offline';
-        color = '#ff6b6b';
-      } else if (status.status === 'syncing') {
-        icon = '⏳';
-        text = 'Synkar...';
-        color = '#e8ff47';
-      } else if (status.queueLength > 0) {
-        icon = '⏳';
-        text = status.queueLength + ' väntande';
-        color = '#ffa500';
-      } else if (status.status === 'idle') {
-        icon = '☁️';
-        text = 'Synkat';
-        color = '#4caf50';
-      }
-
-      badge.textContent = icon + ' ' + text;
-      badge.style.color = color;
-    });
   }
 </script>
-
-<!-- Firebase Config & Sync Manager -->
+<!-- Firebase Config -->
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyCwzdwGEjN5LVw3RSLz2dy7f70Reafbe2c",
@@ -669,7 +619,6 @@ function getSessionId() {
     messagingSenderId: "672666417012",
     appId: "1:672666417012:web:93613783fe51cd2ce81e21"
   };
-  
   if (typeof initSyncManager === 'function') {
     initSyncManager(firebaseConfig);
   }

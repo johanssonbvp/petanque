@@ -116,6 +116,28 @@
       margin: 0 auto;
     }
 
+    .hero-logo {
+      max-width: 120px;
+      width: 100%;
+      height: auto;
+      margin: 0 auto 20px;
+      display: block;
+    }
+
+    @media (min-width: 768px) {
+      .hero-logo {
+        max-width: 180px;
+        margin-bottom: 25px;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .hero-logo {
+        max-width: 220px;
+        margin-bottom: 30px;
+      }
+    }
+
     .hero-emoji {
       font-size: 80px;
       margin-bottom: 20px;
@@ -540,6 +562,30 @@
   </style>
 </head>
 <body>
+<!-- LOGIN MODAL -->
+<div id="login-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10000; align-items: center; justify-content: center;">
+  <div style="background: #0f1419; padding: 40px; border-radius: 12px; border: 1px solid #1a1f2e; text-align: center; max-width: 400px; width: 90%;">
+    <h2 style="color: #e8ff47; font-size: 28px; margin-bottom: 10px;" data-sv="Din kod" data-en="Your Code" data-es="Tu código">Din kod</h2>
+    <p style="color: #8a8a9e; margin-bottom: 20px; font-size: 14px;" data-sv="Ange din unika kod för att logga in" data-en="Enter your unique code" data-es="Ingresa tu código">Ange din unika kod för att logga in</p>
+    
+    <input 
+      type="text" 
+      id="trainer-code-input" 
+      placeholder="T.EX: BVPTEST" 
+      maxlength="12"
+      autocomplete="off"
+      style="width: 100%; padding: 12px; margin-bottom: 15px; background: #080810; border: 1px solid #1a1f2e; color: #e8ff47; border-radius: 6px; font-size: 16px; text-transform: uppercase;"
+    >
+    
+    <button id="login-btn" style="width: 100%; padding: 12px; background: #e8ff47; color: #080810; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 16px;" data-sv="LOGGA IN" data-en="LOGIN" data-es="INICIAR SESIÓN">LOGGA IN</button>
+    
+    <div id="login-status" style="margin-top: 15px; color: #ff6b6b; font-size: 12px;"></div>
+  </div>
+</div>
+
+<!-- SYNC BADGE -->
+<div id="sync-status-badge" style="position: fixed; bottom: 20px; right: 20px; background: rgba(0,0,0,0.8); color: #e8ff47; padding: 8px 12px; border-radius: 6px; font-size: 12px; z-index: 999; border: 1px solid #1a1f2e;">📱 Offline</div>
+
 
 <!-- HEADER -->
 <header>
@@ -549,14 +595,22 @@
     <button class="lang-btn" data-lang="en">🇬🇧 EN</button>
     <button class="lang-btn" data-lang="es">🇪🇸 ES</button>
   </div>
-</header>
+<button onclick="logout()" style="padding: 6px 12px; border: 1px solid #1a1f2e; background: transparent; color: #8a8a9e; border-radius: 4px; cursor: pointer; font-size: 11px; margin-left: 8px;" title="Logga ut">🚪</button></header>
 
 <!-- HERO SECTION -->
 <section class="hero">
   <div class="hero-content">
-    <!-- Responsive logo: 512px desktop, 192px mobile -->
-    <picture>
-      <source media="(min-width: 640px)" srcset="data:image/jpeg;base64,/9j/4AAQSkZJRgABAgAAAQABAAD/wAARCAJoAmgDACIAAREBAhEB/9sAQwAIBgYHBgUIBwcHCQkICgwUDQwLCwwZEhMPFB0aHx4dGhwcICQuJyAiLCMcHCg3KSwwMTQ0NB8nOT04MjwuMzQy/9sAQwEJCQkMCwwYDQ0YMiEcITIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIy/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMAAAERAhEAPwD5/ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK+/wCvgCvv+gAooooA+AKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACvv8Ar4Ar7/oAKKKKAPgCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr7/AK+AK+/6ACiiigD4AooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK+/wCvgCvv+gAooooA+AKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACvv8Ar4Ar7/oAKKKKAPgCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACvv8Ar4Ar7/oAKKKKAPgCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr7/AK+AK+/6ACiiigD4AooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK+/wCvgCvv+gAooooA+AKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACvv8Ar4Ar7/oAKKKKAPgCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr7/AK+AK+/6ACiiigD4AooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK+/wCvgCvv+gAooooA+AKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACvv8Ar4Ar7/oAKKKKAPgCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACvv8Ar4Ar7/oAKKKKAPgCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr7/AK+AK+/6ACiiigD4AooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK+/wCvgCvv+gAooooA+AKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACvv8Ar4Ar7/oAKKKKAPgCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACvv8Ar4Ar7/oAKKKKAPgCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr7/AK+AK+/6ACiiigD4AooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK+/wCvgCvv+gAooooA+AKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr7/r4Ar7/oAKKKKAPgCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr7/r4Ar7/AKACiiigD4AooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK+/6+AK+/6ACiiigD4AooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK+/wCvgCvv+gAooooA+AKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK+/wCvgCvv+gAooooA+AKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK+/wCvgCvv+gAooooA" alt="Petanque Träning" style="width: 120px; height: auto; margin: 0 auto 30px; display: block; animation: bounce 2s infinite;">
+    <!-- Responsive logo: 192px mobile, 512px desktop -->
+    <img 
+      class="hero-logo"
+      srcset="https://raw.githubusercontent.com/johanssonbvp/skyttetraning/main/icon-192.png 192w,
+              https://raw.githubusercontent.com/johanssonbvp/skyttetraning/main/icon-512.png 512w"
+      sizes="(max-width: 768px) 120px,
+             (max-width: 1024px) 180px,
+             220px"
+      src="https://raw.githubusercontent.com/johanssonbvp/skyttetraning/main/icon-512.png"
+      alt="Petanque Träning Logo"
+    >
     <h1 data-sv="Spåra din utveckling. Träna smartare." data-en="Track your progress. Train smarter." data-es="Rastrea tu progreso. Entrena más inteligentemente.">
       Spåra din utveckling. Träna smartare.
     </h1>
@@ -658,15 +712,15 @@
         <span class="app-arrow">→</span>
       </a>
 
-      <!-- App 6 - DISABLED -->
-      <div class="app-card">
+      <!-- App 6 - Matchstatistik -->
+      <a href="./matchstatistik.html" class="app-card">
         <span class="app-icon">📊</span>
         <div class="app-info">
           <div class="app-name" data-sv="Matchstatistik" data-en="Match Statistics" data-es="Estadísticas de Partido">Matchstatistik</div>
           <div class="app-desc" data-sv="Tränarverktyg för matchanalys" data-en="Coach tool for match analysis" data-es="Herramienta de análisis de partidos">Tränarverktyg för matchanalys</div>
         </div>
-        <span class="app-status">🚧 Under uppbyggnad</span>
-      </div>
+        <span class="app-arrow">→</span>
+      </a>
     </div>
   </div>
 </section>
@@ -869,20 +923,180 @@
   loadStatistics();
 </script>
 
-<!-- Firebase Config & Sync Manager -->
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="./sync-manager.js"></script>
+
 <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyCwzdwGEjN5LVw3RSLz2dy7f70Reafbe2c",
-    authDomain: "databas-serie.firebaseapp.com",
-    databaseURL: "https://databas-serie-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "databas-serie",
-    storageBucket: "databas-serie.firebasestorage.app",
-    messagingSenderId: "672666417012",
-    appId: "1:672666417012:web:93613783fe51cd2ce81e21"
-  };
+// LOGIN HANDLING
+document.getElementById('login-btn').addEventListener('click', function() {
+  const code = document.getElementById('trainer-code-input').value.trim().toUpperCase();
+  const statusEl = document.getElementById('login-status');
   
-  if (typeof initSyncManager === 'function') {
-    initSyncManager(firebaseConfig);
+  if (!code) {
+    statusEl.textContent = 'Ange en kod!';
+    return;
   }
-</script></body>
+  
+  if (code.length < 3) {
+    statusEl.textContent = 'Koden måste vara minst 3 tecken!';
+    return;
+  }
+  
+  localStorage.setItem('pt_trainer_code', code);
+  localStorage.setItem('trainer-code', code); // För matchstatistik kompatibilitet
+  document.getElementById('login-modal').style.display = 'none';
+  location.reload(); // Reload för att aktivera Firebase
+});
+
+document.getElementById('trainer-code-input').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') {
+    document.getElementById('login-btn').click();
+  }
+});
+
+function logout() {
+  if (confirm('Är du säker?')) {
+    localStorage.removeItem('pt_trainer_code');
+    localStorage.removeItem('trainer-code');
+    location.reload();
+  }
+}
+
+// Check login on load
+window.addEventListener('load', function() {
+  const savedCode = localStorage.getItem('pt_trainer_code');
+  if (!savedCode) {
+    document.getElementById('login-modal').style.display = 'flex';
+  }
+});
+
+// Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyCwzdwGEjN5LVw3RSLz2dy7f70Reafbe2c",
+  authDomain: "databas-serie.firebaseapp.com",
+  databaseURL: "https://databas-serie-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "databas-serie",
+  storageBucket: "databas-serie.firebasestorage.app",
+  messagingSenderId: "672666417012",
+  appId: "1:672666417012:web:93613783fe51cd2ce81e21"
+};
+
+if (typeof initSyncManager === 'function') {
+  initSyncManager(firebaseConfig);
+}
+</script>
+
+<!-- BACKUP/EXPORT ALL DATA -->
+<script>
+async function exportAllData() {
+  const code = localStorage.getItem('pt_trainer_code');
+  if (!code) {
+    alert('Du måste logga in först!');
+    return;
+  }
+  
+  // Visa loading
+  const btn = document.getElementById('export-all-btn');
+  if (btn) btn.textContent = '⏳ Hämtar...';
+  
+  try {
+    // 1. Samla all localStorage data
+    const localData = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      try {
+        localData[key] = JSON.parse(localStorage.getItem(key));
+      } catch {
+        localData[key] = localStorage.getItem(key);
+      }
+    }
+    
+    // 2. Hämta all Firebase data
+    let firebaseData = null;
+    try {
+      if (typeof firebase !== 'undefined' && firebase.database) {
+        const snapshot = await firebase.database().ref('coaches/' + code).once('value');
+        firebaseData = snapshot.val();
+      }
+    } catch (e) {
+      console.error('Kunde inte hämta från Firebase:', e);
+    }
+    
+    // 3. Kombinera all data
+    const allData = {
+      exportDate: new Date().toISOString(),
+      trainerCode: code,
+      localStorage: localData,
+      firebase: firebaseData,
+      version: '1.0'
+    };
+    
+    // 4. Ladda ner som JSON
+    const jsonStr = JSON.stringify(allData, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `petanque_backup_${code}_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    if (btn) btn.textContent = '💾 Backup all data';
+    alert('✅ Backup klar!');
+    
+  } catch (error) {
+    console.error('Fel vid export:', error);
+    alert('❌ Något gick fel: ' + error.message);
+    if (btn) btn.textContent = '💾 Backup all data';
+  }
+}
+
+async function importAllData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  if (!confirm('⚠️ Detta kommer att skriva över all befintlig data. Vill du fortsätta?')) {
+    event.target.value = '';
+    return;
+  }
+  
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+    
+    // Återställ localStorage
+    if (data.localStorage) {
+      Object.keys(data.localStorage).forEach(key => {
+        const val = data.localStorage[key];
+        localStorage.setItem(key, typeof val === 'string' ? val : JSON.stringify(val));
+      });
+    }
+    
+    // Återställ Firebase
+    if (data.firebase && data.trainerCode && typeof firebase !== 'undefined') {
+      await firebase.database().ref('coaches/' + data.trainerCode).set(data.firebase);
+    }
+    
+    alert('✅ Import klar! Sidan laddas om.');
+    location.reload();
+    
+  } catch (error) {
+    console.error('Fel vid import:', error);
+    alert('❌ Ogiltig backup-fil: ' + error.message);
+  }
+  
+  event.target.value = '';
+}
+</script>
+
+<!-- BACKUP UI -->
+<div id="backup-section" style="position: fixed; bottom: 70px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 999;">
+  <button id="export-all-btn" onclick="exportAllData()" style="padding: 10px 16px; background: #e8ff47; color: #080810; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">💾 Backup all data</button>
+  <button onclick="document.getElementById('import-file-input').click()" style="padding: 10px 16px; background: rgba(0,0,0,0.8); color: #e8ff47; border: 1px solid #1a1f2e; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px;">📥 Återställ backup</button>
+  <input type="file" id="import-file-input" accept=".json" style="display: none;" onchange="importAllData(event)">
+</div>
+</body>
 </html>
