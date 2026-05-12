@@ -595,7 +595,7 @@
     <button class="lang-btn" data-lang="en">🇬🇧 EN</button>
     <button class="lang-btn" data-lang="es">🇪🇸 ES</button>
   </div>
-<button onclick="logout()" style="padding: 6px 12px; border: 1px solid #1a1f2e; background: transparent; color: #8a8a9e; border-radius: 4px; cursor: pointer; font-size: 11px; margin-left: 8px;" title="Logga ut">🚪</button></header>
+<button onclick="openBackupMenu()" style="padding: 6px 12px; border: 1px solid #1a1f2e; background: transparent; color: #8a8a9e; border-radius: 4px; cursor: pointer; font-size: 14px; margin-left: 4px;" title="Datahantering">⚙️</button><button onclick="logout()" style="padding: 6px 12px; border: 1px solid #1a1f2e; background: transparent; color: #8a8a9e; border-radius: 4px; cursor: pointer; font-size: 11px; margin-left: 8px;" title="Logga ut">🚪</button></header>
 
 <!-- HERO SECTION -->
 <section class="hero">
@@ -1092,14 +1092,7 @@ async function importAllData(event) {
 }
 </script>
 
-<!-- BACKUP UI -->
-<div id="backup-section" style="position: fixed; bottom: 70px; right: 20px; display: flex; flex-direction: column; gap: 6px; z-index: 999;">
-  <button id="sync-up-btn" onclick="syncLocalToFirebase()" style="padding: 8px 14px; background: #e8ff47; color: #080810; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">☁️ Synka till Firebase</button>
-  <button id="sync-down-btn" onclick="syncFirebaseToLocal()" style="padding: 8px 14px; background: rgba(0,0,0,0.8); color: #e8ff47; border: 1px solid #e8ff47; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 12px;">⬇️ Hämta från Firebase</button>
-  <button id="export-all-btn" onclick="exportAllData()" style="padding: 8px 14px; background: rgba(0,0,0,0.8); color: #e8ff47; border: 1px solid #1a1f2e; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 12px;">💾 Backup (JSON)</button>
-  <button onclick="document.getElementById('import-file-input').click()" style="padding: 8px 14px; background: rgba(0,0,0,0.8); color: #e8ff47; border: 1px solid #1a1f2e; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 12px;">📥 Återställ backup</button>
-  <input type="file" id="import-file-input" accept=".json" style="display: none;" onchange="importAllData(event)">
-</div>
+
 
 <script>
 async function syncLocalToFirebase() {
@@ -1229,5 +1222,189 @@ async function syncFirebaseToLocal() {
   }
 }
 </script>
+
+<script>
+// AUTO-SYNC: Körs när Firebase är redo och användaren är inloggad
+async function autoSync() {
+  const code = localStorage.getItem('pt_trainer_code');
+  if (!code || typeof firebase === 'undefined' || !firebase.database) return;
+  
+  console.log('🔄 Auto-sync startar...');
+  
+  const mappings = {
+    'pt_s': 'shooting/current',
+    'pt_h': 'shooting/history',
+    'pt_lagg_session': 'pointing/current',
+    'pt_lagg_history': 'pointing/history',
+    'pt_dagbok': 'diary',
+    'pt_precision_session': 'precision/current',
+    'pt_precision_history': 'precision/history',
+    'pt_matches': 'matches'
+  };
+  
+  try {
+    // 1. Hämta Firebase data
+    const snapshot = await firebase.database().ref('coaches/' + code).once('value');
+    const fbData = snapshot.val();
+    
+    let synced = 0;
+    
+    for (const [localKey, fbPath] of Object.entries(mappings)) {
+      const localData = localStorage.getItem(localKey);
+      const pathParts = fbPath.split('/');
+      let fbValue = fbData;
+      for (const part of pathParts) {
+        fbValue = fbValue?.[part];
+      }
+      
+      const localParsed = localData ? JSON.parse(localData) : null;
+      
+      // Bestäm vilken som är "större"/nyare
+      const localSize = localData ? localData.length : 0;
+      const fbSize = fbValue ? JSON.stringify(fbValue).length : 0;
+      
+      if (localSize > 0 && (!fbValue || localSize > fbSize)) {
+        // Lokal data är större → pusha upp
+        await firebase.database().ref('coaches/' + code + '/' + fbPath).set(localParsed);
+        synced++;
+        console.log('⬆️ Synced UP:', localKey);
+      } else if (fbValue && (!localData || fbSize > localSize)) {
+        // Firebase data är större → hämta ner
+        localStorage.setItem(localKey, JSON.stringify(fbValue));
+        synced++;
+        console.log('⬇️ Synced DOWN:', fbPath);
+      }
+    }
+    
+    if (synced > 0) {
+      console.log('✅ Auto-sync klar:', synced, 'datasets');
+      const badge = document.getElementById('sync-status-badge');
+      if (badge) {
+        badge.textContent = '✅ Synkat ' + synced + ' set';
+        setTimeout(() => {
+          badge.textContent = '☁️ Synkat';
+        }, 3000);
+      }
+    } else {
+      console.log('✅ Allt redan synkat');
+    }
+    
+  } catch (error) {
+    console.error('Auto-sync fel:', error);
+  }
+}
+
+// Kör auto-sync när Firebase är redo
+function waitForFirebaseAndSync() {
+  if (typeof firebase !== 'undefined' && firebase.database) {
+    setTimeout(autoSync, 1500); // Vänta lite för Firebase init
+  } else {
+    setTimeout(waitForFirebaseAndSync, 500);
+  }
+}
+
+window.addEventListener('load', function() {
+  if (localStorage.getItem('pt_trainer_code')) {
+    waitForFirebaseAndSync();
+  }
+});
+
+// Backup/Restore via menu
+function openBackupMenu() {
+  document.getElementById('backup-menu').style.display = 'flex';
+}
+
+function closeBackupMenu() {
+  document.getElementById('backup-menu').style.display = 'none';
+}
+
+async function exportAllData() {
+  const code = localStorage.getItem('pt_trainer_code');
+  if (!code) { alert('Logga in först!'); return; }
+  
+  try {
+    const localData = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      try { localData[key] = JSON.parse(localStorage.getItem(key)); }
+      catch { localData[key] = localStorage.getItem(key); }
+    }
+    
+    let firebaseData = null;
+    try {
+      const snapshot = await firebase.database().ref('coaches/' + code).once('value');
+      firebaseData = snapshot.val();
+    } catch (e) {}
+    
+    const allData = {
+      exportDate: new Date().toISOString(),
+      trainerCode: code,
+      localStorage: localData,
+      firebase: firebaseData,
+      version: '1.0'
+    };
+    
+    const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'petanque_backup_' + code + '_' + new Date().toISOString().split('T')[0] + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    closeBackupMenu();
+    alert('✅ Backup nedladdad!');
+  } catch (error) {
+    alert('❌ Fel: ' + error.message);
+  }
+}
+
+async function importAllData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  if (!confirm('⚠️ Detta skriver över all data. Fortsätt?')) {
+    event.target.value = '';
+    return;
+  }
+  
+  try {
+    const data = JSON.parse(await file.text());
+    
+    if (data.localStorage) {
+      Object.keys(data.localStorage).forEach(key => {
+        const val = data.localStorage[key];
+        localStorage.setItem(key, typeof val === 'string' ? val : JSON.stringify(val));
+      });
+    }
+    
+    if (data.firebase && data.trainerCode && typeof firebase !== 'undefined') {
+      await firebase.database().ref('coaches/' + data.trainerCode).set(data.firebase);
+    }
+    
+    alert('✅ Import klar! Sidan laddas om.');
+    location.reload();
+  } catch (error) {
+    alert('❌ Ogiltig fil: ' + error.message);
+  }
+  event.target.value = '';
+}
+</script>
+
+<!-- BACKUP MENU MODAL -->
+<div id="backup-menu" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10001; align-items: center; justify-content: center;">
+  <div style="background: #0f1419; padding: 30px; border-radius: 12px; border: 1px solid #1a1f2e; max-width: 400px; width: 90%;">
+    <h2 style="color: #e8ff47; margin-bottom: 8px;">⚙️ Datahantering</h2>
+    <p style="color: #8a8a9e; font-size: 13px; margin-bottom: 20px;">All synk sker automatiskt i bakgrunden. Använd dessa för manuell backup.</p>
+    
+    <button onclick="exportAllData()" style="width: 100%; padding: 12px; background: #e8ff47; color: #080810; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-bottom: 10px;">💾 Ladda ner backup (JSON)</button>
+    
+    <button onclick="document.getElementById('import-file-input').click()" style="width: 100%; padding: 12px; background: transparent; color: #e8ff47; border: 1px solid #1a1f2e; border-radius: 8px; font-weight: 700; cursor: pointer; margin-bottom: 10px;">📥 Återställ från backup</button>
+    
+    <input type="file" id="import-file-input" accept=".json" style="display: none;" onchange="importAllData(event)">
+    
+    <button onclick="closeBackupMenu()" style="width: 100%; padding: 10px; background: transparent; color: #8a8a9e; border: none; cursor: pointer; margin-top: 10px;">Stäng</button>
+  </div>
+</div>
 </body>
 </html>
