@@ -538,10 +538,6 @@
       }
     }
   </style>
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-<script src="./sync-manager.js"></script>
 </head>
 <body>
 
@@ -663,7 +659,7 @@
       </a>
 
       <!-- App 6 - DISABLED -->
-      <div class="app-card app-card-disabled">
+      <div class="app-card">
         <span class="app-icon">📊</span>
         <div class="app-info">
           <div class="app-name" data-sv="Matchstatistik" data-en="Match Statistics" data-es="Estadísticas de Partido">Matchstatistik</div>
@@ -888,6 +884,5 @@
   if (typeof initSyncManager === 'function') {
     initSyncManager(firebaseConfig);
   }
-</script>
-</body>
+</script></body>
 </html>
