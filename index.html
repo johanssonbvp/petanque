@@ -11,10 +11,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-  
   <style>
     * {
       margin: 0;
@@ -40,157 +36,6 @@
       padding: 0;
       margin: 0;
       min-height: 100vh;
-    }
-
-    /* ======================== SYNC STATUS BADGE ======================== */
-    #sync-status-badge {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      background: rgba(10, 14, 39, 0.9);
-      border: 1px solid var(--border);
-      padding: 8px 14px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      color: #999;
-      z-index: 999;
-      font-family: 'Montserrat', sans-serif;
-    }
-
-    /* ======================== LOGIN MODAL ======================== */
-    .login-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 2000;
-      backdrop-filter: blur(5px);
-    }
-
-    .login-modal.hidden {
-      display: none;
-    }
-
-    .login-card {
-      background: linear-gradient(135deg, var(--bg) 0%, var(--bg2) 100%);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 40px;
-      max-width: 400px;
-      width: 90%;
-      text-align: center;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    }
-
-    .login-card h2 {
-      font-size: 28px;
-      font-weight: 900;
-      margin-bottom: 10px;
-      color: var(--accent);
-      text-transform: uppercase;
-      letter-spacing: 2px;
-    }
-
-    .login-card p {
-      color: var(--text-muted);
-      margin-bottom: 30px;
-      font-size: 14px;
-    }
-
-    #trainer-code-input {
-      width: 100%;
-      padding: 14px;
-      border: 2px solid var(--border);
-      background: rgba(232, 255, 71, 0.05);
-      border-radius: 12px;
-      color: var(--accent);
-      font-weight: 700;
-      font-size: 18px;
-      text-transform: uppercase;
-      margin-bottom: 20px;
-      font-family: 'Montserrat', sans-serif;
-      transition: all 0.3s;
-      letter-spacing: 2px;
-    }
-
-    #trainer-code-input:focus {
-      outline: none;
-      border-color: var(--accent);
-      background: rgba(232, 255, 71, 0.1);
-    }
-
-    #login-btn {
-      width: 100%;
-      padding: 14px;
-      background: var(--accent);
-      color: var(--bg);
-      border: none;
-      border-radius: 12px;
-      font-weight: 900;
-      font-size: 16px;
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      transition: all 0.3s;
-      box-shadow: 0 8px 30px rgba(232, 255, 71, 0.2);
-    }
-
-    #login-btn:hover {
-      background: var(--accent-dark);
-      box-shadow: 0 12px 40px rgba(232, 255, 71, 0.4);
-      transform: translateY(-2px);
-    }
-
-    #login-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .login-status {
-      margin-top: 15px;
-      font-size: 12px;
-      color: var(--text-muted);
-      min-height: 20px;
-    }
-
-    /* ======================== HEADER TRAINER INFO ======================== */
-    header .trainer-info {
-      position: absolute;
-      right: 20px;
-      top: 15px;
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    header .trainer-info strong {
-      color: var(--accent);
-    }
-
-    /* ======================== HEADER LOGOUT ======================== */
-    .logout-btn {
-      position: absolute;
-      right: 20px;
-      bottom: 15px;
-      padding: 6px 12px;
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      border-radius: 6px;
-      font-size: 11px;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-
-    .logout-btn:hover {
-      border-color: var(--accent);
-      color: var(--accent);
     }
 
     /* ======================== HEADER ======================== */
@@ -269,28 +114,6 @@
       z-index: 1;
       max-width: 600px;
       margin: 0 auto;
-    }
-
-    .hero-logo {
-      max-width: 120px;
-      width: 100%;
-      height: auto;
-      margin: 0 auto 20px;
-      display: block;
-    }
-
-    @media (min-width: 768px) {
-      .hero-logo {
-        max-width: 180px;
-        margin-bottom: 25px;
-      }
-    }
-
-    @media (min-width: 1024px) {
-      .hero-logo {
-        max-width: 220px;
-        margin-bottom: 30px;
-      }
     }
 
     .hero-emoji {
@@ -715,41 +538,19 @@
       }
     }
   </style>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="./sync-manager.js"></script>
 </head>
 <body>
-
-<!-- LOGIN MODAL -->
-<div id="login-modal" class="login-modal">
-  <div class="login-card">
-    <h2 data-sv="Tränarens Kod" data-en="Trainer Code" data-es="Código del Entrenador">Tränarens Kod</h2>
-    <p data-sv="Ange din unika kod för att logga in och synka din träningsdata" data-en="Enter your unique code to login and sync your training data" data-es="Ingresa tu código único para iniciar sesión y sincronizar tus datos">
-      Ange din unika kod för att logga in och synka din träningsdata
-    </p>
-    
-    <input 
-      type="text" 
-      id="trainer-code-input" 
-      placeholder="T.EX: GBGPETANQUE" 
-      maxlength="12"
-      autocomplete="off"
-    >
-    
-    <button id="login-btn" data-sv="LOGGA IN" data-en="LOGIN" data-es="INICIAR SESIÓN">LOGGA IN</button>
-    
-    <div class="login-status" id="login-status"></div>
-  </div>
-</div>
-
-<!-- SYNC STATUS BADGE -->
-<div id="sync-status-badge">📱 Offline</div>
 
 <!-- HEADER -->
 <header>
   <div class="header-logo">🎪 PETANQUE</div>
-  <div class="trainer-info"></div>
   <div class="lang-toggle">
     <button class="lang-btn active" data-lang="sv">🇸🇪 SV</button>
-    <button class="lang-btn" data-lang="en">🇬🇧 EN</button> <button class="lang-btn" onclick="logout()" style="font-size:0.75rem">🚪 Logga ut</button>
+    <button class="lang-btn" data-lang="en">🇬🇧 EN</button>
     <button class="lang-btn" data-lang="es">🇪🇸 ES</button>
   </div>
 </header>
@@ -757,17 +558,9 @@
 <!-- HERO SECTION -->
 <section class="hero">
   <div class="hero-content">
-    <!-- Responsive logo: 192px mobile, 512px desktop -->
-    <img 
-      class="hero-logo"
-      srcset="https://raw.githubusercontent.com/johanssonbvp/skyttetraning/main/icon-192.png 192w,
-              https://raw.githubusercontent.com/johanssonbvp/skyttetraning/main/icon-512.png 512w"
-      sizes="(max-width: 768px) 120px,
-             (max-width: 1024px) 180px,
-             220px"
-      src="https://raw.githubusercontent.com/johanssonbvp/skyttetraning/main/icon-512.png"
-      alt="Petanque Träning Logo"
-    >
+    <!-- Responsive logo: 512px desktop, 192px mobile -->
+    <picture>
+      <source media="(min-width: 640px)" srcset="data:image/jpeg;base64,/9j/4AAQSkZJRgABAgAAAQABAAD/wAARCAJoAmgDACIAAREBAhEB/9sAQwAIBgYHBgUIBwcHCQkICgwUDQwLCwwZEhMPFB0aHx4dGhwcICQuJyAiLCMcHCg3KSwwMTQ0NB8nOT04MjwuMzQy/9sAQwEJCQkMCwwYDQ0YMiEcITIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIy/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMAAAERAhEAPwD5/ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK+/wCvgCvv+gAooooA+AKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACvv8Ar4Ar7/oAKKKKAPgCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr7/AK+AK+/6ACiiigD4AooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK+/wCvgCvv+gAooooA+AKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACvv8Ar4Ar7/oAKKKKAPgCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACvv8Ar4Ar7/oAKKKKAPgCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr7/AK+AK+/6ACiiigD4AooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK+/wCvgCvv+gAooooA+AKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACvv8Ar4Ar7/oAKKKKAPgCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr7/AK+AK+/6ACiiigD4AooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK+/wCvgCvv+gAooooA+AKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACvv8Ar4Ar7/oAKKKKAPgCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACvv8Ar4Ar7/oAKKKKAPgCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr7/AK+AK+/6ACiiigD4AooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK+/wCvgCvv+gAooooA+AKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACvv8Ar4Ar7/oAKKKKAPgCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACvv8Ar4Ar7/oAKKKKAPgCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr7/AK+AK+/6ACiiigD4AooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK+/wCvgCvv+gAooooA+AKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr7/r4Ar7/oAKKKKAPgCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr7/r4Ar7/AKACiiigD4AooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK+/6+AK+/6ACiiigD4AooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK+/wCvgCvv+gAooooA+AKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK+/wCvgCvv+gAooooA+AKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK+/wCvgCvv+gAooooA" alt="Petanque Träning" style="width: 120px; height: auto; margin: 0 auto 30px; display: block; animation: bounce 2s infinite;">
     <h1 data-sv="Spåra din utveckling. Träna smartare." data-en="Track your progress. Train smarter." data-es="Rastrea tu progreso. Entrena más inteligentemente.">
       Spåra din utveckling. Träna smartare.
     </h1>
@@ -868,15 +661,14 @@
         </div>
         <span class="app-arrow">→</span>
       </a>
-<a href="./matchstatistik.html" class="app-card">
-        <span class="app-icon">🎪</span>
-        <div class="app-info">
-          <div class="app-name" data-sv="Matchstatistik" data-en="Match Shooting" data-es="Tiro de Precisión">Matchstatistik</div>
-          <div class="app-desc" data-sv="Tävlingssimulator enligt SBF-regler" data-en="Competition simulator" data-es="Simulador de competencia">Tävlingssimulator enligt SBF-regler</div>
-        </div>
-        <span class="app-arrow">→</span>
-      </a>
 
+      <!-- App 6 - DISABLED -->
+      <div class="app-card app-card-disabled">
+        <span class="app-icon">📊</span>
+        <div class="app-info">
+          <div class="app-name" data-sv="Matchstatistik" data-en="Match Statistics" data-es="Estadísticas de Partido">Matchstatistik</div>
+          <div class="app-desc" data-sv="Tränarverktyg för matchanalys" data-en="Coach tool for match analysis" data-es="Herramienta de análisis de partidos">Tränarverktyg för matchanalys</div>
+        </div>
         <span class="app-status">🚧 Under uppbyggnad</span>
       </div>
     </div>
@@ -1008,88 +800,6 @@
   </p>
 </footer>
 
-<!-- FIREBASE CONFIG & SYNC MANAGER -->
-<script src="./sync-manager.js"></script>
-<script>
-  // Firebase Config
-  const firebaseConfig = {
-    apiKey: "AIzaSyCwzdwGEjN5LVw3RSLz2dy7f70Reafbe2c",
-    authDomain: "databas-serie.firebaseapp.com",
-    databaseURL: "https://databas-serie-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "databas-serie",
-    storageBucket: "databas-serie.firebasestorage.app",
-    messagingSenderId: "672666417012",
-    appId: "1:672666417012:web:93613783fe51cd2ce81e21"
-  };
-
-  // Initialize SyncManager
-  initSyncManager(firebaseConfig);
-
-  // ============ LOGIN HANDLER ============
-  async function handleLogin() {
-    const code = document.getElementById('trainer-code-input').value.trim().toUpperCase();
-    const btn = document.getElementById('login-btn');
-    const status = document.getElementById('login-status');
-
-    if (!code) {
-      status.textContent = '⚠️ Ange en kod';
-      return;
-    }
-
-    btn.disabled = true;
-    status.textContent = '⏳ Loggar in...';
-
-    try {
-      await syncManager.login(code);
-      
-      // Dölj login-modal
-      document.getElementById('login-modal').classList.add('hidden');
-      
-      // Visa tränarinformation
-      document.querySelector('header .trainer-info').innerHTML = 
-        `<strong>${code}</strong> ✓`;
-      
-      status.textContent = '✅ Inloggad!';
-      console.log('✅ Login successful');
-    } catch (e) {
-      status.textContent = '❌ Fel vid inloggning';
-      console.error('Login failed:', e);
-    } finally {
-      btn.disabled = false;
-    }
-  }
-
-  // Setup login button
-  document.getElementById('login-btn').addEventListener('click', handleLogin);
-  document.getElementById('trainer-code-input').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') handleLogin();
-  });
-
-  // Check if already logged in
-  window.addEventListener('DOMContentLoaded', () => {
-    const savedCode = localStorage.getItem('pt_trainer_code');
-    if (savedCode) {
-      syncManager.login(savedCode);
-      document.getElementById('login-modal').classList.add('hidden');
-      document.querySelector('header .trainer-info').innerHTML = 
-        `<strong>${savedCode}</strong> ✓`;
-    }
-  });
-
-  // Logout handler
-  function logout() {
-    syncManager.logout();
-    document.getElementById('login-modal').classList.remove('hidden');
-    document.getElementById('trainer-code-input').value = '';
-    document.querySelector('header .trainer-info').innerHTML = '';
-  }
-
-  // Listen to sync status changes
-  syncManager.onStatusChange((status) => {
-    console.log('📊 Sync Status:', status);
-  });
-</script>
-
 <!-- LANGUAGE SCRIPT -->
 <script>
   const LANGS = {
@@ -1163,13 +873,21 @@
   loadStatistics();
 </script>
 
+<!-- Firebase Config & Sync Manager -->
 <script>
-function logout() {
-    if (confirm('Är du säker på att du vill logga ut?')) {
-        localStorage.removeItem('pt_trainer_code');
-        location.reload();
-    }
-}
+  const firebaseConfig = {
+    apiKey: "AIzaSyCwzdwGEjN5LVw3RSLz2dy7f70Reafbe2c",
+    authDomain: "databas-serie.firebaseapp.com",
+    databaseURL: "https://databas-serie-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "databas-serie",
+    storageBucket: "databas-serie.firebasestorage.app",
+    messagingSenderId: "672666417012",
+    appId: "1:672666417012:web:93613783fe51cd2ce81e21"
+  };
+  
+  if (typeof initSyncManager === 'function') {
+    initSyncManager(firebaseConfig);
+  }
 </script>
 </body>
 </html>
