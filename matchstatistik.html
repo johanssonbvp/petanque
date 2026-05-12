@@ -577,7 +577,11 @@ class MatchApp {
 
     // ---- KEYPAD ----
     setupKeypad() {
-        document.querySelectorAll('.key[data-char]').forEach(key => {
+        // Säker tillgång - keypad finns inte längre (login borttagen)
+        const keys = document.querySelectorAll('.key[data-char]');
+        if (keys.length === 0) return; // Keypad inte tillgänglig
+        
+        keys.forEach(key => {
             key.addEventListener('click', () => {
                 const ch = key.dataset.char;
                 if (ch === 'DEL') {
@@ -588,19 +592,25 @@ class MatchApp {
                 this.updateCodeDisplay();
             });
         });
-        document.getElementById('btn-login').addEventListener('click', () => {
-            if (this.codeBuffer.length < 3) {
-                document.getElementById('login-error').textContent = 'Koden måste vara minst 3 tecken';
-                return;
-            }
-            this.login(this.codeBuffer);
-        });
+        
+        const btnLogin = document.getElementById('btn-login');
+        if (btnLogin) {
+            btnLogin.addEventListener('click', () => {
+                if (this.codeBuffer.length < 3) {
+                    const err = document.getElementById('login-error');
+                    if (err) err.textContent = 'Koden måste vara minst 3 tecken';
+                    return;
+                }
+                this.login(this.codeBuffer);
+            });
+        }
     }
 
     updateCodeDisplay() {
         const d = document.getElementById('code-display');
-        d.textContent = this.codeBuffer.length ? this.codeBuffer : '_';
-        document.getElementById('login-error').textContent = '';
+        if (d) d.textContent = this.codeBuffer.length ? this.codeBuffer : '_';
+        const err = document.getElementById('login-error');
+        if (err) err.textContent = '';
     }
 
     // ---- LOGIN ----
