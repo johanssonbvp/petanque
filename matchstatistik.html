@@ -610,12 +610,22 @@ class MatchApp {
         this.trainerCode = code.toUpperCase();
         localStorage.setItem('trainer-code', this.trainerCode);
 
-        document.getElementById('trainer-badge').textContent = this.trainerCode;
-        document.getElementById('screen-login').style.display = 'none';
-        document.getElementById('screen-setup').style.display = 'block';
+        // Säker tillgång - elementen kanske inte finns
+        const badge = document.getElementById('trainer-badge');
+        if (badge) badge.textContent = this.trainerCode;
+        
+        const screenLogin = document.getElementById('screen-login');
+        if (screenLogin) screenLogin.style.display = 'none';
+        
+        const screenSetup = document.getElementById('screen-setup');
+        if (screenSetup) screenSetup.style.display = 'block';
 
-        this.fbRef = db.ref(`coaches/${this.trainerCode}/matches`);
-        this.loadHistory();
+        try {
+            this.fbRef = db.ref(`coaches/${this.trainerCode}/matches`);
+            this.loadHistory();
+        } catch(e) {
+            console.error('Firebase not ready:', e);
+        }
         langMgr.apply();
     }
 
