@@ -1093,10 +1093,141 @@ async function importAllData(event) {
 </script>
 
 <!-- BACKUP UI -->
-<div id="backup-section" style="position: fixed; bottom: 70px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 999;">
-  <button id="export-all-btn" onclick="exportAllData()" style="padding: 10px 16px; background: #e8ff47; color: #080810; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">💾 Backup all data</button>
-  <button onclick="document.getElementById('import-file-input').click()" style="padding: 10px 16px; background: rgba(0,0,0,0.8); color: #e8ff47; border: 1px solid #1a1f2e; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px;">📥 Återställ backup</button>
+<div id="backup-section" style="position: fixed; bottom: 70px; right: 20px; display: flex; flex-direction: column; gap: 6px; z-index: 999;">
+  <button id="sync-up-btn" onclick="syncLocalToFirebase()" style="padding: 8px 14px; background: #e8ff47; color: #080810; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">☁️ Synka till Firebase</button>
+  <button id="sync-down-btn" onclick="syncFirebaseToLocal()" style="padding: 8px 14px; background: rgba(0,0,0,0.8); color: #e8ff47; border: 1px solid #e8ff47; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 12px;">⬇️ Hämta från Firebase</button>
+  <button id="export-all-btn" onclick="exportAllData()" style="padding: 8px 14px; background: rgba(0,0,0,0.8); color: #e8ff47; border: 1px solid #1a1f2e; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 12px;">💾 Backup (JSON)</button>
+  <button onclick="document.getElementById('import-file-input').click()" style="padding: 8px 14px; background: rgba(0,0,0,0.8); color: #e8ff47; border: 1px solid #1a1f2e; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 12px;">📥 Återställ backup</button>
   <input type="file" id="import-file-input" accept=".json" style="display: none;" onchange="importAllData(event)">
 </div>
+
+<script>
+async function syncLocalToFirebase() {
+  const code = localStorage.getItem('pt_trainer_code');
+  if (!code) {
+    alert('Du måste logga in först!');
+    return;
+  }
+  
+  if (typeof firebase === 'undefined' || !firebase.database) {
+    alert('Firebase är inte tillgänglig!');
+    return;
+  }
+  
+  if (!confirm('Detta laddar upp ALL lokal data till Firebase. Befintlig Firebase-data kan skrivas över. Fortsätt?')) {
+    return;
+  }
+  
+  const btn = document.getElementById('sync-up-btn');
+  if (btn) btn.textContent = '⏳ Synkar...';
+  
+  try {
+    let uploaded = 0;
+    
+    // Mappa localStorage keys till Firebase paths
+    const mappings = {
+      'pt_s': 'shooting/current',
+      'pt_h': 'shooting/history',
+      'pt_lagg_session': 'pointing/current',
+      'pt_lagg_history': 'pointing/history',
+      'pt_dagbok': 'diary',
+      'pt_precision_session': 'precision/current',
+      'pt_precision_history': 'precision/history',
+      'pt_matches': 'matches',
+      'trainer-code': 'meta/trainerCode'
+    };
+    
+    for (const [localKey, firebasePath] of Object.entries(mappings)) {
+      const data = localStorage.getItem(localKey);
+      if (data) {
+        try {
+          const parsed = JSON.parse(data);
+          await firebase.database().ref('coaches/' + code + '/' + firebasePath).set(parsed);
+          uploaded++;
+          console.log('✅ Synced:', localKey, '→', firebasePath);
+        } catch (e) {
+          console.error('Fel för', localKey, e);
+        }
+      }
+    }
+    
+    if (btn) btn.textContent = '☁️ Synka till Firebase';
+    alert('✅ ' + uploaded + ' datasets synkade till Firebase!');
+    
+  } catch (error) {
+    console.error('Sync error:', error);
+    alert('❌ Fel: ' + error.message);
+    if (btn) btn.textContent = '☁️ Synka till Firebase';
+  }
+}
+
+async function syncFirebaseToLocal() {
+  const code = localStorage.getItem('pt_trainer_code');
+  if (!code) {
+    alert('Du måste logga in först!');
+    return;
+  }
+  
+  if (typeof firebase === 'undefined') {
+    alert('Firebase är inte tillgänglig!');
+    return;
+  }
+  
+  if (!confirm('Detta hämtar all data från Firebase till denna enhet. Lokal data kan skrivas över. Fortsätt?')) {
+    return;
+  }
+  
+  const btn = document.getElementById('sync-down-btn');
+  if (btn) btn.textContent = '⏳ Hämtar...';
+  
+  try {
+    const snapshot = await firebase.database().ref('coaches/' + code).once('value');
+    const data = snapshot.val();
+    
+    if (!data) {
+      alert('Ingen data hittades i Firebase för denna kod.');
+      if (btn) btn.textContent = '⬇️ Hämta från Firebase';
+      return;
+    }
+    
+    // Mappa tillbaka
+    const reverseMappings = {
+      'shooting/current': 'pt_s',
+      'shooting/history': 'pt_h',
+      'pointing/current': 'pt_lagg_session',
+      'pointing/history': 'pt_lagg_history',
+      'diary': 'pt_dagbok',
+      'precision/current': 'pt_precision_session',
+      'precision/history': 'pt_precision_history',
+      'matches': 'pt_matches'
+    };
+    
+    let downloaded = 0;
+    
+    function processData(obj, path = '') {
+      for (const key in obj) {
+        const fullPath = path ? path + '/' + key : key;
+        if (reverseMappings[fullPath]) {
+          localStorage.setItem(reverseMappings[fullPath], JSON.stringify(obj[key]));
+          downloaded++;
+          console.log('⬇️ Downloaded:', fullPath, '→', reverseMappings[fullPath]);
+        } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+          processData(obj[key], fullPath);
+        }
+      }
+    }
+    
+    processData(data);
+    
+    alert('✅ ' + downloaded + ' datasets hämtade! Sidan laddas om.');
+    location.reload();
+    
+  } catch (error) {
+    console.error('Sync error:', error);
+    alert('❌ Fel: ' + error.message);
+    if (btn) btn.textContent = '⬇️ Hämta från Firebase';
+  }
+}
+</script>
 </body>
 </html>
