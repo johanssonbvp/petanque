@@ -559,7 +559,28 @@
         grid-template-columns: 1fr;
       }
     }
-  </style>
+  
+    .ko-fi-button {
+      background: linear-gradient(135deg, #FF5E78 0%, #FF218C 100%);
+      color: white;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 20px;
+      display: inline-block;
+      text-decoration: none;
+    }
+
+    .ko-fi-button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(255, 33, 140, 0.4);
+    }
+
+</style>
 </head>
 <body>
 <!-- LOGIN MODAL -->
@@ -829,6 +850,17 @@
 </section>
 
 <!-- FOOTER -->
+<!-- KO-FI DONATION -->
+<div style="text-align: center; padding: 30px 20px; margin-bottom: 20px;">
+  <p data-sv="Tycker du att appen är bra? Ge gärna en donation för att stödja utvecklingen!" 
+     data-en="Like the app? Consider supporting its development!" 
+     data-es="¿Te gusta la aplicación? ¡Considera apoyar su desarrollo!" 
+     style="margin-bottom: 15px; color: var(--text-secondary);">
+    Tycker du att appen är bra? Ge gärna en donation för att stödja utvecklingen!
+  </p>
+  <a href="https://ko-fi.com/petanquetraning" target="_blank" class="ko-fi-button">☕ <span data-sv="Köp mig en kaffe" data-en="Buy me a coffee" data-es="Cómprame un café">Köp mig en kaffe</span></a>
+</div>
+
 <footer>
   <div class="footer-links">
     <a href="https://github.com/johanssonbvp/skyttetraning" target="_blank">GitHub</a>
