@@ -5,7 +5,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-    <script src="./sync-manager.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1206,7 +1205,8 @@ function onUserLoggedIn(user) {
   }
 }
 
-// Auth state listener - körs automatiskt
+// Auth state listener - körs när allt är laddat
+window.addEventListener('DOMContentLoaded', function() {
 firebase.auth().onAuthStateChanged(async (user) => {
   if (user) {
     // Användaren är inloggad
@@ -1242,6 +1242,7 @@ firebase.auth().onAuthStateChanged(async (user) => {
     if (authModal) authModal.style.display = 'flex';
   }
 });
+}); // end DOMContentLoaded
 
 // Enter-tangent support
 document.addEventListener('keypress', function(e) {
