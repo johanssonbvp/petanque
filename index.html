@@ -703,6 +703,20 @@
             data-sv="BÖRJA NU" data-en="START NOW" data-es="COMIENZA AHORA">
       BÖRJA NU
     </button>
+    
+    <!-- KO-FI - diskret efter CTA -->
+    <div style="margin-top: 16px; opacity: 0.7; transition: opacity 0.2s;" 
+         onmouseover="this.style.opacity='1'" 
+         onmouseout="this.style.opacity='0.7'">
+      <a href="https://ko-fi.com/petanquetraning" target="_blank" 
+         style="color: #8a8a9e; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.1); padding: 7px 14px; border-radius: 20px; backdrop-filter: blur(4px); background: rgba(255,255,255,0.04);"
+         data-sv="☕ Gilla appen? Bjud mig på en kaffe"
+         data-en="☕ Like the app? Buy me a coffee"
+         data-es="☕ ¿Te gusta la app? Invítame un café">
+        ☕ <span data-sv="Gilla appen? Bjud mig på en kaffe" data-en="Like the app? Buy me a coffee" data-es="¿Te gusta la app? Invítame un café">Gilla appen? Bjud mig på en kaffe</span>
+      </a>
+    </div>
+    
   </div>
 </section>
 
@@ -911,17 +925,6 @@
 </section>
 
 <!-- FOOTER -->
-<!-- KO-FI DONATION -->
-<div style="text-align: center; padding: 30px 20px; margin-bottom: 20px;">
-  <p data-sv="Tycker du att appen är bra? Ge gärna en donation för att stödja utvecklingen!" 
-     data-en="Like the app? Consider supporting its development!" 
-     data-es="¿Te gusta la aplicación? ¡Considera apoyar su desarrollo!" 
-     style="margin-bottom: 15px; color: var(--text-secondary);">
-    Tycker du att appen är bra? Ge gärna en donation för att stödja utvecklingen!
-  </p>
-  <a href="https://ko-fi.com/petanquetraning" target="_blank" class="ko-fi-button">☕ <span data-sv="Köp mig en kaffe" data-en="Buy me a coffee" data-es="Cómprame un café">Köp mig en kaffe</span></a>
-</div>
-
 <footer>
   <div class="footer-links">
     <a href="https://github.com/johanssonbvp/skyttetraning" target="_blank">GitHub</a>
@@ -1195,14 +1198,37 @@ function onUserLoggedIn(user) {
   const logoutBtn = document.getElementById('logout-btn');
   if (logoutBtn) logoutBtn.style.display = 'inline-block';
   
-  // Visa email i badge om möjligt
+  // Visa email i badge
   const badge = document.getElementById('trainer-badge');
   if (badge) badge.textContent = user.email ? user.email.split('@')[0].toUpperCase() : 'INLOGGAD';
   
-  // Starta auto-sync
-  if (localStorage.getItem('pt_trainer_code')) {
-    waitForFirebaseAndSync();
+  // Sätt UID som tränarkod och uppdatera sync-manager
+  const uid = user.uid;
+  localStorage.setItem('pt_trainer_code', uid);
+  localStorage.setItem('trainer-code', uid);
+  
+  // Uppdatera sync-manager med ny UID
+  if (typeof initSyncManager === 'function') {
+    initSyncManager({
+      apiKey: "AIzaSyCwzdwGEjN5LVw3RSLz2dy7f70Reafbe2c",
+      authDomain: "databas-serie.firebaseapp.com",
+      databaseURL: "https://databas-serie-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "databas-serie",
+      storageBucket: "databas-serie.firebasestorage.app",
+      messagingSenderId: "672666417012",
+      appId: "1:672666417012:web:93613783fe51cd2ce81e21"
+    });
   }
+  
+  // Uppdatera sync-badge
+  const syncBadge = document.getElementById('sync-status-badge');
+  if (syncBadge) {
+    syncBadge.textContent = '☁️ Inloggad';
+    syncBadge.style.color = '#4ade80';
+  }
+  
+  // Starta auto-sync
+  waitForFirebaseAndSync();
 }
 
 
