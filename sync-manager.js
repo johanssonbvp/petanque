@@ -6,17 +6,23 @@ let trainerCode;
 function initSyncManager(firebaseConfig) {
   try {
     firebase = window.firebase;
-    firebase.initializeApp(firebaseConfig);
-    database = firebase.database();
     
+    // Initiera bara om ingen app finns ännu
+    if (!firebase.apps || !firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    
+    database = firebase.database();
     trainerCode = localStorage.getItem('pt_trainer_code');
     
     if (trainerCode) {
       console.log('✅ Sync initialized:', trainerCode);
       updateSyncBadge(true);
+    } else {
+      console.log('✅ Sync Manager ready (no trainer code yet)');
     }
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Sync Manager error:', error);
   }
 }
 

@@ -1205,44 +1205,7 @@ function onUserLoggedIn(user) {
   }
 }
 
-// Auth state listener - körs när allt är laddat
-window.addEventListener('DOMContentLoaded', function() {
-firebase.auth().onAuthStateChanged(async (user) => {
-  if (user) {
-    // Användaren är inloggad
-    const alreadyMigrated = localStorage.getItem('pt_trainer_code') === user.uid;
-    
-    if (!alreadyMigrated) {
-      // Ny inloggning - kolla om de redan har data på UID
-      const snap = await firebase.database().ref('coaches/' + user.uid).once('value');
-      const hasData = snap.val() !== null;
-      
-      if (hasData) {
-        // Har redan data - logga direkt in
-        localStorage.setItem('pt_trainer_code', user.uid);
-        localStorage.setItem('trainer-code', user.uid);
-        document.getElementById('auth-modal').style.display = 'none';
-        onUserLoggedIn(user);
-      } else {
-        // Ny användare - visa migration-modal
-        document.getElementById('auth-modal').style.display = 'none';
-        const migModal = document.getElementById('migration-modal');
-        migModal.style.display = 'flex';
-      }
-    } else {
-      // Redan satt upp - bara logga in direkt
-      document.getElementById('auth-modal').style.display = 'none';
-      onUserLoggedIn(user);
-    }
-  } else {
-    // Inte inloggad - visa auth-modal
-    localStorage.removeItem('pt_trainer_code');
-    localStorage.removeItem('trainer-code');
-    const authModal = document.getElementById('auth-modal');
-    if (authModal) authModal.style.display = 'flex';
-  }
-});
-}); // end DOMContentLoaded
+
 
 // Enter-tangent support
 document.addEventListener('keypress', function(e) {
@@ -1272,7 +1235,7 @@ window.addEventListener('load', function() {
   }
 });
 
-// Firebase Config
+// Firebase Config + Init
 const firebaseConfig = {
   apiKey: "AIzaSyCwzdwGEjN5LVw3RSLz2dy7f70Reafbe2c",
   authDomain: "databas-serie.firebaseapp.com",
@@ -1283,9 +1246,40 @@ const firebaseConfig = {
   appId: "1:672666417012:web:93613783fe51cd2ce81e21"
 };
 
-if (typeof initSyncManager === 'function') {
-  initSyncManager(firebaseConfig);
+// Initiera Firebase (bara en gång)
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
 }
+
+// Nu är Firebase redo - starta auth listener
+window.addEventListener('DOMContentLoaded', function() {
+  firebase.auth().onAuthStateChanged(async (user) => {
+    if (user) {
+      const alreadyMigrated = localStorage.getItem('pt_trainer_code') === user.uid;
+      if (!alreadyMigrated) {
+        const snap = await firebase.database().ref('coaches/' + user.uid).once('value');
+        const hasData = snap.val() !== null;
+        if (hasData) {
+          localStorage.setItem('pt_trainer_code', user.uid);
+          localStorage.setItem('trainer-code', user.uid);
+          document.getElementById('auth-modal').style.display = 'none';
+          onUserLoggedIn(user);
+        } else {
+          document.getElementById('auth-modal').style.display = 'none';
+          document.getElementById('migration-modal').style.display = 'flex';
+        }
+      } else {
+        document.getElementById('auth-modal').style.display = 'none';
+        onUserLoggedIn(user);
+      }
+    } else {
+      localStorage.removeItem('pt_trainer_code');
+      localStorage.removeItem('trainer-code');
+      const authModal = document.getElementById('auth-modal');
+      if (authModal) authModal.style.display = 'flex';
+    }
+  });
+});
 </script>
 
 <!-- BACKUP/EXPORT ALL DATA -->
