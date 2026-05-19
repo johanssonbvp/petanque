@@ -1220,10 +1220,19 @@ document.addEventListener('keypress', function(e) {
 
 
 function logout() {
-  if (confirm('Är du säker?')) {
-    localStorage.removeItem('pt_trainer_code');
-    localStorage.removeItem('trainer-code');
-    location.reload();
+  if (confirm('Är du säker på att du vill logga ut?')) {
+    firebase.auth().signOut().then(() => {
+      localStorage.removeItem('pt_trainer_code');
+      localStorage.removeItem('trainer-code');
+      // Visa auth-modal direkt utan reload
+      const authModal = document.getElementById('auth-modal');
+      if (authModal) {
+        authModal.style.display = 'flex';
+        showTab('login');
+      }
+    }).catch((e) => {
+      console.error('Logout error:', e);
+    });
   }
 }
 
