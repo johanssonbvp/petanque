@@ -267,55 +267,66 @@ function renderStats(){let v=getHistory();if(ls.get("pt_sync_dismissed")&&(docum
   <div class="sheet" style="max-height:85vh;overflow-y:auto">
     <h2>Effektivitetsindex</h2>
     <p style="color:var(--muted2);font-size:.85rem;line-height:1.6;margin-bottom:16px">
-      Träff-procenten visar <em>hur ofta</em> du träffar. Effektivitetsindex visar <em>hur bra</em> du spelar - totalt sett.
+      Träff-procenten visar <em>hur många</em> du träffar. Effektivitetsindex visar <em>hur du presterar som skytt i match</em> – kvalitet, mental styrka och pålitlighet.
     </p>
 
-    <div style="background:var(--card2);border-radius:12px;padding:14px;margin-bottom:12px;border-left:3px solid var(--carreau)">
-      <div style="font-family:var(--font-display);font-weight:700;font-size:.85rem;color:var(--carreau);margin-bottom:6px">🎯 POÄNGVÄRDE · 40% av index</div>
+    <div style="background:var(--card2);border-radius:12px;padding:14px;margin-bottom:10px;border-left:3px solid var(--carreau)">
+      <div style="font-family:var(--font-display);font-weight:700;font-size:.85rem;color:var(--carreau);margin-bottom:6px">🎯 POÄNGVÄRDE · 30%</div>
       <div style="font-size:.82rem;color:var(--text);line-height:1.6">
-        Carreau är bättre än Träff som är bättre än Miss. Varje skott ger poäng baserat på kvalitet:
+        Carreau är ett bättre skott än en vanlig träff. Här värderas varje skotts kvalitet:
         <br><br>
         <span style="color:var(--carreau)">★ Carreau = 3 poäng</span><br>
         <span style="color:var(--traff)">◎ Träff = 1 poäng</span><br>
         <span style="color:var(--miss)">✕ Miss = 0 poäng</span><br><br>
-        <em style="color:var(--muted2)">Exempel: 10 skott med 2 carreau + 5 träff + 3 miss = 11 av max 30 poäng = 37%</em>
+        <em style="color:var(--muted2)">Två skyttar med 60% träff kan ha helt olika poängvärde beroende på hur ofta de tar carreau.</em>
       </div>
     </div>
 
-    <div style="background:var(--card2);border-radius:12px;padding:14px;margin-bottom:12px;border-left:3px solid var(--traff)">
-      <div style="font-family:var(--font-display);font-weight:700;font-size:.85rem;color:var(--traff);margin-bottom:6px">📊 KONSISTENS · 35% av index</div>
+    <div style="background:var(--card2);border-radius:12px;padding:14px;margin-bottom:10px;border-left:3px solid var(--traff)">
+      <div style="font-family:var(--font-display);font-weight:700;font-size:.85rem;color:var(--traff);margin-bottom:6px">↩️ ÅTERHÄMTNING · 35%</div>
       <div style="font-size:.82rem;color:var(--text);line-height:1.6">
-        Hur jämn är din prestation från session till session? En spelare som alltid träffar 60% är mer konsistent än en som pendlar mellan 20% och 90%.
+        Det viktigaste för en skytt i match – hur snabbt reser du dig efter ett missat skott?
         <br><br>
-        <span style="color:var(--carreau)">Låg variation = Hög konsistens = Pålitlig</span><br>
-        <span style="color:var(--miss)">Hög variation = Låg konsistens = Opålitlig</span>
+        <span style="color:var(--carreau)">Miss → Träff direkt = bra återhämtning ✅</span><br>
+        <span style="color:var(--miss)">Miss → Miss → Miss = tappar fokus ❌</span><br><br>
+        <em style="color:var(--muted2)">En pålitlig skytt låter inte ett dåligt skott påverka nästa.</em>
       </div>
     </div>
 
-    <div style="background:var(--card2);border-radius:12px;padding:14px;margin-bottom:20px;border-left:3px solid #a78bfa">
-      <div style="font-family:var(--font-display);font-weight:700;font-size:.85rem;color:#a78bfa;margin-bottom:6px">📈 PROGRESSION · 25% av index</div>
+    <div style="background:var(--card2);border-radius:12px;padding:14px;margin-bottom:10px;border-left:3px solid #f59e0b">
+      <div style="font-family:var(--font-display);font-weight:700;font-size:.85rem;color:#f59e0b;margin-bottom:6px">⚡ STARTSKOTT · 20%</div>
       <div style="font-size:.82rem;color:var(--text);line-height:1.6">
-        Blir du bättre? Jämför dina 5 senaste sessioner mot de 5 innan dess.
+        Hur ofta träffar du dina <strong>2 första skott</strong> per session? Missar skytten tidigt är laget i underläge direkt.
         <br><br>
-        <span style="color:var(--carreau)">📈 Positiv trend = du förbättras</span><br>
+        <span style="color:var(--carreau)">Träff på skott 1–2 = laget i bra sits ✅</span><br>
+        <span style="color:var(--miss)">Miss på skott 1–2 = laget i kris ❌</span>
+      </div>
+    </div>
+
+    <div style="background:var(--card2);border-radius:12px;padding:14px;margin-bottom:16px;border-left:3px solid #a78bfa">
+      <div style="font-family:var(--font-display);font-weight:700;font-size:.85rem;color:#a78bfa;margin-bottom:6px">📈 PROGRESSION · 15%</div>
+      <div style="font-size:.82rem;color:var(--text);line-height:1.6">
+        Jämför dina 5 senaste sessioner mot de 5 innan dess – utvecklas du åt rätt håll?
+        <br><br>
+        <span style="color:var(--carreau)">📈 Positiv = du förbättras</span><br>
         <span style="color:var(--muted2)">➡️ Stabil = du håller din nivå</span><br>
-        <span style="color:var(--miss)">📉 Negativ trend = du tappar form</span>
+        <span style="color:var(--miss)">📉 Negativ = du tappar form</span>
       </div>
     </div>
 
-    <div style="background:var(--card2);border-radius:12px;padding:14px;margin-bottom:20px">
+    <div style="background:var(--card2);border-radius:12px;padding:12px 14px;margin-bottom:16px">
       <div style="font-family:var(--font-display);font-weight:700;font-size:.85rem;color:var(--accent);margin-bottom:10px">⚡ BETYGSSKALA</div>
-      <div style="display:flex;flex-direction:column;gap:6px;font-size:.82rem">
-        <div style="display:flex;align-items:center;gap:10px"><div style="width:10px;height:10px;border-radius:2px;background:var(--carreau)"></div><span><strong>80–100%</strong> · Utmärkt</span></div>
-        <div style="display:flex;align-items:center;gap:10px"><div style="width:10px;height:10px;border-radius:2px;background:#90ee90"></div><span><strong>65–79%</strong> · Bra</span></div>
-        <div style="display:flex;align-items:center;gap:10px"><div style="width:10px;height:10px;border-radius:2px;background:var(--traff)"></div><span><strong>50–64%</strong> · Medel</span></div>
-        <div style="display:flex;align-items:center;gap:10px"><div style="width:10px;height:10px;border-radius:2px;background:#ff8c00"></div><span><strong>35–49%</strong> · Under medel</span></div>
-        <div style="display:flex;align-items:center;gap:10px"><div style="width:10px;height:10px;border-radius:2px;background:var(--miss)"></div><span><strong>0–34%</strong> · Behöver träning</span></div>
+      <div style="display:flex;flex-direction:column;gap:7px;font-size:.82rem">
+        <div style="display:flex;align-items:center;gap:10px"><div style="width:10px;height:10px;border-radius:2px;background:var(--carreau);flex-shrink:0"></div><span><strong>80–100%</strong> · Utmärkt – match-redo skytt</span></div>
+        <div style="display:flex;align-items:center;gap:10px"><div style="width:10px;height:10px;border-radius:2px;background:#90ee90;flex-shrink:0"></div><span><strong>65–79%</strong> · Bra – pålitlig i de flesta lägen</span></div>
+        <div style="display:flex;align-items:center;gap:10px"><div style="width:10px;height:10px;border-radius:2px;background:var(--traff);flex-shrink:0"></div><span><strong>50–64%</strong> · Medel – fortsätt träna</span></div>
+        <div style="display:flex;align-items:center;gap:10px"><div style="width:10px;height:10px;border-radius:2px;background:#ff8c00;flex-shrink:0"></div><span><strong>35–49%</strong> · Under medel – jobba på återhämtning</span></div>
+        <div style="display:flex;align-items:center;gap:10px"><div style="width:10px;height:10px;border-radius:2px;background:var(--miss);flex-shrink:0"></div><span><strong>0–34%</strong> · Grundträning behövs</span></div>
       </div>
     </div>
 
-    <div style="font-size:.78rem;color:var(--muted2);text-align:center;margin-bottom:20px">
-      ⚠️ Minst 3 sessioner krävs för beräkning
+    <div style="font-size:.75rem;color:var(--muted2);text-align:center;margin-bottom:16px;line-height:1.5">
+      ⚠️ Minst 3 sessioner krävs · Återhämtning och startskott kräver loggad sekvensdata
     </div>
 
     <div class="sheet-actions">
