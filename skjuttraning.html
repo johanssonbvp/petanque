@@ -17,7 +17,7 @@
 .eff-row-val{font-family:var(--font-display);font-size:.85rem;font-weight:800;width:36px;text-align:right}
 .eff-tooltip{font-size:.72rem;color:var(--muted2);margin-top:12px;line-height:1.5;padding-top:12px;border-top:1px solid var(--border)}
 </style><script async src="https://www.googletagmanager.com/gtag/js?id=G-XT4NB1HR2J"></script><script>function gtag(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","G-XT4NB1HR2J")</script><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script><script src="./sync-manager.js"></script></head><body><div id="offline-badge" data-i18n="offline">⚡ Offline-läge</div><div class="lang-bar"><a class="back-link" href="index.html">← <span data-i18n="home">Hem</span></a> <button class="lang-btn" onclick="toggleLang()"><span id="lang-flag">🇬🇧</span> <span id="lang-label">English</span></button></div><div class="tab-bar"><button class="tab-btn active" onclick='switchTab("training",this)'>🟡&nbsp; <span data-i18n="tabTraining">Träning</span></button> <button class="tab-btn" onclick='switchTab("stats",this)'>📊&nbsp; <span data-i18n="tabStats">Statistik</span></button></div><div id="tab-training" class="tab-content active"><div class="train-wrap"><div class="hero"><div class="hero-label" data-i18n="currentDistance">Aktuellt avstånd</div><div class="hero-dist" id="hero-dist">6m</div><div class="hero-sub" id="hero-sub" data-i18n="readyToShoot">Redo att skjuta</div></div><div class="pill-section"><div class="pill-label" data-i18n="distance">Avstånd</div><div class="pill-group"><button class="pill dist-pill active" onclick="setDistance(0)">6m</button> <button class="pill dist-pill" onclick="setDistance(1)">7m</button> <button class="pill dist-pill" onclick="setDistance(2)">8m</button> <button class="pill dist-pill" onclick="setDistance(3)">9m</button> <button class="pill dist-pill" onclick="setDistance(4)">10m</button> <button class="pill dist-pill" onclick="setDistance(5)">11m</button> <button class="pill dist-pill" onclick="setDistance(6)">12m</button></div></div><div class="pill-section"><div class="pill-label" data-i18n="numberOfShots">Antal skott</div><div class="pill-group"><button class="pill count-pill" onclick="setTotal(10)">10</button> <button class="pill count-pill" onclick="setTotal(20)">20</button> <button class="pill count-pill" onclick="setTotal(30)">30</button> <button class="pill count-pill" onclick="setTotal(40)">40</button> <button class="pill count-pill active" onclick="setTotal(50)">50</button></div></div><div class="progress-section"><div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div><div class="progress-meta"><span><span data-i18n="shot">Skott</span> <span id="cur-shot">1</span> / <span id="tot-shot">50</span></span> <span id="prog-pct">0%</span></div></div><div class="live-stats"><div class="live-chip chip-miss"><span class="val" id="live-miss">0</span><span class="lbl" data-i18n="miss">Miss</span></div><div class="live-chip chip-traff"><span class="val" id="live-traff">0</span><span class="lbl" data-i18n="hit">Träff</span></div><div class="live-chip chip-carreau"><span class="val" id="live-carreau">0</span><span class="lbl">Carreau</span></div></div><div class="shot-grid"><button class="shot-btn btn-miss" onclick='shoot("miss",event)'><span class="btn-icon">✕</span> <span data-i18n="miss">Miss</span></button> <button class="shot-btn btn-traff" onclick='shoot("traff",event)'><span class="btn-icon">◎</span> <span data-i18n="hit">Träff</span></button> <button class="shot-btn btn-carreau" onclick='shoot("carreau",event)'><span class="btn-icon">★</span> Carreau</button></div><div style="display:flex;gap:8px;margin-bottom:4px"><button class="undo-btn" id="undo-btn" onclick="undoShot()" style="flex:1">↩ Ångra</button> <button class="undo-btn" id="switch-dist-btn" onclick="openSwitchDistModal()" style="flex:1;display:none">⇄ Byt avstånd</button></div><button class="end-session-btn" id="end-session-btn" onclick="openEndModal()">✓ Avsluta &amp; spara passet</button> <button class="reset-btn" onclick='openModal("reset-modal")' data-i18n="resetCurrent">Nollställ aktuellt resultat</button></div></div><div id="tab-stats" class="tab-content"><div class="stats-wrap"><div class="stats-top"><h2 data-i18n="statistics">Statistik</h2><div class="stats-top-btns"><button class="clear-btn" onclick="importHistory()" data-i18n="import">↑ Importera</button> <button class="clear-btn" onclick="exportHistory()" data-i18n="export">↓ Exportera</button> <button class="clear-btn" onclick='openModal("clear-modal")' data-i18n="clearAll">Rensa allt</button></div></div><div class="stats-nav"><button class="stats-nav-btn active" onclick='switchStatsTab("overview",this)' data-i18n="overview">Översikt</button> <button class="stats-nav-btn" onclick='switchStatsTab("records",this)' data-i18n="records">Rekord</button> <button class="stats-nav-btn" onclick='switchStatsTab("charts",this)' data-i18n="charts">Grafer</button> <button class="stats-nav-btn" onclick='switchStatsTab("calendar",this)' data-i18n="calendar">Kalender</button> <button class="stats-nav-btn" onclick='switchStatsTab("history",this)' data-i18n="history">Historik</button></div><div class="sync-info" id="sync-info"><span class="sync-info-icon">💡</span><div class="sync-info-text"><strong data-i18n="syncInfoTitle">Flytta data mellan enheter</strong><p data-i18n="syncInfoDesc">Exportera din data som en CSV-fil på den här enheten. Öppna sedan appen på en annan enhet och importera filen via ↑ Importera-knappen ovan.</p></div><button class="sync-info-close" onclick="dismissSyncInfo()">✕</button></div><div id="stats-overview" class="stats-section active"><div class="overview-cards"><div class="ov-card" onclick='switchStatsTab("charts",this.closest(".stats-wrap").querySelector("[onclick*=charts]"))'><div class="sv" id="ov-sessions" style="color:var(--accent)">0</div><div class="sk" data-i18n="sessions">Sessioner</div></div><div class="ov-card" onclick='switchStatsTab("charts",this.closest(".stats-wrap").querySelector("[onclick*=charts]"))'><div class="sv" id="ov-shots">0</div><div class="sk" data-i18n="shots">Skott</div></div><div class="ov-card" onclick='switchStatsTab("charts",this.closest(".stats-wrap").querySelector("[onclick*=charts]"))'><div class="sv" id="ov-avg" style="color:var(--carreau)">0%</div><div class="sk" data-i18n="average">Snitt%</div></div></div><div class="overview-cards" style="margin-bottom:20px"><div class="ov-card" onclick='switchStatsTab("charts",this.closest(".stats-wrap").querySelector("[onclick*=charts]"))'><div class="sv" id="ov-best" style="color:var(--carreau)">–</div><div class="sk" data-i18n="best">Bästa%</div></div><div class="ov-card" onclick='switchStatsTab("charts",this.closest(".stats-wrap").querySelector("[onclick*=charts]"))'><div class="sv" id="ov-worst" style="color:var(--miss)">–</div><div class="sk" data-i18n="worst">Sämsta%</div></div><div class="ov-card" onclick='switchStatsTab("charts",this.closest(".stats-wrap").querySelector("[onclick*=charts]"))'><div class="sv" id="ov-days" style="color:var(--accent)">0</div><div class="sk" data-i18n="trainingDays">Träningsdagar</div></div></div><div id="eff-card" class="eff-card" style="display:none">
-  <div class="eff-title">Effektivitetsindex</div>
+  <div class="eff-title" style="display:flex;align-items:center;gap:8px">Effektivitetsindex <button onclick="openModal('eff-info-modal')" style="background:transparent;border:1px solid var(--border2);color:var(--muted2);border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;line-height:1;padding:0;flex-shrink:0" title="Hur fungerar detta?">?</button></div>
   <div class="eff-index">
     <div class="eff-big" id="eff-index-val" style="color:var(--accent)">0%</div>
     <div class="eff-bar-wrap">
@@ -53,7 +53,10 @@
 function calcEfficiency(history) {
     if (!history || history.length < 3) return null;
     
-    // === 1. POÄNGVÄRDE (40%) ===
+    // Hämta sessioner med shotLog (sekvensdata)
+    const sessionsWithLog = history.filter(s => s.log && s.log.length > 0);
+    
+    // === 1. POÄNGVÄRDE (30%) ===
     // Carreau=3p, Träff=1p, Miss=0p
     let totalPoints = 0, maxPoints = 0;
     history.forEach(s => {
@@ -62,32 +65,73 @@ function calcEfficiency(history) {
     });
     const scoreEff = maxPoints > 0 ? Math.round(totalPoints / maxPoints * 100) : 0;
     
-    // === 2. KONSISTENS (35%) ===
-    // Standardavvikelse av träff% - lägre = bättre
-    const pcts = history.map(s => s.pct);
-    const avg = pcts.reduce((a, b) => a + b, 0) / pcts.length;
-    const variance = pcts.reduce((sum, p) => sum + Math.pow(p - avg, 2), 0) / pcts.length;
-    const stdDev = Math.sqrt(variance);
-    // stdDev 0 = 100%, stdDev 50 = 0%
-    const consistEff = Math.max(0, Math.round(100 - stdDev * 2));
+    // === 2. ÅTERHÄMTNING (35%) ===
+    // Efter en miss - träffar man nästa skott?
+    let recoveryHits = 0, recoveryTotal = 0;
+    if (sessionsWithLog.length > 0) {
+        sessionsWithLog.forEach(s => {
+            const log = s.log;
+            for (let i = 0; i < log.length - 1; i++) {
+                if (log[i] === 'miss') {
+                    recoveryTotal++;
+                    if (log[i+1] === 'traff' || log[i+1] === 'carreau') {
+                        recoveryHits++;
+                    }
+                }
+            }
+        });
+    }
+    const recoveryEff = recoveryTotal > 0 
+        ? Math.round(recoveryHits / recoveryTotal * 100)
+        : 50; // neutral om ingen data
     
-    // === 3. PROGRESSION (25%) ===
+    // === 3. STARTSKOTT (20%) ===
+    // Hur träffar man de 2 första skotten per session?
+    let startHits = 0, startTotal = 0;
+    if (sessionsWithLog.length > 0) {
+        sessionsWithLog.forEach(s => {
+            const firstTwo = s.log.slice(0, 2);
+            startTotal += firstTwo.length;
+            startHits += firstTwo.filter(shot => shot === 'traff' || shot === 'carreau').length;
+        });
+    }
+    const startEff = startTotal > 0
+        ? Math.round(startHits / startTotal * 100)
+        : 50;
+    
+    // === 4. PROGRESSION (15%) ===
     // Jämför senaste 5 vs föregående 5 sessioner
-    let progEff = 50; // neutral om inte tillräckligt med data
+    let progEff = 50;
     if (history.length >= 6) {
         const recent = history.slice(0, 5);
         const older = history.slice(5, 10);
         const recentAvg = recent.reduce((a, b) => a + b.pct, 0) / recent.length;
         const olderAvg = older.reduce((a, b) => a + b.pct, 0) / older.length;
         const diff = recentAvg - olderAvg;
-        // diff +20 = 100%, diff 0 = 50%, diff -20 = 0%
         progEff = Math.min(100, Math.max(0, Math.round(50 + diff * 2.5)));
     }
     
     // === VIKTAT INDEX ===
-    const index = Math.round(scoreEff * 0.40 + consistEff * 0.35 + progEff * 0.25);
+    const index = Math.round(
+        scoreEff   * 0.30 +
+        recoveryEff * 0.35 +
+        startEff   * 0.20 +
+        progEff    * 0.15
+    );
     
-    return { index, scoreEff, consistEff, progEff, avg: Math.round(avg) };
+    const pcts = history.map(s => s.pct);
+    const avg = Math.round(pcts.reduce((a, b) => a + b, 0) / pcts.length);
+    
+    return { 
+        index, 
+        scoreEff,       // Poängvärde
+        recoveryEff,    // Återhämtning
+        startEff,       // Startskott
+        progEff,        // Progression
+        avg,
+        hasSeqData: sessionsWithLog.length > 0,
+        seqSessions: sessionsWithLog.length
+    };
 }
 
 function renderEfficiency(history) {
@@ -123,21 +167,42 @@ function renderEfficiency(history) {
     const label = eff.index >= 80 ? 'Utmärkt' : eff.index >= 65 ? 'Bra' : eff.index >= 50 ? 'Medel' : eff.index >= 35 ? 'Under medel' : 'Behöver träning';
     document.getElementById('eff-index-label').textContent = label;
     
-    // Komponenter
+    // Uppdatera komponent-labels och värden
+    const scoreEl = document.getElementById('eff-score-bar');
+    const recEl = document.getElementById('eff-consist-bar');   // återanvänd element
+    const startEl = document.getElementById('eff-prog-bar');    // återanvänd element
+    
+    // Uppdatera labels
+    const labels = document.querySelectorAll('.eff-row-label');
+    const icons = document.querySelectorAll('.eff-row-icon');
+    if (labels[0]) labels[0].textContent = 'Poängvärde';
+    if (labels[1]) labels[1].textContent = 'Återhämtning';
+    if (labels[2]) labels[2].textContent = 'Startskott';
+    if (icons[0]) icons[0].textContent = '🎯';
+    if (icons[1]) icons[1].textContent = '↩️';
+    if (icons[2]) icons[2].textContent = '⚡';
+    
     setTimeout(() => {
+        // Poängvärde
         document.getElementById('eff-score-bar').style.width = eff.scoreEff + '%';
         document.getElementById('eff-score-val').textContent = eff.scoreEff + '%';
-        document.getElementById('eff-consist-bar').style.width = eff.consistEff + '%';
-        document.getElementById('eff-consist-val').textContent = eff.consistEff + '%';
-        document.getElementById('eff-prog-bar').style.width = eff.progEff + '%';
-        document.getElementById('eff-prog-val').textContent = eff.progEff + '%';
+        // Återhämtning
+        document.getElementById('eff-consist-bar').style.width = eff.recoveryEff + '%';
+        document.getElementById('eff-consist-val').textContent = eff.recoveryEff + '%';
+        // Startskott
+        document.getElementById('eff-prog-bar').style.width = eff.startEff + '%';
+        document.getElementById('eff-prog-val').textContent = eff.startEff + '%';
     }, 300);
     
-    // Tooltip med förklaring
-    const progText = eff.progEff > 60 ? '📈 Positiv trend!' : eff.progEff < 40 ? '📉 Negativ trend' : '➡️ Stabil trend';
+    // Tooltip
+    const progText = eff.progEff > 60 ? '📈 Positiv trend' : eff.progEff < 40 ? '📉 Negativ trend' : '➡️ Stabil trend';
+    const seqNote = eff.hasSeqData 
+        ? `${eff.seqSessions} sessioner med sekvensdata`
+        : 'Ingen sekvensdata ännu - fortsätt träna!';
     document.getElementById('eff-tooltip').innerHTML = 
         `Snitt träff%: <strong>${eff.avg}%</strong> · ${progText}<br>
-        <span style="color:var(--muted)">Poängvärde väger 40%, Konsistens 35%, Progression 25%</span>`;
+        <span style="color:var(--muted)">Poängvärde 30% · Återhämtning 35% · Startskott 20% · Progression 15%</span><br>
+        <span style="color:var(--muted);font-size:.68rem">${seqNote}</span>`;
 }
 function renderStats(){let v=getHistory();if(ls.get("pt_sync_dismissed")&&(document.getElementById("sync-info").style.display="none"),v.length){document.getElementById("ov-empty").style.display="none",document.getElementById("rec-empty").style.display="none",document.getElementById("charts-empty").style.display="none";var e=v.length,s=v.reduce((t,e)=>t+e.shots,0),n=+(v.reduce((t,e)=>t+e.pct,0)/e).toFixed(1),a=Math.max(...v.map(t=>t.pct)),o=Math.min(...v.map(t=>t.pct)),i=new Set(v.map(t=>t.date.split("T")[0])).size;animateNumber(document.getElementById("ov-sessions"),0,e,600),animateNumber(document.getElementById("ov-shots"),0,s,600);renderEfficiency(v);var e,s=(animatePercentage(e=document.getElementById("ov-avg"),0,n,600,"%"),document.getElementById("ov-best")),e=(animatePercentage(s,0,a,600,"%"),document.getElementById("ov-worst")),n=(animatePercentage(e,0,o,600,"%"),animateNumber(document.getElementById("ov-days"),0,i,600),setTimeout(()=>{document.querySelectorAll(".ov-card").forEach(t=>{t.classList.add("card-pulse"),setTimeout(()=>t.classList.remove("card-pulse"),500)})},600),document.getElementById("records-grid"));let m={6:"rec-6m",7:"rec-7m",8:"rec-8m",9:"rec-9m",10:"rec-10m",11:"rec-11m",12:"rec-12m"};n.innerHTML=DISTS.map(e=>{var s=v.filter(t=>t.dist===e);if(!s.length)return"";let n=Math.max(...s.map(t=>t.pct));var a=s.find(t=>t.pct===n),o=+(s.reduce((t,e)=>t+e.pct,0)/s.length).toFixed(1),i=s.reduce((t,e)=>t+e.shots,0),r=s.reduce((t,e)=>t+(e.miss||0),0),l=s.reduce((t,e)=>t+(e.traff||0),0),d=s.reduce((t,e)=>t+(e.carreau||0),0),r=i?Math.round(r/i*100):0,l=i?Math.round(l/i*100):0,d=i?Math.round(d/i*100):0,i=(t,e,s)=>`
       <div style="display:flex;align-items:center;gap:6px;margin-top:5px">
@@ -197,4 +262,65 @@ function renderStats(){let v=getHistory();if(ls.get("pt_sync_dismissed")&&(docum
           <div class="hist-dots" style="color:var(--muted2)">${s.slice(0,30)}${30<s.length?"…":""}</div>
         </div>
         <div class="hist-pct" style="color:${n}">${t.pct}%</div>
-      </div>`}).join("");else e.innerHTML='<div class="empty"><div class="empty-icon">📋</div><p>Inga sessioner för detta avstånd.</p></div>'}function animateNumber(a,o,i,r){if(a){let s=performance.now();let n=t=>{var t=t-s,t=Math.min(t/r,1),e=1-Math.pow(1-t,3),e=Math.round(o+(i-o)*e);a.textContent=e,a.classList.add("number-animated"),t<1?requestAnimationFrame(n):a.textContent=i};requestAnimationFrame(n)}}function animatePercentage(a,o,i,r,l=""){if(a){let s=performance.now(),n=t=>{var t=t-s,t=Math.min(t/r,1),e=1-Math.pow(1-t,3),e=Math.round(o+(i-o)*e);a.textContent=e+l,a.classList.add("number-animated"),t<1?requestAnimationFrame(n):a.textContent=i+l};requestAnimationFrame(n)}}function toggleFolder(t){t.classList.toggle("collapsed")}function showSessionDetail(t){try{var e=JSON.parse(t),s=new Date(e.date),n=s.toLocaleDateString("sv-SE")+" "+s.toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit"});"●".repeat(e.carreau||0),"◎".repeat(e.traff||0),"✕".repeat(e.miss||0);document.getElementById("sum-title").textContent=e.dist+"m träning",document.getElementById("sum-subtitle").textContent=n,document.getElementById("sum-pct").textContent=e.pct+"%",document.getElementById("sum-miss").textContent=e.miss||0,document.getElementById("sum-traff").textContent=e.traff||0,document.getElementById("sum-carreau").textContent=e.carreau||0,document.getElementById("next-btn").style.display="none",document.getElementById("save-end-btn").style.display="none",document.getElementById("continue-btn").style.display="none",document.getElementById("close-btn").style.display="",openModal("sum-modal")}catch(t){console.error("Error showing session detail:",t)}}function renderCalendar(){var e=getHistory();let s={};e.forEach(t=>{var e=t.date.split("T")[0];s[e]||(s[e]=[]),s[e].push(t.pct)});var e=document.getElementById("cal-month"),n=t("months"),e=(e.textContent=n[calMonth]+" "+calYear,t("days")),n=document.getElementById("cal-grid"),a=(new Date(calYear,calMonth,1).getDay()+6)%7,o=new Date(calYear,calMonth+1,0).getDate(),i=new Date;let r=e.map(t=>`<div class="cal-day-label">${t}</div>`).join("");for(let t=0;t<a;t++)r+='<div class="cal-day empty"></div>';for(let t=1;t<=o;t++){var l=calYear+"-"+String(calMonth+1).padStart(2,"0")+"-"+String(t).padStart(2,"0"),d=i.getFullYear()===calYear&&i.getMonth()===calMonth&&i.getDate()===t;s[l]?(l=s[l].reduce((t,e)=>t+e,0)/s[l].length,r+=`<div class="cal-day has-session ${70<=l?"great":40<=l?"good":"poor"}${d?" today":""}" title="${l.toFixed(0)}%">${t}</div>`):r+=`<div class="cal-day no-session${d?" today":""}">${t}</div>`}n.innerHTML=r}function calPrev(){--calMonth<0&&(calMonth=11,calYear--),renderCalendar()}function calNext(){11<++calMonth&&(calMonth=0,calYear++),renderCalendar()}function deduplicateHistory(){var t=getHistory();let e=new Set;var s=t.filter(t=>{t=t.dist+"_"+t.shots+"_"+t.miss+"_"+t.traff+"_"+t.carreau+"_"+t.date.slice(0,16);return!e.has(t)&&(e.add(t),!0)});s.length<t.length&&saveHistory(s)}function trackCompleteShootingTraining(){var t,e=getHistory();0!==e.length&&(e=0<(t=(e=e[e.length-1]).shots||0)?Math.round((e.traff||0)/t*100):0,gtag("event","complete_training",{training_type:"shooting_training",duration_minutes:30,score:e,difficulty:"medium",timestamp:(new Date).toISOString(),session_id:getSessionId()}),console.log("📊 Event spårat: complete_training (shooting_training, Score: "+e+"%)"))}function getSessionId(){let t=sessionStorage.getItem("ga_session_id");return t||(t="session_"+Date.now()+"_"+Math.random().toString(36).substr(2,9),sessionStorage.setItem("ga_session_id",t)),t}loadSession(),deduplicateHistory(),applyTranslations(),ls.get("pt_sync_dismissed")&&(document.getElementById("sync-info").style.display="none"),updateOnline()</script><script>const firebaseConfig={apiKey:"AIzaSyCwzdwGEjN5LVw3RSLz2dy7f70Reafbe2c",authDomain:"databas-serie.firebaseapp.com",databaseURL:"https://databas-serie-default-rtdb.europe-west1.firebasedatabase.app",projectId:"databas-serie",storageBucket:"databas-serie.firebasestorage.app",messagingSenderId:"672666417012",appId:"1:672666417012:web:93613783fe51cd2ce81e21"};if(typeof initSyncManager==="function"){initSyncManager(firebaseConfig);}</script></body></html>
+      </div>`}).join("");else e.innerHTML='<div class="empty"><div class="empty-icon">📋</div><p>Inga sessioner för detta avstånd.</p></div>'}function animateNumber(a,o,i,r){if(a){let s=performance.now();let n=t=>{var t=t-s,t=Math.min(t/r,1),e=1-Math.pow(1-t,3),e=Math.round(o+(i-o)*e);a.textContent=e,a.classList.add("number-animated"),t<1?requestAnimationFrame(n):a.textContent=i};requestAnimationFrame(n)}}function animatePercentage(a,o,i,r,l=""){if(a){let s=performance.now(),n=t=>{var t=t-s,t=Math.min(t/r,1),e=1-Math.pow(1-t,3),e=Math.round(o+(i-o)*e);a.textContent=e+l,a.classList.add("number-animated"),t<1?requestAnimationFrame(n):a.textContent=i+l};requestAnimationFrame(n)}}function toggleFolder(t){t.classList.toggle("collapsed")}function showSessionDetail(t){try{var e=JSON.parse(t),s=new Date(e.date),n=s.toLocaleDateString("sv-SE")+" "+s.toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit"});"●".repeat(e.carreau||0),"◎".repeat(e.traff||0),"✕".repeat(e.miss||0);document.getElementById("sum-title").textContent=e.dist+"m träning",document.getElementById("sum-subtitle").textContent=n,document.getElementById("sum-pct").textContent=e.pct+"%",document.getElementById("sum-miss").textContent=e.miss||0,document.getElementById("sum-traff").textContent=e.traff||0,document.getElementById("sum-carreau").textContent=e.carreau||0,document.getElementById("next-btn").style.display="none",document.getElementById("save-end-btn").style.display="none",document.getElementById("continue-btn").style.display="none",document.getElementById("close-btn").style.display="",openModal("sum-modal")}catch(t){console.error("Error showing session detail:",t)}}function renderCalendar(){var e=getHistory();let s={};e.forEach(t=>{var e=t.date.split("T")[0];s[e]||(s[e]=[]),s[e].push(t.pct)});var e=document.getElementById("cal-month"),n=t("months"),e=(e.textContent=n[calMonth]+" "+calYear,t("days")),n=document.getElementById("cal-grid"),a=(new Date(calYear,calMonth,1).getDay()+6)%7,o=new Date(calYear,calMonth+1,0).getDate(),i=new Date;let r=e.map(t=>`<div class="cal-day-label">${t}</div>`).join("");for(let t=0;t<a;t++)r+='<div class="cal-day empty"></div>';for(let t=1;t<=o;t++){var l=calYear+"-"+String(calMonth+1).padStart(2,"0")+"-"+String(t).padStart(2,"0"),d=i.getFullYear()===calYear&&i.getMonth()===calMonth&&i.getDate()===t;s[l]?(l=s[l].reduce((t,e)=>t+e,0)/s[l].length,r+=`<div class="cal-day has-session ${70<=l?"great":40<=l?"good":"poor"}${d?" today":""}" title="${l.toFixed(0)}%">${t}</div>`):r+=`<div class="cal-day no-session${d?" today":""}">${t}</div>`}n.innerHTML=r}function calPrev(){--calMonth<0&&(calMonth=11,calYear--),renderCalendar()}function calNext(){11<++calMonth&&(calMonth=0,calYear++),renderCalendar()}function deduplicateHistory(){var t=getHistory();let e=new Set;var s=t.filter(t=>{t=t.dist+"_"+t.shots+"_"+t.miss+"_"+t.traff+"_"+t.carreau+"_"+t.date.slice(0,16);return!e.has(t)&&(e.add(t),!0)});s.length<t.length&&saveHistory(s)}function trackCompleteShootingTraining(){var t,e=getHistory();0!==e.length&&(e=0<(t=(e=e[e.length-1]).shots||0)?Math.round((e.traff||0)/t*100):0,gtag("event","complete_training",{training_type:"shooting_training",duration_minutes:30,score:e,difficulty:"medium",timestamp:(new Date).toISOString(),session_id:getSessionId()}),console.log("📊 Event spårat: complete_training (shooting_training, Score: "+e+"%)"))}function getSessionId(){let t=sessionStorage.getItem("ga_session_id");return t||(t="session_"+Date.now()+"_"+Math.random().toString(36).substr(2,9),sessionStorage.setItem("ga_session_id",t)),t}loadSession(),deduplicateHistory(),applyTranslations(),ls.get("pt_sync_dismissed")&&(document.getElementById("sync-info").style.display="none"),updateOnline()</script><script>const firebaseConfig={apiKey:"AIzaSyCwzdwGEjN5LVw3RSLz2dy7f70Reafbe2c",authDomain:"databas-serie.firebaseapp.com",databaseURL:"https://databas-serie-default-rtdb.europe-west1.firebasedatabase.app",projectId:"databas-serie",storageBucket:"databas-serie.firebasestorage.app",messagingSenderId:"672666417012",appId:"1:672666417012:web:93613783fe51cd2ce81e21"};if(typeof initSyncManager==="function"){initSyncManager(firebaseConfig);}</script>
+<div class="overlay" id="eff-info-modal">
+  <div class="sheet" style="max-height:85vh;overflow-y:auto">
+    <h2>Effektivitetsindex</h2>
+    <p style="color:var(--muted2);font-size:.85rem;line-height:1.6;margin-bottom:16px">
+      Träff-procenten visar <em>hur ofta</em> du träffar. Effektivitetsindex visar <em>hur bra</em> du spelar - totalt sett.
+    </p>
+
+    <div style="background:var(--card2);border-radius:12px;padding:14px;margin-bottom:12px;border-left:3px solid var(--carreau)">
+      <div style="font-family:var(--font-display);font-weight:700;font-size:.85rem;color:var(--carreau);margin-bottom:6px">🎯 POÄNGVÄRDE · 40% av index</div>
+      <div style="font-size:.82rem;color:var(--text);line-height:1.6">
+        Carreau är bättre än Träff som är bättre än Miss. Varje skott ger poäng baserat på kvalitet:
+        <br><br>
+        <span style="color:var(--carreau)">★ Carreau = 3 poäng</span><br>
+        <span style="color:var(--traff)">◎ Träff = 1 poäng</span><br>
+        <span style="color:var(--miss)">✕ Miss = 0 poäng</span><br><br>
+        <em style="color:var(--muted2)">Exempel: 10 skott med 2 carreau + 5 träff + 3 miss = 11 av max 30 poäng = 37%</em>
+      </div>
+    </div>
+
+    <div style="background:var(--card2);border-radius:12px;padding:14px;margin-bottom:12px;border-left:3px solid var(--traff)">
+      <div style="font-family:var(--font-display);font-weight:700;font-size:.85rem;color:var(--traff);margin-bottom:6px">📊 KONSISTENS · 35% av index</div>
+      <div style="font-size:.82rem;color:var(--text);line-height:1.6">
+        Hur jämn är din prestation från session till session? En spelare som alltid träffar 60% är mer konsistent än en som pendlar mellan 20% och 90%.
+        <br><br>
+        <span style="color:var(--carreau)">Låg variation = Hög konsistens = Pålitlig</span><br>
+        <span style="color:var(--miss)">Hög variation = Låg konsistens = Opålitlig</span>
+      </div>
+    </div>
+
+    <div style="background:var(--card2);border-radius:12px;padding:14px;margin-bottom:20px;border-left:3px solid #a78bfa">
+      <div style="font-family:var(--font-display);font-weight:700;font-size:.85rem;color:#a78bfa;margin-bottom:6px">📈 PROGRESSION · 25% av index</div>
+      <div style="font-size:.82rem;color:var(--text);line-height:1.6">
+        Blir du bättre? Jämför dina 5 senaste sessioner mot de 5 innan dess.
+        <br><br>
+        <span style="color:var(--carreau)">📈 Positiv trend = du förbättras</span><br>
+        <span style="color:var(--muted2)">➡️ Stabil = du håller din nivå</span><br>
+        <span style="color:var(--miss)">📉 Negativ trend = du tappar form</span>
+      </div>
+    </div>
+
+    <div style="background:var(--card2);border-radius:12px;padding:14px;margin-bottom:20px">
+      <div style="font-family:var(--font-display);font-weight:700;font-size:.85rem;color:var(--accent);margin-bottom:10px">⚡ BETYGSSKALA</div>
+      <div style="display:flex;flex-direction:column;gap:6px;font-size:.82rem">
+        <div style="display:flex;align-items:center;gap:10px"><div style="width:10px;height:10px;border-radius:2px;background:var(--carreau)"></div><span><strong>80–100%</strong> · Utmärkt</span></div>
+        <div style="display:flex;align-items:center;gap:10px"><div style="width:10px;height:10px;border-radius:2px;background:#90ee90"></div><span><strong>65–79%</strong> · Bra</span></div>
+        <div style="display:flex;align-items:center;gap:10px"><div style="width:10px;height:10px;border-radius:2px;background:var(--traff)"></div><span><strong>50–64%</strong> · Medel</span></div>
+        <div style="display:flex;align-items:center;gap:10px"><div style="width:10px;height:10px;border-radius:2px;background:#ff8c00"></div><span><strong>35–49%</strong> · Under medel</span></div>
+        <div style="display:flex;align-items:center;gap:10px"><div style="width:10px;height:10px;border-radius:2px;background:var(--miss)"></div><span><strong>0–34%</strong> · Behöver träning</span></div>
+      </div>
+    </div>
+
+    <div style="font-size:.78rem;color:var(--muted2);text-align:center;margin-bottom:20px">
+      ⚠️ Minst 3 sessioner krävs för beräkning
+    </div>
+
+    <div class="sheet-actions">
+      <button class="mbtn mbtn-ghost" onclick="closeModal('eff-info-modal')">Stäng</button>
+    </div>
+  </div>
+</div>
+</body></html>
