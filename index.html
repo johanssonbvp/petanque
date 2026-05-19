@@ -584,24 +584,81 @@
 </head>
 <body>
 <!-- LOGIN MODAL -->
-<div id="login-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10000; align-items: center; justify-content: center;">
-  <div style="background: #0f1419; padding: 40px; border-radius: 12px; border: 1px solid #1a1f2e; text-align: center; max-width: 400px; width: 90%;">
-    <h2 style="color: #e8ff47; font-size: 28px; margin-bottom: 10px;" data-sv="Din kod" data-en="Your Code" data-es="Tu código">Din kod</h2>
-    <p style="color: #8a8a9e; margin-bottom: 20px; font-size: 14px;" data-sv="Ange din unika kod för att logga in" data-en="Enter your unique code" data-es="Ingresa tu código">Ange din unika kod för att logga in</p>
+<!-- ===== AUTH MODAL ===== -->
+<div id="auth-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.97);z-index:10000;align-items:center;justify-content:center;overflow-y:auto;">
+  <div style="background:#0f1419;padding:40px 32px;border-radius:16px;border:1px solid #1a1f2e;text-align:center;max-width:420px;width:90%;margin:20px auto;">
     
-    <input 
-      type="text" 
-      id="trainer-code-input" 
-      placeholder="T.EX: BVPTEST" 
-      maxlength="12"
-      autocomplete="off"
-      style="width: 100%; padding: 12px; margin-bottom: 15px; background: #080810; border: 1px solid #1a1f2e; color: #e8ff47; border-radius: 6px; font-size: 16px; text-transform: uppercase;"
-    >
-    
-    <button id="login-btn" style="width: 100%; padding: 12px; background: #e8ff47; color: #080810; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 16px;" data-sv="LOGGA IN" data-en="LOGIN" data-es="INICIAR SESIÓN">LOGGA IN</button>
-    
-    <div id="login-status" style="margin-top: 15px; color: #ff6b6b; font-size: 12px;"></div>
+    <!-- Logo -->
+    <div style="font-size:36px;margin-bottom:8px;">🎯</div>
+    <h2 style="color:#e8ff47;font-size:26px;margin-bottom:4px;font-weight:800;">Petanque Träning</h2>
+    <p style="color:#8a8a9e;font-size:13px;margin-bottom:28px;">Logga in eller skapa konto</p>
+
+    <!-- TAB SWITCHER -->
+    <div style="display:flex;background:#080810;border-radius:8px;padding:4px;margin-bottom:24px;gap:4px;">
+      <button id="tab-login" onclick="showTab('login')" style="flex:1;padding:10px;border:none;border-radius:6px;background:#e8ff47;color:#080810;font-weight:700;font-size:14px;cursor:pointer;">Logga in</button>
+      <button id="tab-register" onclick="showTab('register')" style="flex:1;padding:10px;border:none;border-radius:6px;background:transparent;color:#8a8a9e;font-weight:700;font-size:14px;cursor:pointer;">Skapa konto</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div id="form-login">
+      <input type="email" id="login-email" placeholder="E-postadress" autocomplete="email"
+        style="width:100%;padding:13px;margin-bottom:12px;background:#080810;border:1px solid #1a1f2e;color:#fff;border-radius:8px;font-size:15px;box-sizing:border-box;">
+      <input type="password" id="login-password" placeholder="Lösenord" autocomplete="current-password"
+        style="width:100%;padding:13px;margin-bottom:8px;background:#080810;border:1px solid #1a1f2e;color:#fff;border-radius:8px;font-size:15px;box-sizing:border-box;">
+      <div style="text-align:right;margin-bottom:16px;">
+        <a href="#" onclick="showForgotPassword()" style="color:#8a8a9e;font-size:12px;text-decoration:none;">Glömt lösenord?</a>
+      </div>
+      <button onclick="doLogin()" style="width:100%;padding:14px;background:#e8ff47;color:#080810;border:none;border-radius:8px;font-weight:800;font-size:16px;cursor:pointer;margin-bottom:12px;">LOGGA IN</button>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div id="form-register" style="display:none;">
+      <input type="email" id="reg-email" placeholder="E-postadress" autocomplete="email"
+        style="width:100%;padding:13px;margin-bottom:12px;background:#080810;border:1px solid #1a1f2e;color:#fff;border-radius:8px;font-size:15px;box-sizing:border-box;">
+      <input type="password" id="reg-password" placeholder="Lösenord (minst 6 tecken)" autocomplete="new-password"
+        style="width:100%;padding:13px;margin-bottom:12px;background:#080810;border:1px solid #1a1f2e;color:#fff;border-radius:8px;font-size:15px;box-sizing:border-box;">
+      <input type="password" id="reg-password2" placeholder="Upprepa lösenord" autocomplete="new-password"
+        style="width:100%;padding:13px;margin-bottom:16px;background:#080810;border:1px solid #1a1f2e;color:#fff;border-radius:8px;font-size:15px;box-sizing:border-box;">
+      <button onclick="doRegister()" style="width:100%;padding:14px;background:#e8ff47;color:#080810;border:none;border-radius:8px;font-weight:800;font-size:16px;cursor:pointer;margin-bottom:12px;">SKAPA KONTO</button>
+    </div>
+
+    <!-- FORGOT PASSWORD FORM -->
+    <div id="form-forgot" style="display:none;">
+      <p style="color:#8a8a9e;font-size:13px;margin-bottom:16px;">Ange din e-post så skickar vi en återställningslänk.</p>
+      <input type="email" id="forgot-email" placeholder="E-postadress" autocomplete="email"
+        style="width:100%;padding:13px;margin-bottom:16px;background:#080810;border:1px solid #1a1f2e;color:#fff;border-radius:8px;font-size:15px;box-sizing:border-box;">
+      <button onclick="doForgotPassword()" style="width:100%;padding:14px;background:#e8ff47;color:#080810;border:none;border-radius:8px;font-weight:800;font-size:16px;cursor:pointer;margin-bottom:12px;">SKICKA LÄNK</button>
+      <button onclick="showTab('login')" style="width:100%;padding:10px;background:transparent;border:1px solid #1a1f2e;color:#8a8a9e;border-radius:8px;font-size:14px;cursor:pointer;">Tillbaka</button>
+    </div>
+
+    <!-- STATUS -->
+    <div id="auth-status" style="margin-top:8px;color:#ff6b6b;font-size:13px;min-height:20px;"></div>
+
   </div>
+</div>
+
+<!-- ===== MIGRATION MODAL ===== -->
+<div id="migration-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.97);z-index:10001;align-items:center;justify-content:center;">
+  <div style="background:#0f1419;padding:40px 32px;border-radius:16px;border:1px solid #1a1f2e;text-align:center;max-width:420px;width:90%;margin:20px auto;">
+    <div style="font-size:32px;margin-bottom:12px;">📦</div>
+    <h2 style="color:#e8ff47;font-size:22px;margin-bottom:8px;">Flytta din data</h2>
+    <p style="color:#8a8a9e;font-size:13px;margin-bottom:24px;line-height:1.6;">Har du en befintlig tränarkod med sparad statistik? Ange den nedan så flyttar vi din data till ditt nya konto automatiskt.</p>
+    
+    <input type="text" id="migration-code" placeholder="T.EX: BVPTEST" maxlength="12" autocomplete="off"
+      style="width:100%;padding:13px;margin-bottom:12px;background:#080810;border:1px solid #1a1f2e;color:#e8ff47;border-radius:8px;font-size:16px;text-transform:uppercase;text-align:center;box-sizing:border-box;">
+    
+    <button onclick="doMigration()" style="width:100%;padding:14px;background:#e8ff47;color:#080810;border:none;border-radius:8px;font-weight:800;font-size:15px;cursor:pointer;margin-bottom:10px;">FLYTTA MIN DATA</button>
+    <button onclick="skipMigration()" style="width:100%;padding:11px;background:transparent;border:1px solid #1a1f2e;color:#8a8a9e;border-radius:8px;font-size:14px;cursor:pointer;">Jag har ingen tidigare data</button>
+    
+    <div id="migration-status" style="margin-top:12px;color:#ff6b6b;font-size:13px;min-height:20px;"></div>
+  </div>
+</div>
+
+<!-- OLD LOGIN MODAL (kept for compatibility, hidden) -->
+<div id="login-modal" style="display:none;">
+  <input type="text" id="trainer-code-input">
+  <button id="login-btn"></button>
+  <div id="login-status"></div>
 </div>
 
 <!-- SYNC BADGE -->
@@ -958,36 +1015,244 @@
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <script src="./sync-manager.js"></script>
 
 <script>
 // LOGIN HANDLING
-document.getElementById('login-btn').addEventListener('click', function() {
-  const code = document.getElementById('trainer-code-input').value.trim().toUpperCase();
-  const statusEl = document.getElementById('login-status');
+
+// ===== FIREBASE AUTH SYSTEM =====
+
+// Tab switching
+function showTab(tab) {
+  document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
+  document.getElementById('form-forgot').style.display = 'none';
+  document.getElementById('tab-login').style.background = tab === 'login' ? '#e8ff47' : 'transparent';
+  document.getElementById('tab-login').style.color = tab === 'login' ? '#080810' : '#8a8a9e';
+  document.getElementById('tab-register').style.background = tab === 'register' ? '#e8ff47' : 'transparent';
+  document.getElementById('tab-register').style.color = tab === 'register' ? '#080810' : '#8a8a9e';
+  setAuthStatus('');
+}
+
+function setAuthStatus(msg, isSuccess) {
+  const el = document.getElementById('auth-status');
+  if (el) {
+    el.textContent = msg;
+    el.style.color = isSuccess ? '#4ade80' : '#ff6b6b';
+  }
+}
+
+function showForgotPassword() {
+  document.getElementById('form-login').style.display = 'none';
+  document.getElementById('form-register').style.display = 'none';
+  document.getElementById('form-forgot').style.display = 'block';
+  setAuthStatus('');
+}
+
+// Felmeddelanden på svenska
+function getSwedishError(code) {
+  const errors = {
+    'auth/user-not-found': 'Ingen användare med denna e-post hittades.',
+    'auth/wrong-password': 'Fel lösenord. Försök igen.',
+    'auth/invalid-email': 'Ogiltig e-postadress.',
+    'auth/email-already-in-use': 'E-postadressen används redan av ett annat konto.',
+    'auth/weak-password': 'Lösenordet är för svagt. Använd minst 6 tecken.',
+    'auth/too-many-requests': 'För många försök. Vänta en stund och försök igen.',
+    'auth/network-request-failed': 'Nätverksfel. Kontrollera din anslutning.',
+    'auth/invalid-credential': 'Fel e-post eller lösenord.',
+  };
+  return errors[code] || 'Något gick fel. Försök igen.';
+}
+
+// Logga in
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  if (!email || !password) { setAuthStatus('Fyll i e-post och lösenord.'); return; }
   
-  if (!code) {
-    statusEl.textContent = 'Ange en kod!';
+  setAuthStatus('Loggar in...');
+  try {
+    await firebase.auth().signInWithEmailAndPassword(email, password);
+    // onAuthStateChanged tar över härifrån
+  } catch (e) {
+    setAuthStatus(getSwedishError(e.code));
+  }
+}
+
+// Registrera
+async function doRegister() {
+  const email = document.getElementById('reg-email').value.trim();
+  const password = document.getElementById('reg-password').value;
+  const password2 = document.getElementById('reg-password2').value;
+  
+  if (!email || !password || !password2) { setAuthStatus('Fyll i alla fält.'); return; }
+  if (password !== password2) { setAuthStatus('Lösenorden matchar inte.'); return; }
+  if (password.length < 6) { setAuthStatus('Lösenordet måste vara minst 6 tecken.'); return; }
+  
+  setAuthStatus('Skapar konto...');
+  try {
+    await firebase.auth().createUserWithEmailAndPassword(email, password);
+    // onAuthStateChanged tar över och visar migration-modal
+  } catch (e) {
+    setAuthStatus(getSwedishError(e.code));
+  }
+}
+
+// Glömt lösenord
+async function doForgotPassword() {
+  const email = document.getElementById('forgot-email').value.trim();
+  if (!email) { setAuthStatus('Ange din e-postadress.'); return; }
+  
+  try {
+    await firebase.auth().sendPasswordResetEmail(email);
+    setAuthStatus('✅ Återställningslänk skickad! Kolla din e-post.', true);
+    setTimeout(() => showTab('login'), 3000);
+  } catch (e) {
+    setAuthStatus(getSwedishError(e.code));
+  }
+}
+
+// Migrera gammal data från tränarkod → Firebase UID
+async function doMigration() {
+  const code = document.getElementById('migration-code').value.trim().toUpperCase();
+  const statusEl = document.getElementById('migration-status');
+  
+  if (!code || code.length < 3) {
+    statusEl.textContent = 'Ange en giltig tränarkod.';
     return;
   }
   
-  if (code.length < 3) {
-    statusEl.textContent = 'Koden måste vara minst 3 tecken!';
-    return;
-  }
+  statusEl.style.color = '#e8ff47';
+  statusEl.textContent = 'Hämtar din data...';
   
-  localStorage.setItem('pt_trainer_code', code);
-  localStorage.setItem('trainer-code', code); // För matchstatistik kompatibilitet
-  document.getElementById('login-modal').style.display = 'none';
-  location.reload(); // Reload för att aktivera Firebase
+  try {
+    const user = firebase.auth().currentUser;
+    if (!user) { statusEl.textContent = 'Inte inloggad.'; return; }
+    
+    // Hämta data från gamla sökvägen
+    const oldRef = firebase.database().ref('coaches/' + code);
+    const snapshot = await oldRef.once('value');
+    const oldData = snapshot.val();
+    
+    if (!oldData) {
+      statusEl.style.color = '#ff6b6b';
+      statusEl.textContent = 'Ingen data hittades för koden "' + code + '". Kontrollera stavningen.';
+      return;
+    }
+    
+    statusEl.textContent = 'Kopierar data till ditt konto...';
+    
+    // Spara på nya UID-sökvägen
+    await firebase.database().ref('coaches/' + user.uid).set(oldData);
+    
+    // Spara UID i localStorage
+    localStorage.setItem('pt_trainer_code', user.uid);
+    localStorage.setItem('trainer-code', user.uid);
+    
+    // Markera gamla koden som migrerad
+    await oldRef.child('_migrated').set({ to: user.uid, date: new Date().toISOString() });
+    
+    statusEl.style.color = '#4ade80';
+    statusEl.textContent = '✅ Data flytt! Välkommen!';
+    
+    setTimeout(() => {
+      document.getElementById('migration-modal').style.display = 'none';
+      onUserLoggedIn(user);
+    }, 1500);
+    
+  } catch (e) {
+    console.error('Migration error:', e);
+    statusEl.style.color = '#ff6b6b';
+    statusEl.textContent = 'Fel vid flytt: ' + e.message;
+  }
+}
+
+// Hoppa över migrering
+function skipMigration() {
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+  
+  // Använd UID som tränarkod
+  localStorage.setItem('pt_trainer_code', user.uid);
+  localStorage.setItem('trainer-code', user.uid);
+  
+  // Markera att migrering skippades
+  firebase.database().ref('coaches/' + user.uid + '/_meta').set({
+    email: user.email,
+    created: new Date().toISOString(),
+    migrated: false
+  });
+  
+  document.getElementById('migration-modal').style.display = 'none';
+  onUserLoggedIn(user);
+}
+
+// När användaren är inloggad
+function onUserLoggedIn(user) {
+  // Uppdatera UI
+  const logoutBtn = document.getElementById('logout-btn');
+  if (logoutBtn) logoutBtn.style.display = 'inline-block';
+  
+  // Visa email i badge om möjligt
+  const badge = document.getElementById('trainer-badge');
+  if (badge) badge.textContent = user.email ? user.email.split('@')[0].toUpperCase() : 'INLOGGAD';
+  
+  // Starta auto-sync
+  if (localStorage.getItem('pt_trainer_code')) {
+    waitForFirebaseAndSync();
+  }
+}
+
+// Auth state listener - körs automatiskt
+firebase.auth().onAuthStateChanged(async (user) => {
+  if (user) {
+    // Användaren är inloggad
+    const alreadyMigrated = localStorage.getItem('pt_trainer_code') === user.uid;
+    
+    if (!alreadyMigrated) {
+      // Ny inloggning - kolla om de redan har data på UID
+      const snap = await firebase.database().ref('coaches/' + user.uid).once('value');
+      const hasData = snap.val() !== null;
+      
+      if (hasData) {
+        // Har redan data - logga direkt in
+        localStorage.setItem('pt_trainer_code', user.uid);
+        localStorage.setItem('trainer-code', user.uid);
+        document.getElementById('auth-modal').style.display = 'none';
+        onUserLoggedIn(user);
+      } else {
+        // Ny användare - visa migration-modal
+        document.getElementById('auth-modal').style.display = 'none';
+        const migModal = document.getElementById('migration-modal');
+        migModal.style.display = 'flex';
+      }
+    } else {
+      // Redan satt upp - bara logga in direkt
+      document.getElementById('auth-modal').style.display = 'none';
+      onUserLoggedIn(user);
+    }
+  } else {
+    // Inte inloggad - visa auth-modal
+    localStorage.removeItem('pt_trainer_code');
+    localStorage.removeItem('trainer-code');
+    const authModal = document.getElementById('auth-modal');
+    if (authModal) authModal.style.display = 'flex';
+  }
 });
 
-document.getElementById('trainer-code-input').addEventListener('keypress', function(e) {
-  if (e.key === 'Enter') {
-    document.getElementById('login-btn').click();
-  }
+// Enter-tangent support
+document.addEventListener('keypress', function(e) {
+  if (e.key !== 'Enter') return;
+  const loginForm = document.getElementById('form-login');
+  const registerForm = document.getElementById('form-register');
+  const forgotForm = document.getElementById('form-forgot');
+  if (loginForm && loginForm.style.display !== 'none') doLogin();
+  else if (registerForm && registerForm.style.display !== 'none') doRegister();
+  else if (forgotForm && forgotForm.style.display !== 'none') doForgotPassword();
 });
+
 
 function logout() {
   if (confirm('Är du säker?')) {
