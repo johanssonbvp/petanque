@@ -448,12 +448,22 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 let lang = localStorage.getItem('petanque-lang') || localStorage.getItem('pt_lang') || localStorage.getItem('lang') || 'sv';
 function applyLang() {
   document.querySelectorAll('[data-sv]').forEach(el => {
-    el.textContent = lang==='sv' ? el.dataset.sv : el.dataset.en;
+    const txt = lang==='fr' ? (el.dataset.fr || el.dataset.en || el.dataset.sv)
+              : lang==='en' ? (el.dataset.en || el.dataset.sv)
+              : el.dataset.sv;
+    if (txt != null) el.textContent = txt;
   });
   document.querySelectorAll('[data-placeholder-sv]').forEach(el => {
-    el.placeholder = lang==='sv' ? el.dataset.placeholderSv : el.dataset.placeholderEn;
+    const ph = lang==='fr' ? (el.dataset.placeholderFr || el.dataset.placeholderEn || el.dataset.placeholderSv)
+             : lang==='en' ? (el.dataset.placeholderEn || el.dataset.placeholderSv)
+             : el.dataset.placeholderSv;
+    if (ph != null) el.placeholder = ph;
   });
-  document.getElementById('langBtn').textContent = lang==='sv' ? '🌐 EN' : '🌐 SV';
+  // Markera aktiv språkknapp
+  ['sv','en','fr'].forEach(l => {
+    const b = document.getElementById('btn-'+l);
+    if (b) b.style.borderColor = l===lang ? 'var(--accent)' : '';
+  });
   document.documentElement.lang = lang;
 }
 function setLangApp(l) {
@@ -778,5 +788,5 @@ function clearAll() {
     initSyncManager(firebaseConfig);
   }
 </script>
-<script>const firebaseConfig={apiKey:"AIzaSyCwzdwGEjN5LVw3RSLz2dy7f70Reafbe2c",authDomain:"databas-serie.firebaseapp.com",databaseURL:"https://databas-serie-default-rtdb.europe-west1.firebasedatabase.app",projectId:"databas-serie",storageBucket:"databas-serie.firebasestorage.app",messagingSenderId:"672666417012",appId:"1:672666417012:web:93613783fe51cd2ce81e21"};if(typeof initSyncManager==="function"){initSyncManager(firebaseConfig);}</script></body>
+</body>
 </html>

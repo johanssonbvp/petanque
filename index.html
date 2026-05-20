@@ -1622,11 +1622,8 @@ function waitForFirebaseAndSync() {
   }
 }
 
-window.addEventListener('load', function() {
-  if (localStorage.getItem('pt_trainer_code')) {
-    waitForFirebaseAndSync();
-  }
-});
+// OBS: auto-sync startas från onAuthStateChanged vid login, inte här
+// window.addEventListener('load') tas bort för att undvika dubbel-sync
 
 // Backup/Restore via menu
 function openBackupMenu() {

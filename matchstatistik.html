@@ -1247,6 +1247,47 @@ class MatchApp {
                 }
             }
         });
+
+        // Samma logik för motståndarlaget
+        if (this.match.opponents) {
+            this.match.opponents.forEach((p, idx) => {
+                const oppKey = 'opp_' + idx;
+                const oppActions = roundActions[oppKey] || [];
+                const count = oppActions.length;
+
+                // Update badge
+                const badge = document.getElementById('opp-ball-count-' + idx);
+                if (badge) {
+                    badge.textContent = count + '/2';
+                    badge.className = 'player-ball-count';
+                    if (count >= 2) {
+                        badge.classList.add('ball-count-full');
+                    }
+                }
+
+                // Disable buttons
+                const buttons = document.querySelectorAll('button[data-opp="' + idx + '"]');
+                buttons.forEach(btn => {
+                    if (count >= 2) {
+                        btn.disabled = true;
+                        btn.classList.add('btn-disabled');
+                    } else {
+                        btn.disabled = false;
+                        btn.classList.remove('btn-disabled');
+                    }
+                });
+
+                // Update card style
+                const card = document.getElementById('opp-card-' + idx);
+                if (card) {
+                    if (count >= 2) {
+                        card.classList.add('card-full');
+                    } else {
+                        card.classList.remove('card-full');
+                    }
+                }
+            });
+        }
     }
 
     // ---- LOG OPPONENT ----
@@ -1281,6 +1322,17 @@ class MatchApp {
         
         // Kolla om ALLA 6 klot (eget lag) är loggade för auto-nästa omgång
         this.checkAutoNextRound();
+    }
+
+    // ---- CHECK AUTO NEXT ROUND ----
+    checkAutoNextRound() {
+        if (!this.match.currentRound || !this.match.roundActions) return;
+        const roundActions = this.match.roundActions[this.match.currentRound] || {};
+        const totalBalls = Object.values(roundActions).reduce((sum, arr) => sum + arr.length, 0);
+        if (totalBalls >= 6) {
+            this.showToast('✅ Omgång ' + this.match.currentRound + ' klar - byter...');
+            setTimeout(() => this.nextRound(true), 1500);
+        }
     }
     
     // ---- LOG ----
