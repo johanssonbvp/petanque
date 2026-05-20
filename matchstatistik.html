@@ -1328,8 +1328,21 @@ class MatchApp {
     checkAutoNextRound() {
         if (!this.match.currentRound || !this.match.roundActions) return;
         const roundActions = this.match.roundActions[this.match.currentRound] || {};
-        const totalBalls = Object.values(roundActions).reduce((sum, arr) => sum + arr.length, 0);
-        if (totalBalls >= 6) {
+
+        // Räkna eget lags klot (nycklar: 0, 1, 2)
+        const ownBalls = this.match.players.reduce((sum, _, idx) => {
+            return sum + ((roundActions[idx] || []).length);
+        }, 0);
+
+        // Räkna motståndarlagets klot (nycklar: opp_0, opp_1, opp_2)
+        const oppBalls = (this.match.opponents || []).reduce((sum, _, idx) => {
+            return sum + ((roundActions['opp_' + idx] || []).length);
+        }, 0);
+
+        const ownFull = ownBalls >= (this.match.players.length * 2);
+        const oppFull = oppBalls >= ((this.match.opponents || []).length * 2);
+
+        if (ownFull && oppFull) {
             this.showToast('✅ Omgång ' + this.match.currentRound + ' klar - byter...');
             setTimeout(() => this.nextRound(true), 1500);
         }
