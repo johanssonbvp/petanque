@@ -978,13 +978,28 @@ class MatchApp {
         if (this.isOnline && this.fbRef) {
             try {
                 await this.fbRef.child(m.id).remove();
+                console.log('[Firebase] Match raderad:', m.id);
             } catch(e) {
-                console.warn('[Firebase] Delete failed:', e);
+                console.warn('[Firebase] Delete failed, sparar som pending:', e);
+                this.addPendingDelete(m.id);
             }
+        } else {
+            // Offline — spara som pending delete
+            this.addPendingDelete(m.id);
+            console.log('[Firebase] Offline - radering köas:', m.id);
         }
 
         this.renderHistory();
         this.showHistList();
+    }
+
+    addPendingDelete(matchId) {
+        const key = `pending-deletes-${this.trainerCode}`;
+        const pending = JSON.parse(localStorage.getItem(key) || '[]');
+        if (!pending.includes(matchId)) {
+            pending.push(matchId);
+            localStorage.setItem(key, JSON.stringify(pending));
+        }
     }
 
     // ---- MIGRATE localStorage → Firebase ----
@@ -1001,10 +1016,10 @@ class MatchApp {
     // ---- SYNC PENDING ----
     async syncOfflineData() {
         if (!this.trainerCode || !this.fbRef) return;
+
+        // Sync pending saves
         const pendingKey = `pending-sync-${this.trainerCode}`;
         const pending = JSON.parse(localStorage.getItem(pendingKey) || '[]');
-        if (!pending.length) return;
-
         const local = JSON.parse(localStorage.getItem(`match-history-${this.trainerCode}`) || '[]');
         let synced = 0;
 
@@ -1017,10 +1032,28 @@ class MatchApp {
                 } catch(e) { console.warn('[Firebase] Sync failed for:', id); }
             }
         }
-
         if (synced > 0) {
             localStorage.removeItem(pendingKey);
             console.log(`[Firebase] Synced ${synced} offline matches`);
+        }
+
+        // Sync pending deletes
+        const deleteKey = `pending-deletes-${this.trainerCode}`;
+        const pendingDeletes = JSON.parse(localStorage.getItem(deleteKey) || '[]');
+        let deleted = 0;
+
+        for (const id of pendingDeletes) {
+            try {
+                await this.fbRef.child(id).remove();
+                deleted++;
+            } catch(e) { console.warn('[Firebase] Pending delete failed for:', id); }
+        }
+        if (deleted > 0) {
+            localStorage.removeItem(deleteKey);
+            console.log(`[Firebase] Deleted ${deleted} pending matches from Firebase`);
+        }
+
+        if (synced > 0 || deleted > 0) {
             this.loadHistory();
         }
     }
