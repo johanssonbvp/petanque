@@ -815,9 +815,17 @@ class MatchApp {
         window.addEventListener('online', () => { this.isOnline = true; this.checkOnline(); this.syncOfflineData(); });
         window.addEventListener('offline', () => { this.isOnline = false; this.checkOnline(); });
 
-        // Auto-login if code saved
-        const saved = localStorage.getItem('trainer-code');
-        if (saved) this.login(saved);
+        // Hämta UID från Firebase Auth (nytt system) eller gammal tränarkod
+        const uid = localStorage.getItem('pt_trainer_code')
+                 || localStorage.getItem('petanque-lang-uid')
+                 || localStorage.getItem('trainer-code');
+        
+        if (uid) {
+            this.login(uid);
+        } else {
+            // Ingen inloggning - redirect till index
+            window.location.href = './index.html';
+        }
 
         this.checkOnline();
         langMgr.apply();
@@ -853,12 +861,20 @@ class MatchApp {
 
     // ---- LOGIN ----
     login(code) {
-        this.trainerCode = code.toUpperCase();
+        // Använd koden som den är (kan vara UID eller gammal tränarkod)
+        this.trainerCode = code;
         localStorage.setItem('trainer-code', this.trainerCode);
 
-        document.getElementById('trainer-badge').textContent = this.trainerCode;
-        document.getElementById('screen-login').style.display = 'none';
-        document.getElementById('screen-setup').style.display = 'block';
+        const badge = document.getElementById('trainer-badge');
+        if (badge) badge.textContent = this.trainerCode.length > 20 
+            ? this.trainerCode.substring(0, 8) + '...' 
+            : this.trainerCode;
+        
+        const screenLogin = document.getElementById('screen-login');
+        if (screenLogin) screenLogin.style.display = 'none';
+        
+        const screenSetup = document.getElementById('screen-setup');
+        if (screenSetup) screenSetup.style.display = 'block';
 
         this.fbRef = db.ref(`coaches/${this.trainerCode}/matches`);
         this.loadHistory();
@@ -866,6 +882,14 @@ class MatchApp {
     }
 
     logout() {
+        // Logga ut via Firebase Auth om möjligt
+        if (typeof firebase !== 'undefined' && firebase.auth) {
+            firebase.auth().signOut().catch(e => console.log('Auth signout:', e));
+        }
+        localStorage.removeItem('pt_trainer_code');
+        localStorage.removeItem('trainer-code');
+        // Redirect till index för ny inloggning
+        window.location.href = './index.html';
         this.trainerCode = null;
         this.history = [];
         this.codeBuffer = '';
