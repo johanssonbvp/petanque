@@ -279,8 +279,205 @@
             .keypad { gap: 0.5rem; }
             .key { padding: 0.85rem; font-size: 16px; }
         }
-    </style>
+    
+/* Ball counter styling */
+.player-ball-count {
+    margin-left: auto;
+    background: rgba(232,255,71,0.15);
+    color: #e8ff47;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid rgba(232,255,71,0.3);
+}
+.player-ball-count.ball-count-full {
+    background: rgba(34,197,94,0.2);
+    color: #4ade80;
+    border-color: rgba(34,197,94,0.4);
+}
+.action-btn.btn-disabled {
+    opacity: 0.3 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+}
+.player-card-new.card-full {
+    opacity: 0.6;
+    border-color: rgba(34,197,94,0.4);
+}
+.player-card-new.card-full .player-name {
+    color: #4ade80;
+}
 
+
+/* === OPPONENT LAYOUT === */
+.match-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+.team-column {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.team-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-family: var(--font-display, sans-serif);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+.team-header.own {
+    background: rgba(232,255,71,0.12);
+    color: #e8ff47;
+    border: 1px solid rgba(232,255,71,0.25);
+}
+.team-header.opp {
+    background: rgba(255,100,100,0.12);
+    color: #ff8080;
+    border: 1px solid rgba(255,100,100,0.25);
+}
+.player-card-new {
+    background: rgba(26,31,58,0.8);
+    border: 1px solid rgba(232,255,71,0.15);
+    border-radius: 10px;
+    padding: 8px;
+    position: relative;
+}
+.player-card-new.opponent-card {
+    border-color: rgba(255,100,100,0.2);
+}
+.player-card-new.card-full {
+    opacity: 0.6;
+}
+.player-card-new.card-full.own-full {
+    border-color: rgba(34,197,94,0.4);
+}
+.player-card-new.card-full.opp-full {
+    border-color: rgba(255,100,100,0.5);
+}
+.player-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+}
+.player-role {
+    font-size: 10px;
+    color: #999;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+.player-name {
+    color: #e8ff47;
+    font-weight: 700;
+    font-size: 13px;
+}
+.player-card-new.opponent-card .player-name {
+    color: #ff8080;
+}
+.player-ball-count {
+    margin-left: auto;
+    background: rgba(232,255,71,0.15);
+    color: #e8ff47;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    border: 1px solid rgba(232,255,71,0.3);
+    white-space: nowrap;
+}
+.player-ball-count.ball-count-full {
+    background: rgba(34,197,94,0.2);
+    color: #4ade80;
+    border-color: rgba(34,197,94,0.4);
+}
+.opponent-card .player-ball-count {
+    background: rgba(255,100,100,0.15);
+    color: #ff8080;
+    border-color: rgba(255,100,100,0.3);
+}
+.opponent-card .player-ball-count.ball-count-full {
+    background: rgba(255,100,100,0.3);
+    border-color: rgba(255,100,100,0.6);
+}
+.action-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+}
+.action-col {
+    background: rgba(232,255,71,0.04);
+    border-radius: 6px;
+    padding: 4px;
+}
+.opponent-card .action-col {
+    background: rgba(255,100,100,0.04);
+}
+.action-col-label {
+    font-size: 9px;
+    color: #999;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 3px;
+    text-align: center;
+}
+.action-btn {
+    width: 100%;
+    padding: 5px 2px;
+    border: 1px solid;
+    border-radius: 5px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 11px;
+    margin-bottom: 3px;
+    transition: all 0.15s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.action-btn:last-child { margin-bottom: 0; }
+.action-btn:active { transform: scale(0.96); }
+.action-btn.btn-disabled {
+    opacity: 0.3 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+}
+.action-btn-success {
+    background: rgba(34,197,94,0.15);
+    border-color: rgba(34,197,94,0.4);
+    color: #4ade80;
+}
+.action-btn-miss {
+    background: rgba(239,68,68,0.15);
+    border-color: rgba(239,68,68,0.4);
+    color: #f87171;
+}
+
+@media (max-width: 500px) {
+    .match-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+    }
+    .action-btn {
+        font-size: 10px;
+        padding: 4px 2px;
+    }
+    .player-name { font-size: 12px; }
+}
+
+</style>
 </head>
 <body>
 
@@ -303,11 +500,63 @@
                 <div class="meta-label" data-sv="VARAKTIGHET" data-en="DURATION" data-es="DURACIÓN">VARAKTIGHET</div>
                 <div class="meta-value" id="hdr-dur">0 min</div>
             </div>
+            <div class="meta-item">
+                <div class="meta-label" data-sv="OMGÅNG" data-en="ROUND" data-es="MANO">OMGÅNG</div>
+                <div class="meta-value" id="hdr-round" style="font-size: 24px; font-weight: 700; color: #e8ff47;">1</div>
+            </div>
         </div>
     </header>
 
+    <!-- ===== LOGIN SCREEN ===== -->
+    <div id="screen-login">
+        <div class="login-logo">
+            <h2 data-sv="Tränarens kod" data-en="Trainer code" data-es="Código del entrenador">Tränarens kod</h2>
+            <p data-sv="Ange din unika kod för att komma åt din statistik" data-en="Enter your unique code to access your statistics" data-es="Ingresa tu código único para acceder a tus estadísticas">Ange din unika kod för att komma åt din statistik</p>
+        </div>
+
+        <div class="card">
+            <div class="code-display" id="code-display">_</div>
+            <div class="keypad" id="keypad">
+                <div class="key" data-char="A">A</div>
+                <div class="key" data-char="B">B</div>
+                <div class="key" data-char="C">C</div>
+                <div class="key" data-char="D">D</div>
+                <div class="key" data-char="E">E</div>
+                <div class="key" data-char="F">F</div>
+                <div class="key" data-char="G">G</div>
+                <div class="key" data-char="H">H</div>
+                <div class="key" data-char="I">I</div>
+                <div class="key" data-char="J">J</div>
+                <div class="key" data-char="K">K</div>
+                <div class="key" data-char="L">L</div>
+                <div class="key" data-char="M">M</div>
+                <div class="key" data-char="N">N</div>
+                <div class="key" data-char="O">O</div>
+                <div class="key" data-char="P">P</div>
+                <div class="key" data-char="Q">Q</div>
+                <div class="key" data-char="R">R</div>
+                <div class="key" data-char="S">S</div>
+                <div class="key" data-char="T">T</div>
+                <div class="key" data-char="U">U</div>
+                <div class="key" data-char="V">V</div>
+                <div class="key" data-char="1">1</div>
+                <div class="key" data-char="2">2</div>
+                <div class="key" data-char="3">3</div>
+                <div class="key del" data-char="DEL">⌫</div>
+                <div class="key" data-char="4">4</div>
+                <div class="key" data-char="5">5</div>
+                <div class="key" data-char="6">6</div>
+                <div class="key" data-char="7">7</div>
+                <div class="key" data-char="8">8</div>
+                <div class="key" data-char="9">9</div>
+            </div>
+            <div class="key enter" id="btn-login" data-sv="LOGGA IN" data-en="LOG IN" data-es="INICIAR">LOGGA IN</div>
+            <div class="login-error" id="login-error"></div>
+        </div>
+    </div>
+
     <!-- ===== SETUP + HOME SCREEN ===== -->
-    <div id="screen-setup">
+    <div id="screen-setup" style="display:none;">
 
         <!-- Trainer badge -->
         <div class="trainer-display">
@@ -325,8 +574,12 @@
                 <input type="text" id="inp-matchname" placeholder="T.ex. Träning mot Västra">
             </div>
             <div class="input-group">
-                <label data-sv="Lagnamn" data-en="Team name" data-es="Nombre del equipo">Lagnamn</label>
+                <label data-sv="Ditt lagnamn" data-en="Your team name" data-es="Nombre del equipo">Ditt lagnamn</label>
                 <input type="text" id="inp-teamname" placeholder="T.ex. Stockholm A">
+            </div>
+            <div class="input-group">
+                <label data-sv="Motståndarlag" data-en="Opponent team" data-es="Equipo rival">Motståndarlag</label>
+                <input type="text" id="inp-opponent" placeholder="T.ex. IK Boule">
             </div>
             <div class="input-group">
                 <label data-sv="Läggare" data-en="Pointer" data-es="Colocador">Läggare</label>
@@ -562,14 +815,9 @@ class MatchApp {
         window.addEventListener('online', () => { this.isOnline = true; this.checkOnline(); this.syncOfflineData(); });
         window.addEventListener('offline', () => { this.isOnline = false; this.checkOnline(); });
 
-        // Auto-login from index page code
-        const saved = localStorage.getItem('pt_trainer_code') || localStorage.getItem('trainer-code');
-        if (saved) {
-            this.login(saved);
-        } else {
-            // Redirect to index if no code
-            window.location.href = './index.html';
-        }
+        // Auto-login if code saved
+        const saved = localStorage.getItem('trainer-code');
+        if (saved) this.login(saved);
 
         this.checkOnline();
         langMgr.apply();
@@ -577,11 +825,7 @@ class MatchApp {
 
     // ---- KEYPAD ----
     setupKeypad() {
-        // Säker tillgång - keypad finns inte längre (login borttagen)
-        const keys = document.querySelectorAll('.key[data-char]');
-        if (keys.length === 0) return; // Keypad inte tillgänglig
-        
-        keys.forEach(key => {
+        document.querySelectorAll('.key[data-char]').forEach(key => {
             key.addEventListener('click', () => {
                 const ch = key.dataset.char;
                 if (ch === 'DEL') {
@@ -592,25 +836,19 @@ class MatchApp {
                 this.updateCodeDisplay();
             });
         });
-        
-        const btnLogin = document.getElementById('btn-login');
-        if (btnLogin) {
-            btnLogin.addEventListener('click', () => {
-                if (this.codeBuffer.length < 3) {
-                    const err = document.getElementById('login-error');
-                    if (err) err.textContent = 'Koden måste vara minst 3 tecken';
-                    return;
-                }
-                this.login(this.codeBuffer);
-            });
-        }
+        document.getElementById('btn-login').addEventListener('click', () => {
+            if (this.codeBuffer.length < 3) {
+                document.getElementById('login-error').textContent = 'Koden måste vara minst 3 tecken';
+                return;
+            }
+            this.login(this.codeBuffer);
+        });
     }
 
     updateCodeDisplay() {
         const d = document.getElementById('code-display');
-        if (d) d.textContent = this.codeBuffer.length ? this.codeBuffer : '_';
-        const err = document.getElementById('login-error');
-        if (err) err.textContent = '';
+        d.textContent = this.codeBuffer.length ? this.codeBuffer : '_';
+        document.getElementById('login-error').textContent = '';
     }
 
     // ---- LOGIN ----
@@ -618,22 +856,12 @@ class MatchApp {
         this.trainerCode = code.toUpperCase();
         localStorage.setItem('trainer-code', this.trainerCode);
 
-        // Säker tillgång - elementen kanske inte finns
-        const badge = document.getElementById('trainer-badge');
-        if (badge) badge.textContent = this.trainerCode;
-        
-        const screenLogin = document.getElementById('screen-login');
-        if (screenLogin) screenLogin.style.display = 'none';
-        
-        const screenSetup = document.getElementById('screen-setup');
-        if (screenSetup) screenSetup.style.display = 'block';
+        document.getElementById('trainer-badge').textContent = this.trainerCode;
+        document.getElementById('screen-login').style.display = 'none';
+        document.getElementById('screen-setup').style.display = 'block';
 
-        try {
-            this.fbRef = db.ref(`coaches/${this.trainerCode}/matches`);
-            this.loadHistory();
-        } catch(e) {
-            console.error('Firebase not ready:', e);
-        }
+        this.fbRef = db.ref(`coaches/${this.trainerCode}/matches`);
+        this.loadHistory();
         langMgr.apply();
     }
 
@@ -827,21 +1055,30 @@ class MatchApp {
             document.getElementById('inp-p3').value.trim() || 'Skytt'
         ];
 
+        const opponent = document.getElementById('inp-opponent').value.trim() || 'Motståndare';
         this.matchStart = new Date();
         this.match = {
             id: Date.now().toString(),
-            name, team,
+            name, team, opponent,
             startTime: this.matchStart.toISOString(),
             trainerCode: this.trainerCode,
             players: names.map((n,i) => ({
                 name: n, position: this.positions[i],
                 stats: { lagg:{hit:0,total:0}, skott:{hit:0,total:0} }
             })),
-            timeline: []
+            opponents: [
+                { name: 'M1', position: 'Läggare', stats: { lagg:{hit:0,total:0}, skott:{hit:0,total:0} } },
+                { name: 'M2', position: 'Mittspelare', stats: { lagg:{hit:0,total:0}, skott:{hit:0,total:0} } },
+                { name: 'M3', position: 'Skytt', stats: { lagg:{hit:0,total:0}, skott:{hit:0,total:0} } }
+            ],
+            timeline: [],
+            currentRound: 1,
+            roundActions: { 1: {} }
         };
 
         document.getElementById('hdr-id').textContent = this.match.id.slice(-8);
         document.getElementById('hdr-time').textContent = this.matchStart.toLocaleTimeString('sv-SE', {hour:'2-digit',minute:'2-digit'});
+        document.getElementById('hdr-round').textContent = '1';
 
         document.getElementById('screen-setup').style.display = 'none';
         document.getElementById('screen-match').style.display = 'block';
@@ -867,58 +1104,258 @@ class MatchApp {
     buildPlayerGrid() {
         const grid = document.getElementById('player-grid');
         grid.innerHTML = '';
+        
+        const opponentName = this.match.opponent || 'Motståndare';
+        const teamName = this.match.team || 'Ditt lag';
+        
+        // Skapa sida-vid-sida grid
+        const matchGrid = document.createElement('div');
+        matchGrid.className = 'match-grid';
+        
+        // Eget lag (vänster)
+        const ownCol = document.createElement('div');
+        ownCol.className = 'team-column';
+        ownCol.innerHTML = `<div class="team-header own">🟡 ${teamName}</div>`;
+        
+        // Motståndare (höger)
+        const oppCol = document.createElement('div');
+        oppCol.className = 'team-column';
+        oppCol.innerHTML = `<div class="team-header opp">🔴 ${opponentName}</div>`;
+        
+        // Skapa spelarkort för eget lag
         this.match.players.forEach((p, idx) => {
-            const card = document.createElement('div');
-            card.className = 'player-card';
-            card.innerHTML = `
-                <div class="player-card-name">${p.name} <span style="font-size:12px;color:#999;font-weight:400;">(${p.position})</span></div>
-                <div class="stat-group">
-                    <span class="stat-group-label">LÄGG</span>
-                    <div class="btn-row">
-                        <button class="btn-success-log" onclick="app.log(${idx},'lagg',true)">Poängkula ✓</button>
-                        <button class="btn-miss-log" onclick="app.log(${idx},'lagg',false)">Miss ✗</button>
-                    </div>
+            const card = this.createPlayerCard(p, idx, false);
+            ownCol.appendChild(card);
+        });
+        
+        // Skapa spelarkort för motståndare
+        this.match.opponents.forEach((p, idx) => {
+            const card = this.createPlayerCard(p, idx, true);
+            oppCol.appendChild(card);
+        });
+        
+        matchGrid.appendChild(ownCol);
+        matchGrid.appendChild(oppCol);
+        grid.appendChild(matchGrid);
+        
+        this.updateBallCounts();
+    }
+    
+    createPlayerCard(p, idx, isOpponent) {
+        const card = document.createElement('div');
+        card.className = 'player-card-new' + (isOpponent ? ' opponent-card' : '');
+        card.id = (isOpponent ? 'opp-card-' : 'player-card-') + idx;
+        
+        const logFn = isOpponent 
+            ? `app.logOpponent(${idx},'TYPE',HIT)` 
+            : `app.log(${idx},'TYPE',HIT)`;
+        
+        card.innerHTML = `
+            <div class="player-header">
+                <span class="player-role">${p.position}</span>
+                <span class="player-name">${p.name}</span>
+                <span class="player-ball-count" id="${isOpponent ? 'opp' : 'own'}-ball-count-${idx}">0/2</span>
+            </div>
+            <div class="action-grid">
+                <div class="action-col">
+                    <div class="action-col-label">LÄGG</div>
+                    <button class="action-btn action-btn-success" data-${isOpponent ? 'opp' : 'player'}="${idx}" 
+                        onclick="app.${isOpponent ? 'logOpponent' : 'log'}(${idx},'lagg',true)">✓ Poäng</button>
+                    <button class="action-btn action-btn-miss" data-${isOpponent ? 'opp' : 'player'}="${idx}"
+                        onclick="app.${isOpponent ? 'logOpponent' : 'log'}(${idx},'lagg',false)">✗ Miss</button>
                 </div>
-                <div class="stat-group">
-                    <span class="stat-group-label">SKOTT</span>
-                    <div class="btn-row">
-                        <button class="btn-success-log" onclick="app.log(${idx},'skott',true)">Träff ✓</button>
-                        <button class="btn-miss-log" onclick="app.log(${idx},'skott',false)">Miss ✗</button>
-                    </div>
+                <div class="action-col">
+                    <div class="action-col-label">SKOTT</div>
+                    <button class="action-btn action-btn-success" data-${isOpponent ? 'opp' : 'player'}="${idx}"
+                        onclick="app.${isOpponent ? 'logOpponent' : 'log'}(${idx},'skott',true)">✓ Träff</button>
+                    <button class="action-btn action-btn-miss" data-${isOpponent ? 'opp' : 'player'}="${idx}"
+                        onclick="app.${isOpponent ? 'logOpponent' : 'log'}(${idx},'skott',false)">✗ Miss</button>
                 </div>
-            `;
-            grid.appendChild(card);
+            </div>
+        `;
+        return card;
+    }
+    
+    updateBallCounts() {
+        if (!this.match) return;
+        const currentRound = this.match.currentRound || 1;
+        const roundActions = (this.match.roundActions || {})[currentRound] || {};
+        
+        // Uppdatera omgångs-räknare
+        const roundDisplay = document.getElementById('hdr-round');
+        if (roundDisplay) {
+            roundDisplay.textContent = currentRound;
+        }
+        
+        this.match.players.forEach((p, idx) => {
+            const playerActions = roundActions[idx] || [];
+            const count = playerActions.length;
+            
+            // Update badge
+            const badge = document.getElementById('ball-count-' + idx);
+            if (badge) {
+                badge.textContent = count + '/2';
+                badge.className = 'player-ball-count';
+                if (count >= 2) {
+                    badge.classList.add('ball-count-full');
+                }
+            }
+            
+            // Disable buttons
+            const buttons = document.querySelectorAll('button[data-player="' + idx + '"]');
+            buttons.forEach(btn => {
+                if (count >= 2) {
+                    btn.disabled = true;
+                    btn.classList.add('btn-disabled');
+                } else {
+                    btn.disabled = false;
+                    btn.classList.remove('btn-disabled');
+                }
+            });
+            
+            // Update card style
+            const card = document.getElementById('player-card-' + idx);
+            if (card) {
+                if (count >= 2) {
+                    card.classList.add('card-full');
+                } else {
+                    card.classList.remove('card-full');
+                }
+            }
         });
     }
 
+    // ---- LOG OPPONENT ----
+    logOpponent(playerIdx, type, hit) {
+        if (!this.match.opponents) return;
+        
+        const currentRound = this.match.currentRound || 1;
+        if (!this.match.roundActions) this.match.roundActions = {};
+        if (!this.match.roundActions[currentRound]) this.match.roundActions[currentRound] = {};
+        
+        const oppKey = 'opp_' + playerIdx;
+        if (!this.match.roundActions[currentRound][oppKey]) {
+            this.match.roundActions[currentRound][oppKey] = [];
+        }
+        
+        // Kolla om 2 klot redan loggats
+        if (this.match.roundActions[currentRound][oppKey].length >= 2) {
+            this.showToast('⚠️ Spelaren har redan lagt 2 klot');
+            return;
+        }
+        
+        const p = this.match.opponents[playerIdx];
+        p.stats[type].total++;
+        if (hit) p.stats[type].hit++;
+        
+        this.match.roundActions[currentRound][oppKey].push({ type, hit });
+        
+        if (navigator.vibrate) navigator.vibrate(hit ? 80 : 40);
+        
+        this.renderLiveTable();
+        this.updateBallCounts();
+        
+        // Kolla om ALLA 6 klot (eget lag) är loggade för auto-nästa omgång
+        this.checkAutoNextRound();
+    }
+    
     // ---- LOG ----
     log(playerIdx, type, hit) {
         const p = this.match.players[playerIdx];
         p.stats[type].total++;
         if (hit) p.stats[type].hit++;
 
+        // Setup för omgång-tracking
+        if (!this.match.currentRound) this.match.currentRound = 1;
+        if (!this.match.roundActions) this.match.roundActions = {};
+        if (!this.match.roundActions[this.match.currentRound]) {
+            this.match.roundActions[this.match.currentRound] = {};
+        }
+        
+        // Initialize all players for this round
+        for (let i = 0; i < this.match.players.length; i++) {
+            if (!this.match.roundActions[this.match.currentRound][i]) {
+                this.match.roundActions[this.match.currentRound][i] = [];
+            }
+        }
+        
+        // Check if player already has 2 balls
+        const playerBalls = this.match.roundActions[this.match.currentRound][playerIdx];
+        if (playerBalls.length >= 2) {
+            this.showToast('⚠️ Redan 2 klot');
+            return;
+        }
+        
+        // Add this ball
+        playerBalls.push({ type, hit });
+
         const elapsed = Math.floor((new Date() - this.matchStart) / 60000);
         const label = type === 'lagg' ? (hit ? 'Poängkula ✓' : 'Lägg miss ✗') : (hit ? 'Skott träff ✓' : 'Skott miss ✗');
         this.match.timeline.push({ time: elapsed, player: p.name, type, hit, label });
 
-        // Haptic feedback - längre vibration för träff, kort för miss
+        // Haptic feedback
         if (navigator.vibrate) {
             navigator.vibrate(hit ? 80 : 40);
         }
 
+        // Check total balls this round
+        const totalBalls = Object.values(this.match.roundActions[this.match.currentRound])
+            .reduce((sum, arr) => sum + arr.length, 0);
+        
         this.renderLiveTable();
+        this.updateBallCounts();
+        
+        // Auto-next round at 6 balls
+        if (totalBalls === 6) {
+            this.showToast('✅ Omgång ' + this.match.currentRound + ' klar - byter...');
+            setTimeout(() => this.nextRound(true), 1500);
+        }
+    }
+    
+    // ---- NEXT ROUND ----
+    nextRound(isAuto) {
+        if (!this.match.currentRound) this.match.currentRound = 1;
+        
+        if (!isAuto) {
+            const roundActions = (this.match.roundActions || {})[this.match.currentRound] || {};
+            const total = Object.values(roundActions).reduce((s, a) => s + a.length, 0);
+            if (total < 6 && total > 0) {
+                if (!confirm('⚠️ Bara ' + total + '/6 klot. Fortsätt?')) return;
+            }
+        }
+        
+        this.match.currentRound++;
+        this.updateBallCounts();
+        
+        if (!isAuto) {
+            this.showToast('🎯 Omgång ' + this.match.currentRound);
+        }
+    }
+    
+    // ---- TOAST ----
+    showToast(msg) {
+        const existing = document.querySelector('.toast');
+        if (existing) existing.remove();
+        const t = document.createElement('div');
+        t.className = 'toast';
+        t.textContent = msg;
+        t.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#e8ff47;color:#080810;padding:10px 20px;border-radius:20px;font-weight:700;z-index:9999';
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 2000);
     }
 
     // ---- LIVE TABLE ----
     renderLiveTable() {
         const tbody = document.getElementById('live-table-body');
         tbody.innerHTML = '';
+        
+        // Eget lag
         this.match.players.forEach(p => {
             const la = this.acc(p.stats.lagg);
             const sa = this.acc(p.stats.skott);
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td class="pname">${p.name}</td>
+                <td class="pname" style="color:#e8ff47">${p.name}</td>
                 <td>${p.stats.lagg.hit}/${p.stats.lagg.total}</td>
                 <td class="tc ${this.accClass(la, p.stats.lagg.total)}">${la}%</td>
                 <td>${p.stats.skott.hit}/${p.stats.skott.total}</td>
@@ -926,6 +1363,27 @@ class MatchApp {
             `;
             tbody.appendChild(row);
         });
+        
+        // Separator rad
+        if (this.match.opponents && this.match.opponents.length > 0) {
+            const sepRow = document.createElement('tr');
+            sepRow.innerHTML = `<td colspan="5" style="padding:4px 8px;font-size:10px;color:#ff8080;font-weight:700;letter-spacing:1px;text-transform:uppercase;border-top:1px solid rgba(255,100,100,0.2)">${this.match.opponent || 'Motståndare'}</td>`;
+            tbody.appendChild(sepRow);
+            
+            this.match.opponents.forEach(p => {
+                const la = this.acc(p.stats.lagg);
+                const sa = this.acc(p.stats.skott);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="pname" style="color:#ff8080">${p.name}</td>
+                    <td>${p.stats.lagg.hit}/${p.stats.lagg.total}</td>
+                    <td class="tc ${this.accClass(la, p.stats.lagg.total)}">${la}%</td>
+                    <td>${p.stats.skott.hit}/${p.stats.skott.total}</td>
+                    <td class="tc ${this.accClass(sa, p.stats.skott.total)}">${sa}%</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
     }
 
     // ---- LIVE CHARTS ----
@@ -1000,6 +1458,7 @@ class MatchApp {
         ['inp-matchname','inp-teamname','inp-p1','inp-p2','inp-p3'].forEach(id => { document.getElementById(id).value = ''; });
         document.getElementById('hdr-id').textContent = '---';
         document.getElementById('hdr-time').textContent = '---';
+        document.getElementById('hdr-round').textContent = '-';
         document.getElementById('hdr-dur').textContent = '0 min';
 
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1618,47 +2077,119 @@ class MatchApp {
 
     // ---- EXPORT ALL MATCHES PDF ----
     exportPDF() {
-        if (!this.history.length) { alert('Ingen matchdata att exportera'); return; }
+        const m = this.match || (this.history.length ? this.history[this.history.length-1] : null);
+        if (!m) { alert('Ingen matchdata att exportera'); return; }
+        
         const {jsPDF} = window.jspdf;
         const doc = new jsPDF();
-        let y = 20;
-        doc.setFont(undefined,'bold'); doc.setFontSize(16);
-        doc.text('Petanque Matchstatistik', 20, y); y+=10;
+        let y = 15;
+        
+        // Header
+        doc.setFont(undefined,'bold'); doc.setFontSize(18);
+        doc.text('MATCHSTATISTIK', 15, y); y+=8;
+        
         doc.setFont(undefined,'normal'); doc.setFontSize(10);
-        doc.text(`Tränarkod: ${this.trainerCode} | Exportdatum: ${new Date().toLocaleDateString('sv-SE')}`, 20, y); y+=10;
-
-        this.history.forEach((m,i) => {
-            if (y>250) { doc.addPage(); y=20; }
-            doc.setFont(undefined,'bold'); doc.setFontSize(12);
-            doc.text(`${i+1}. ${m.name}`, 20, y); y+=7;
-            doc.setFont(undefined,'normal'); doc.setFontSize(9);
-            const date = new Date(m.startTime).toLocaleDateString('sv-SE');
-            doc.text(`${m.team} | ${date} | ${m.duration??0} min`, 20, y); y+=5;
-            m.players.forEach(p => {
-                const la = this.acc(p.stats.lagg);
-                const sa = this.acc(p.stats.skott);
-                doc.text(`  ${p.name}: Lägg ${p.stats.lagg.hit}/${p.stats.lagg.total} (${la}%) | Skott ${p.stats.skott.hit}/${p.stats.skott.total} (${sa}%)`, 20, y); y+=5;
+        doc.text(`Match: ${m.name || 'Ej namnsatt'}`, 15, y); y+=5;
+        doc.text(`Lag: ${m.team || '-'}`, 15, y); y+=5;
+        const startDate = new Date(m.startTime || Date.now()).toLocaleDateString('sv-SE');
+        const startTime = new Date(m.startTime || Date.now()).toLocaleTimeString('sv-SE', {hour:'2-digit',minute:'2-digit'});
+        doc.text(`Datum: ${startDate} | Tid: ${startTime}`, 15, y); y+=5;
+        doc.text(`Omgångar spelade: ${m.currentRound || 1}`, 15, y); y+=8;
+        
+        // Per-omgång statistik
+        doc.setFont(undefined,'bold'); doc.setFontSize(11);
+        doc.text('PER OMGÅNG', 15, y); y+=6;
+        
+        doc.setFont(undefined,'normal'); doc.setFontSize(8);
+        if (m.roundActions) {
+            Object.keys(m.roundActions).sort((a,b) => +a - +b).forEach(roundNum => {
+                if (y > 270) { doc.addPage(); y = 15; }
+                
+                doc.setFont(undefined,'bold');
+                doc.text(`Omgång ${roundNum}:`, 15, y); y+=4;
+                doc.setFont(undefined,'normal');
+                
+                const roundAct = m.roundActions[roundNum];
+                m.players.forEach((p, idx) => {
+                    const actions = roundAct[idx] || [];
+                    const laggCount = actions.filter(a => a.type === 'lagg').length;
+                    const laggHit = actions.filter(a => a.type === 'lagg' && a.hit).length;
+                    const skottCount = actions.filter(a => a.type === 'skott').length;
+                    const skottHit = actions.filter(a => a.type === 'skott' && a.hit).length;
+                    
+                    const actionStr = actions.map(a => {
+                        const t = a.type === 'lagg' ? 'L' : 'S';
+                        return a.hit ? t+'✓' : t+'✗';
+                    }).join(' ');
+                    
+                    doc.text(`  ${p.name}: ${actionStr || '-'}`, 15, y); y+=4;
+                });
+                y+=2;
             });
-            y+=5;
+        }
+        
+        y+=3;
+        
+        // Totals
+        doc.setFont(undefined,'bold'); doc.setFontSize(11);
+        doc.text('TOTALT', 15, y); y+=6;
+        
+        doc.setFont(undefined,'normal'); doc.setFontSize(9);
+        m.players.forEach(p => {
+            const la = this.acc(p.stats.lagg);
+            const sa = this.acc(p.stats.skott);
+            const laggStr = `Lägg: ${p.stats.lagg.hit}/${p.stats.lagg.total} (${la}%)`;
+            const skottStr = `Skott: ${p.stats.skott.hit}/${p.stats.skott.total} (${sa}%)`;
+            
+            doc.text(`${p.name} (${p.position})`, 15, y); y+=4;
+            doc.text(`  ${laggStr}`, 18, y); y+=4;
+            doc.text(`  ${skottStr}`, 18, y); y+=5;
         });
-        doc.save(`petanque-${this.trainerCode}-statistik.pdf`);
+        
+        const filename = `match_${m.name || 'export'}_${new Date().toISOString().split('T')[0]}.pdf`;
+        doc.save(filename);
     }
 
     // ---- EXPORT CSV ----
     exportCSV() {
-        if (!this.history.length) { alert('Ingen matchdata att exportera'); return; }
-        let csv = 'Match,Lag,Datum,Tid,Varaktighet,Spelare,Position,Lägg poängkula,Lägg totalt,Lägg %,Skott träff,Skott totalt,Skott %\n';
-        this.history.forEach(m => {
-            const date = new Date(m.startTime).toLocaleDateString('sv-SE');
-            const time = new Date(m.startTime).toLocaleTimeString('sv-SE', {hour:'2-digit',minute:'2-digit'});
-            m.players.forEach(p => {
-                csv += `"${m.name}","${m.team}","${date}","${time}","${m.duration??0}","${p.name}","${p.position}",${p.stats.lagg.hit},${p.stats.lagg.total},${this.acc(p.stats.lagg)},${p.stats.skott.hit},${p.stats.skott.total},${this.acc(p.stats.skott)}\n`;
+        const m = this.match || (this.history.length ? this.history[this.history.length-1] : null);
+        if (!m) { alert('Ingen matchdata att exportera'); return; }
+        
+        let csv = 'Match,Lag,Datum,Spelare,Position,Omgang,Lagg_Poang,Lagg_Total,Lagg_Procent,Skott_Troff,Skott_Total,Skott_Procent\n';
+        
+        // Per-omgång data
+        if (m.roundActions) {
+            const date = new Date(m.startTime || Date.now()).toLocaleDateString('sv-SE');
+            Object.keys(m.roundActions).sort((a,b) => +a - +b).forEach(roundNum => {
+                const roundAct = m.roundActions[roundNum];
+                m.players.forEach((p, idx) => {
+                    const actions = roundAct[idx] || [];
+                    const laggActions = actions.filter(a => a.type === 'lagg');
+                    const skottActions = actions.filter(a => a.type === 'skott');
+                    const laggHit = laggActions.filter(a => a.hit).length;
+                    const skottHit = skottActions.filter(a => a.hit).length;
+                    const laggPct = laggActions.length > 0 ? Math.round(laggHit/laggActions.length*100) : 0;
+                    const skottPct = skottActions.length > 0 ? Math.round(skottHit/skottActions.length*100) : 0;
+                    
+                    csv += `"${m.name}","${m.team || '-'}","${date}","${p.name}","${p.position}",${roundNum},${laggHit},${laggActions.length},${laggPct},${skottHit},${skottActions.length},${skottPct}\n`;
+                });
             });
+        }
+        
+        // Totals
+        csv += '\n=== TOTALT ===\n';
+        csv += 'Spelare,Position,Lagg_Poang,Lagg_Total,Lagg_Procent,Skott_Troff,Skott_Total,Skott_Procent\n';
+        m.players.forEach(p => {
+            const lp = this.acc(p.stats.lagg);
+            const sp = this.acc(p.stats.skott);
+            csv += `"${p.name}","${p.position}",${p.stats.lagg.hit},${p.stats.lagg.total},${lp},${p.stats.skott.hit},${p.stats.skott.total},${sp}\n`;
         });
-        const blob = new Blob([csv], {type:'text/csv'});
+        
+        const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href=url; a.download=`petanque-${this.trainerCode}-statistik.csv`; a.click();
+        const filename = `match_${m.name || 'export'}_${new Date().toISOString().split('T')[0]}.csv`;
+        a.href=url; a.download=filename; a.click();
         URL.revokeObjectURL(url);
     }
 
