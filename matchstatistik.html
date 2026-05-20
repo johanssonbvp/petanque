@@ -1446,18 +1446,11 @@ class MatchApp {
             navigator.vibrate(hit ? 80 : 40);
         }
 
-        // Check total balls this round
-        const totalBalls = Object.values(this.match.roundActions[this.match.currentRound])
-            .reduce((sum, arr) => sum + arr.length, 0);
-        
         this.renderLiveTable();
         this.updateBallCounts();
         
-        // Auto-next round at 6 balls
-        if (totalBalls === 6) {
-            this.showToast('✅ Omgång ' + this.match.currentRound + ' klar - byter...');
-            setTimeout(() => this.nextRound(true), 1500);
-        }
+        // Kontrollera om ALLA 12 klot (6 egna + 6 motståndare) är loggade
+        this.checkAutoNextRound();
     }
     
     // ---- NEXT ROUND ----
