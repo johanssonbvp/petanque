@@ -940,75 +940,74 @@
 
 <!-- LANGUAGE SCRIPT -->
 <script>
-  const LANGS = {
-    sv: {}, en: {}, es: {}
-  };
-
-  // Load language data
-  document.querySelectorAll('[data-sv]').forEach(el => {
-    const sv = el.getAttribute('data-sv');
-    const en = el.getAttribute('data-en');
-    const fr = el.getAttribute('data-fr');
-    const key = sv + '|' + el.tagName;
-    LANGS.sv[key] = sv;
-    LANGS.en[key] = en;
-    LANGS.fr[key] = fr;
-  });
-
+  // ===== SPRÅKHANTERING =====
   function setLanguage(lang) {
     document.documentElement.lang = lang;
+    
+    // Uppdatera alla element med data-sv
     document.querySelectorAll('[data-sv]').forEach(el => {
-      const key = el.getAttribute('data-sv') + '|' + el.tagName;
-      const text = LANGS[lang][key];
-      if (el.tagName === 'INPUT' || el.tagName === 'BUTTON' && el.getAttribute('data-sv')) {
-        el.setAttribute('data-sv', el.getAttribute('data-sv'));
-        el.textContent = text || el.getAttribute('data-sv');
+      if (lang === 'fr' && el.dataset.fr) {
+        el.textContent = el.dataset.fr;
+      } else if (lang === 'en' && el.dataset.en) {
+        el.textContent = el.dataset.en;
       } else {
-        el.textContent = text || el.getAttribute('data-sv');
+        el.textContent = el.dataset.sv;
       }
     });
     
-    // Update active language button
+    // Uppdatera aktiv knapp
     document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-    document.querySelector(`[data-lang="${lang}"]`).classList.add('active');
+    const activeBtn = document.querySelector(`[data-lang="${lang}"]`);
+    if (activeBtn) activeBtn.classList.add('active');
     
+    // Spara i alla relevanta keys
     localStorage.setItem('lang', lang);
+    localStorage.setItem('pt_lang', lang);
+    localStorage.setItem('petanque-lang', lang);
+    
+    // Uppdatera statistik-siffror (de skrivs inte över av språkbyte)
+    loadStatistics();
   }
 
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.addEventListener('click', () => setLanguage(btn.getAttribute('data-lang')));
   });
 
-  // Load Statistics from localStorage
+  // ===== STATISTIK =====
   function loadStatistics() {
-    const skjutHistory = JSON.parse(localStorage.getItem('pt_h') || '[]');
-    const laggHistory = JSON.parse(localStorage.getItem('pt_lagg_history') || '[]');
-    const daybookHistory = JSON.parse(localStorage.getItem('pt_dagbok') || '[]');
+    try {
+      const skjutHistory = JSON.parse(localStorage.getItem('pt_h') || '[]');
+      const laggHistory = JSON.parse(localStorage.getItem('pt_lagg_history') || '[]');
+      const daybookHistory = JSON.parse(localStorage.getItem('pt_dagbok') || '[]');
 
-    // Count sessions
-    const totalSessions = skjutHistory.length + laggHistory.length + daybookHistory.length;
+      const totalSessions = skjutHistory.length + laggHistory.length + daybookHistory.length;
 
-    // Count shots and hits
-    let totalShots = skjutHistory.reduce((sum, entry) => sum + (entry.shots || 0), 0);
-    let totalHits = skjutHistory.reduce((sum, entry) => sum + (entry.traff || 0), 0);
+      let totalShots = skjutHistory.reduce((sum, e) => sum + (e.shots || 0), 0);
+      let totalHits  = skjutHistory.reduce((sum, e) => sum + ((e.traff || 0) + (e.carreau || 0)), 0);
 
-    // Add lägg data
-    totalShots += laggHistory.reduce((sum, entry) => sum + (entry.total || 0), 0);
-    totalHits += laggHistory.reduce((sum, entry) => sum + (entry.success || 0), 0);
+      totalShots += laggHistory.reduce((sum, e) => sum + (e.throws || e.total || 0), 0);
+      totalHits  += laggHistory.reduce((sum, e) => sum + (e.ok || e.success || 0), 0);
 
-    // Calculate accuracy
-    const avgAccuracy = totalShots > 0 ? Math.round((totalHits / totalShots) * 100) : 0;
+      const avgAccuracy = totalShots > 0 ? Math.round(totalHits / totalShots * 100) : 0;
 
-    // Update DOM
-    document.getElementById('stat-sessions').textContent = totalSessions;
-    document.getElementById('stat-shots').textContent = totalShots;
-    document.getElementById('stat-accuracy').textContent = avgAccuracy + '%';
+      const elSessions = document.getElementById('stat-sessions');
+      const elShots    = document.getElementById('stat-shots');
+      const elAcc      = document.getElementById('stat-accuracy');
+
+      if (elSessions) elSessions.textContent = totalSessions;
+      if (elShots)    elShots.textContent    = totalShots;
+      if (elAcc)      elAcc.textContent      = avgAccuracy + '%';
+    } catch(e) {
+      console.error('Statistik-fel:', e);
+    }
   }
 
-  // Initialize
-  const savedLang = localStorage.getItem('lang') || 'sv';
+  // ===== INITIERING =====
+  const savedLang = localStorage.getItem('petanque-lang') 
+                 || localStorage.getItem('pt_lang') 
+                 || localStorage.getItem('lang') 
+                 || 'sv';
   setLanguage(savedLang);
-  loadStatistics();
 </script>
 
 
