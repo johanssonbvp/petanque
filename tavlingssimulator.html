@@ -217,7 +217,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <div class="top-bar">
   <a class="back-btn" id="backBtn" href="index.html">← <span data-sv="Hem" data-fr="Accueil" data-en="Home">Hem</span></a>
   <span class="top-title" data-sv="Poängräknare" data-fr="Compteur de points" data-en="Scoreboard">Poängräknare</span>
-  <button class="lang-btn" onclick="toggleLang()" id="langBtn">🌐 EN</button>
+  <div style="display:flex;gap:4px"><button class="lang-btn" id="btn-sv" onclick="setLangApp('sv')" style="padding:4px 8px">🇸🇪 SV</button><button class="lang-btn" id="btn-en" onclick="setLangApp('en')" style="padding:4px 8px">🇬🇧 EN</button><button class="lang-btn" id="btn-fr" onclick="setLangApp('fr')" style="padding:4px 8px">🇫🇷 FR</button></div>
 </div>
 
 <div class="tab-bar">
@@ -445,15 +445,18 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 // ══════════════════════════════════════════
 // LANGUAGE
 // ══════════════════════════════════════════
-let lang = localStorage.getItem('lang') || 'sv';
+let lang = localStorage.getItem('petanque-lang') || localStorage.getItem('pt_lang') || localStorage.getItem('lang') || 'sv';
 function applyLang() {
   document.querySelectorAll('[data-sv]').forEach(el => {
-    el.textContent = lang==='sv' ? el.dataset.sv : el.dataset.en;
+    el.textContent = lang==='fr' ? (el.dataset.fr || el.dataset.sv) : lang==='en' ? (el.dataset.en || el.dataset.sv) : el.dataset.sv;
   });
   document.querySelectorAll('[data-placeholder-sv]').forEach(el => {
-    el.placeholder = lang==='sv' ? el.dataset.placeholderSv : el.dataset.placeholderEn;
+    el.placeholder = lang==='fr' ? (el.dataset.placeholderFr || el.dataset.placeholderSv) : lang==='en' ? (el.dataset.placeholderEn || el.dataset.placeholderSv) : el.dataset.placeholderSv;
   });
-  document.getElementById('langBtn').textContent = lang==='sv' ? '🌐 EN' : '🌐 SV';
+  ['sv','en','fr'].forEach(l => {
+    const b = document.getElementById('btn-'+l);
+    if (b) { b.style.color = l===lang ? 'var(--accent)' : ''; b.style.borderColor = l===lang ? 'var(--accent)' : ''; b.style.fontWeight = l===lang ? '900' : '600'; }
+  });
   document.documentElement.lang = lang;
 }
 function toggleLang() {
