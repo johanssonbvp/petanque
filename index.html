@@ -1241,6 +1241,7 @@ function logout() {
     firebase.auth().signOut().then(() => {
       localStorage.removeItem('pt_trainer_code');
       localStorage.removeItem('trainer-code');
+      localStorage.removeItem('pt_matches'); // Rensa cachead match-data vid logout
       // Visa auth-modal direkt utan reload
       const authModal = document.getElementById('auth-modal');
       if (authModal) {
@@ -1558,7 +1559,7 @@ async function autoSync() {
     'pt_dagbok': 'diary',
     'pt_precision_session': 'precision/current',
     'pt_precision_history': 'precision/history',
-    'pt_matches': 'matches'
+    // pt_matches hanteras av matchstatistik.html direkt - INTE autoSync
   };
   
   try {
