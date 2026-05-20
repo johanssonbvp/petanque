@@ -495,5 +495,19 @@ showGameView('start');
     initSyncManager(firebaseConfig);
   }
 </script>
-<script>const firebaseConfig={apiKey:"AIzaSyCwzdwGEjN5LVw3RSLz2dy7f70Reafbe2c",authDomain:"databas-serie.firebaseapp.com",databaseURL:"https://databas-serie-default-rtdb.europe-west1.firebasedatabase.app",projectId:"databas-serie",storageBucket:"databas-serie.firebasestorage.app",messagingSenderId:"672666417012",appId:"1:672666417012:web:93613783fe51cd2ce81e21"};if(typeof initSyncManager==="function"){initSyncManager(firebaseConfig);}</script></body>
+<script>const firebaseConfig={apiKey:"AIzaSyCwzdwGEjN5LVw3RSLz2dy7f70Reafbe2c",authDomain:"databas-serie.firebaseapp.com",databaseURL:"https://databas-serie-default-rtdb.europe-west1.firebasedatabase.app",projectId:"databas-serie",storageBucket:"databas-serie.firebasestorage.app",messagingSenderId:"672666417012",appId:"1:672666417012:web:93613783fe51cd2ce81e21"};if(typeof initSyncManager==="function"){initSyncManager(firebaseConfig);}</script><script>
+function markLang() {
+  const lang = langMgr.lang;
+  ['sv','en','fr'].forEach(l => {
+    const b = document.getElementById('btn-'+l);
+    if (b) {
+      b.style.color = l===lang ? '#e8ff47' : '#8888aa';
+      b.style.borderColor = l===lang ? '#e8ff47' : 'rgba(255,255,255,0.12)';
+      b.style.fontWeight = l===lang ? '900' : '600';
+    }
+  });
+}
+document.addEventListener('DOMContentLoaded', markLang);
+</script>
+</body>
 </html>

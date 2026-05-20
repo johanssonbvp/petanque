@@ -304,14 +304,14 @@ input[type="date"].text-input{color-scheme:dark;}
 let lang = localStorage.getItem('petanque-lang') || localStorage.getItem('pt_lang') || localStorage.getItem('lang') || 'sv';
 function applyLang() {
   document.querySelectorAll('[data-sv]').forEach(el => {
-    el.textContent = lang==='fr' ? (el.dataset.fr || el.dataset.sv) : lang==='en' ? (el.dataset.en || el.dataset.sv) : el.dataset.sv;
+    el.textContent = lang==='fr' ? (el.dataset.fr||el.dataset.sv) : lang==='en' ? (el.dataset.en||el.dataset.sv) : el.dataset.sv;
   });
   document.querySelectorAll('[data-placeholder-sv]').forEach(el => {
-    el.placeholder = lang==='fr' ? (el.dataset.placeholderFr || el.dataset.placeholderSv) : lang==='en' ? (el.dataset.placeholderEn || el.dataset.placeholderSv) : el.dataset.placeholderSv;
+    el.placeholder = lang==='fr' ? (el.dataset.placeholderFr||el.dataset.placeholderSv) : lang==='en' ? (el.dataset.placeholderEn||el.dataset.placeholderSv) : el.dataset.placeholderSv;
   });
   ['sv','en','fr'].forEach(l => {
     const b = document.getElementById('btn-'+l);
-    if (b) { b.style.color = l===lang ? 'var(--accent)' : ''; b.style.borderColor = l===lang ? 'var(--accent)' : ''; b.style.fontWeight = l===lang ? '900' : '600'; }
+    if (b) { b.style.color = l===lang ? 'var(--accent)' : ''; b.style.borderColor = l===lang ? 'var(--accent)' : ''; b.style.fontWeight = l===lang ? '900' : ''; }
   });
   document.documentElement.lang = lang;
 }

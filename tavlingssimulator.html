@@ -448,23 +448,24 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 let lang = localStorage.getItem('petanque-lang') || localStorage.getItem('pt_lang') || localStorage.getItem('lang') || 'sv';
 function applyLang() {
   document.querySelectorAll('[data-sv]').forEach(el => {
-    el.textContent = lang==='fr' ? (el.dataset.fr || el.dataset.sv) : lang==='en' ? (el.dataset.en || el.dataset.sv) : el.dataset.sv;
+    el.textContent = lang==='sv' ? el.dataset.sv : el.dataset.en;
   });
   document.querySelectorAll('[data-placeholder-sv]').forEach(el => {
-    el.placeholder = lang==='fr' ? (el.dataset.placeholderFr || el.dataset.placeholderSv) : lang==='en' ? (el.dataset.placeholderEn || el.dataset.placeholderSv) : el.dataset.placeholderSv;
+    el.placeholder = lang==='sv' ? el.dataset.placeholderSv : el.dataset.placeholderEn;
   });
-  ['sv','en','fr'].forEach(l => {
-    const b = document.getElementById('btn-'+l);
-    if (b) { b.style.color = l===lang ? 'var(--accent)' : ''; b.style.borderColor = l===lang ? 'var(--accent)' : ''; b.style.fontWeight = l===lang ? '900' : '600'; }
-  });
+  document.getElementById('langBtn').textContent = lang==='sv' ? '🌐 EN' : '🌐 SV';
   document.documentElement.lang = lang;
 }
-function toggleLang() {
-  lang = lang==='sv' ? 'en' : 'sv';
-  localStorage.setItem('lang', lang);
+function setLangApp(l) {
+  lang = l;
+  localStorage.setItem('petanque-lang', l);
+  localStorage.setItem('pt_lang', l);
+  localStorage.setItem('lang', l);
   applyLang();
-  if (match.active) renderMatchUI();
-  renderStats();
+}
+function toggleLang() {
+  lang = lang==='sv' ? 'en' : lang==='en' ? 'fr' : 'sv';
+  setLangApp(lang);
 }
 applyLang();
 

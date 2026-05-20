@@ -481,7 +481,7 @@
 </head>
 <body>
 
-<div style="display:flex;gap:4px"><button class="lang-btn" id="lang-btn-sv" onclick="langMgr.set('sv')" style="padding:4px 8px">🇸🇪 SV</button><button class="lang-btn" id="lang-btn-en" onclick="langMgr.set('en')" style="padding:4px 8px">🇬🇧 EN</button><button class="lang-btn" id="lang-btn-fr" onclick="langMgr.set('fr')" style="padding:4px 8px">🇫🇷 FR</button></div>
+<button class="lang-toggle" id="lang-btn">🇸🇪 SV</button>
 
 <div class="container">
 
@@ -763,31 +763,26 @@ const db = firebase.database();
 // ============================================================
 const LANGS = ['sv','en','fr'];
 const langMgr = {
-    lang: localStorage.getItem('petanque-lang') || localStorage.getItem('pt_lang') || localStorage.getItem('lang') || 'sv',
+    lang: localStorage.getItem('petanque-lang') || 'sv',
     apply() {
         document.querySelectorAll('[data-sv]').forEach(el => {
-            const t = el.dataset[this.lang] || el.dataset.sv;
+            const t = el.dataset[this.lang];
             if (!t) return;
             if (el.tagName === 'INPUT') el.placeholder = t;
             else el.textContent = t;
         });
-        ['sv','en','fr'].forEach(l => {
-            const b = document.getElementById('lang-btn-'+l);
-            if (b) { b.style.color = l===this.lang ? 'var(--accent)' : ''; b.style.borderColor = l===this.lang ? 'var(--accent)' : ''; b.style.fontWeight = l===this.lang ? '900' : '600'; }
-        });
-    },
-    set(l) {
-        this.lang = l;
-        localStorage.setItem('petanque-lang', l);
-        localStorage.setItem('pt_lang', l);
-        localStorage.setItem('lang', l);
-        this.apply();
+        const flags = {sv:'🇸🇪 SV', en:'🇬🇧 EN', es:'🇫🇷 FR'};
+        const btn = document.getElementById('lang-btn');
+        if (btn) btn.textContent = flags[this.lang];
     },
     toggle() {
         const i = LANGS.indexOf(this.lang);
-        this.set(LANGS[(i+1) % LANGS.length]);
+        this.lang = LANGS[(i+1) % LANGS.length];
+        localStorage.setItem('petanque-lang', this.lang);
+        this.apply();
     }
 };
+document.getElementById('lang-btn').addEventListener('click', () => langMgr.toggle());
 
 // ============================================================
 // MAIN APP
