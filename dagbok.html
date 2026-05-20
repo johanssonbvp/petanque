@@ -172,7 +172,7 @@ input[type="date"].text-input{color-scheme:dark;}
 <div class="save-flash" id="saveFlash">✓ <span data-sv="Sparat!" data-en="Saved!">Sparat!</span></div>
 
 <div class="top-bar">
-  <a class="back-btn" href="index.html">← <span data-sv="Hem" data-en="Home">Hem</span></a>
+  <a class="back-btn" href="index.html">← <span data-sv="Hem" data-fr="Accueil" data-en="Home">Hem</span></a>
   <span class="top-title" data-sv="Träningsdagbok" data-en="Training Journal">Träningsdagbok</span>
   <button class="lang-btn" onclick="toggleLang()" id="langBtn">🌐 EN</button>
 </div>
@@ -206,10 +206,10 @@ input[type="date"].text-input{color-scheme:dark;}
       <label class="form-label" data-sv="Typ av träning" data-en="Training type">Typ av träning</label>
       <div class="type-pills">
         <div class="type-pill" data-type="shoot" onclick="selectType(this)">
-          🎯 <span data-sv="Skjutträning" data-en="Shooting">Skjutträning</span>
+          🎯 <span data-sv="Skjutträning" data-fr="Tir" data-en="Shooting">Skjutträning</span>
         </div>
         <div class="type-pill" data-type="lagg" onclick="selectType(this)">
-          🪃 <span data-sv="Läggträning" data-en="Pointing">Läggträning</span>
+          🪃 <span data-sv="Läggträning" data-fr="Jeu de boules" data-en="Pointing">Läggträning</span>
         </div>
         <div class="type-pill" data-type="match" onclick="selectType(this)">
           🏆 <span data-sv="Match" data-en="Match">Match</span>
@@ -292,7 +292,7 @@ input[type="date"].text-input{color-scheme:dark;}
     <div class="sheet-actions">
       <button class="mbtn mbtn-danger" onclick="confirmDelete()" data-sv="Ja, ta bort" data-en="Yes, delete">Ja, ta bort</button>
       <button class="mbtn mbtn-ghost" onclick="document.getElementById('deleteOverlay').classList.remove('show')"
-        data-sv="Avbryt" data-en="Cancel">Avbryt</button>
+        data-sv="Avbryt" data-fr="Annuler" data-en="Cancel">Avbryt</button>
     </div>
   </div>
 </div>
@@ -608,20 +608,5 @@ function getSessionId() {
     initSyncManager(firebaseConfig);
   }
 </script>
-<!-- Firebase Config -->
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyCwzdwGEjN5LVw3RSLz2dy7f70Reafbe2c",
-    authDomain: "databas-serie.firebaseapp.com",
-    databaseURL: "https://databas-serie-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "databas-serie",
-    storageBucket: "databas-serie.firebasestorage.app",
-    messagingSenderId: "672666417012",
-    appId: "1:672666417012:web:93613783fe51cd2ce81e21"
-  };
-  if (typeof initSyncManager === 'function') {
-    initSyncManager(firebaseConfig);
-  }
-</script>
-</body>
+<script>const firebaseConfig={apiKey:"AIzaSyCwzdwGEjN5LVw3RSLz2dy7f70Reafbe2c",authDomain:"databas-serie.firebaseapp.com",databaseURL:"https://databas-serie-default-rtdb.europe-west1.firebasedatabase.app",projectId:"databas-serie",storageBucket:"databas-serie.firebasestorage.app",messagingSenderId:"672666417012",appId:"1:672666417012:web:93613783fe51cd2ce81e21"};if(typeof initSyncManager==="function"){initSyncManager(firebaseConfig);}</script></body>
 </html>

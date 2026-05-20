@@ -486,22 +486,22 @@
 <div class="container">
 
     <header>
-        <h1 data-sv="Matchstatistik" data-en="Match Statistics" data-es="Estadísticas">Matchstatistik</h1>
+        <h1 data-sv="Matchstatistik" data-fr="Statistiques de match" data-en="Match Statistics">Matchstatistik</h1>
         <div class="match-meta">
             <div class="meta-item">
                 <div class="meta-label">MATCH-ID</div>
                 <div class="meta-value" id="hdr-id">---</div>
             </div>
             <div class="meta-item">
-                <div class="meta-label" data-sv="STARTTID" data-en="START TIME" data-es="INICIO">STARTTID</div>
+                <div class="meta-label" data-sv="STARTTID" data-en="START TIME">STARTTID</div>
                 <div class="meta-value" id="hdr-time">---</div>
             </div>
             <div class="meta-item">
-                <div class="meta-label" data-sv="VARAKTIGHET" data-en="DURATION" data-es="DURACIÓN">VARAKTIGHET</div>
+                <div class="meta-label" data-sv="VARAKTIGHET" data-en="DURATION">VARAKTIGHET</div>
                 <div class="meta-value" id="hdr-dur">0 min</div>
             </div>
             <div class="meta-item">
-                <div class="meta-label" data-sv="OMGÅNG" data-en="ROUND" data-es="MANO">OMGÅNG</div>
+                <div class="meta-label" data-sv="OMGÅNG" data-fr="MANCHE" data-en="ROUND">OMGÅNG</div>
                 <div class="meta-value" id="hdr-round" style="font-size: 24px; font-weight: 700; color: #e8ff47;">1</div>
             </div>
         </div>
@@ -510,8 +510,8 @@
     <!-- ===== LOGIN SCREEN ===== -->
     <div id="screen-login">
         <div class="login-logo">
-            <h2 data-sv="Tränarens kod" data-en="Trainer code" data-es="Código del entrenador">Tränarens kod</h2>
-            <p data-sv="Ange din unika kod för att komma åt din statistik" data-en="Enter your unique code to access your statistics" data-es="Ingresa tu código único para acceder a tus estadísticas">Ange din unika kod för att komma åt din statistik</p>
+            <h2 data-sv="Tränarens kod" data-en="Trainer code">Tränarens kod</h2>
+            <p data-sv="Ange din unika kod för att komma åt din statistik" data-en="Enter your unique code to access your statistics">Ange din unika kod för att komma åt din statistik</p>
         </div>
 
         <div class="card">
@@ -550,7 +550,7 @@
                 <div class="key" data-char="8">8</div>
                 <div class="key" data-char="9">9</div>
             </div>
-            <div class="key enter" id="btn-login" data-sv="LOGGA IN" data-en="LOG IN" data-es="INICIAR">LOGGA IN</div>
+            <div class="key enter" id="btn-login" data-sv="LOGGA IN" data-en="LOG IN">LOGGA IN</div>
             <div class="login-error" id="login-error"></div>
         </div>
     </div>
@@ -561,48 +561,48 @@
         <!-- Trainer badge -->
         <div class="trainer-display">
             <div>
-                <span style="color:#999; font-size:12px;" data-sv="Inloggad som: " data-en="Logged in as: " data-es="Conectado como: ">Inloggad som: </span>
+                <span style="color:#999; font-size:12px;" data-sv="Inloggad som: " data-fr="Connecté en tant que: " data-en="Logged in as: ">Inloggad som: </span>
                 <span class="trainer-code-badge" id="trainer-badge"></span>
             </div>
-            <button class="btn-logout" id="btn-logout" data-sv="Byt kod" data-en="Change code" data-es="Cambiar código">Byt kod</button>
+            <button class="btn-logout" id="btn-logout" data-sv="Byt kod" data-fr="Changer le code" data-en="Change code">Byt kod</button>
         </div>
 
         <div class="card">
-            <div class="card-title" data-sv="Ny match" data-en="New match" data-es="Nuevo partido">Ny match</div>
+            <div class="card-title" data-sv="Ny match" data-fr="Nouveau match" data-en="New match">Ny match</div>
             <div class="input-group">
-                <label data-sv="Matchnamn" data-en="Match name" data-es="Nombre del partido">Matchnamn</label>
+                <label data-sv="Matchnamn" data-fr="Nom du match" data-en="Match name">Matchnamn</label>
                 <input type="text" id="inp-matchname" placeholder="T.ex. Träning mot Västra">
             </div>
             <div class="input-group">
-                <label data-sv="Ditt lagnamn" data-en="Your team name" data-es="Nombre del equipo">Ditt lagnamn</label>
+                <label data-sv="Ditt lagnamn" data-fr="Nom de votre équipe" data-en="Your team name">Ditt lagnamn</label>
                 <input type="text" id="inp-teamname" placeholder="T.ex. Stockholm A">
             </div>
             <div class="input-group">
-                <label data-sv="Motståndarlag" data-en="Opponent team" data-es="Equipo rival">Motståndarlag</label>
+                <label data-sv="Motståndarlag" data-fr="Équipe adverse" data-en="Opponent team">Motståndarlag</label>
                 <input type="text" id="inp-opponent" placeholder="T.ex. IK Boule">
             </div>
             <div class="input-group">
-                <label data-sv="Läggare" data-en="Pointer" data-es="Colocador">Läggare</label>
+                <label data-sv="Läggare" data-fr="Pointeur" data-en="Pointer">Läggare</label>
                 <input type="text" id="inp-p1" placeholder="T.ex. Anders">
             </div>
             <div class="input-group">
-                <label data-sv="Mittspelare" data-en="Middle player" data-es="Centrocampista">Mittspelare</label>
+                <label data-sv="Mittspelare" data-fr="Milieu" data-en="Middle player">Mittspelare</label>
                 <input type="text" id="inp-p2" placeholder="T.ex. Lisa">
             </div>
             <div class="input-group">
-                <label data-sv="Skytt" data-en="Shooter" data-es="Tirador">Skytt</label>
+                <label data-sv="Skytt" data-fr="Tireur" data-en="Shooter">Skytt</label>
                 <input type="text" id="inp-p3" placeholder="T.ex. Per">
             </div>
-            <button class="btn btn-primary" id="btn-start" data-sv="STARTA MATCH" data-en="START MATCH" data-es="INICIAR PARTIDO">STARTA MATCH</button>
+            <button class="btn btn-primary" id="btn-start" data-sv="STARTA MATCH" data-fr="DÉMARRER LE MATCH" data-en="START MATCH">STARTA MATCH</button>
         </div>
 
         <!-- HOME HISTORY -->
         <div class="card" id="home-history-card">
             <div class="card-title">
-                <span data-sv="Tidigare matcher" data-en="Previous matches" data-es="Partidos anteriores">Tidigare matcher</span>
+                <span data-sv="Tidigare matcher" data-fr="Matchs précédents" data-en="Previous matches">Tidigare matcher</span>
                 <span class="sync-badge sync-ok" id="sync-status-home">☁️ Firebase</span>
             </div>
-            <div id="home-history-list"><div class="empty" data-sv="Ingen matchhistorik än" data-en="No match history yet" data-es="Sin historial aún">Ingen matchhistorik än</div></div>
+            <div id="home-history-list"><div class="empty" data-sv="Ingen matchhistorik än" data-fr="Aucun historique de match" data-en="No match history yet">Ingen matchhistorik än</div></div>
         </div>
 
         <!-- HOME DETAIL VIEW -->
@@ -645,9 +645,9 @@
     <div id="screen-match" style="display:none;">
 
         <div class="tabs">
-            <button class="tab-btn active" data-tab="live" data-sv="LIVE LOGGNING" data-en="LIVE LOGGING" data-es="REGISTRO">LIVE LOGGNING</button>
-            <button class="tab-btn" data-tab="analys" data-sv="ANALYS & GRAFER" data-en="ANALYSIS & CHARTS" data-es="ANÁLISIS">ANALYS & GRAFER</button>
-            <button class="tab-btn" data-tab="historik" data-sv="HISTORIK" data-en="HISTORY" data-es="HISTORIAL">HISTORIK</button>
+            <button class="tab-btn active" data-tab="live" data-sv="LIVE LOGGNING" data-fr="ENREGISTREMENT EN DIRECT" data-en="LIVE LOGGING">LIVE LOGGNING</button>
+            <button class="tab-btn" data-tab="analys" data-sv="ANALYS & GRAFER" data-fr="ANALYSE & GRAPHIQUES" data-en="ANALYSIS & CHARTS">ANALYS & GRAFER</button>
+            <button class="tab-btn" data-tab="historik" data-sv="HISTORIK" data-fr="HISTORIQUE" data-en="HISTORY">HISTORIK</button>
         </div>
 
         <!-- TAB: LIVE -->
@@ -656,30 +656,30 @@
             <table class="live-table">
                 <thead>
                     <tr>
-                        <th data-sv="Spelare" data-en="Player" data-es="Jugador">Spelare</th>
-                        <th data-sv="Lägg Poängkula/Tot" data-en="Lägg Ball/Tot" data-es="Colocación">Lägg Poängkula/Tot</th>
+                        <th data-sv="Spelare" data-en="Player">Spelare</th>
+                        <th data-sv="Lägg Poängkula/Tot" data-en="Lägg Ball/Tot">Lägg Poängkula/Tot</th>
                         <th class="tc">Lägg %</th>
-                        <th data-sv="Skott Träff/Tot" data-en="Shot Hit/Tot" data-es="Tiro">Skott Träff/Tot</th>
+                        <th data-sv="Skott Träff/Tot" data-en="Shot Hit/Tot">Skott Träff/Tot</th>
                         <th class="tc">Skott %</th>
                     </tr>
                 </thead>
                 <tbody id="live-table-body"></tbody>
             </table>
             <div class="match-actions">
-                <button class="btn btn-danger" id="btn-reset" data-sv="ÅTERSTÄLL" data-en="RESET" data-es="RESTABLECER">ÅTERSTÄLL</button>
-                <button class="btn btn-primary" id="btn-finish" data-sv="AVSLUTA MATCH" data-en="FINISH MATCH" data-es="FINALIZAR">AVSLUTA MATCH</button>
+                <button class="btn btn-danger" id="btn-reset" data-sv="ÅTERSTÄLL" data-fr="RÉINITIALISER" data-en="RESET">ÅTERSTÄLL</button>
+                <button class="btn btn-primary" id="btn-finish" data-sv="AVSLUTA MATCH" data-fr="TERMINER LE MATCH" data-en="FINISH MATCH">AVSLUTA MATCH</button>
             </div>
         </div>
 
         <!-- TAB: ANALYS -->
         <div class="tab-content" id="tab-analys">
-            <div class="live-badge"><div class="live-dot"></div> <span data-sv="Uppdateras var 10:e sekund" data-en="Updates every 10 seconds" data-es="Actualiza cada 10 segundos">Uppdateras var 10:e sekund</span></div>
+            <div class="live-badge"><div class="live-dot"></div> <span data-sv="Uppdateras var 10:e sekund" data-en="Updates every 10 seconds">Uppdateras var 10:e sekund</span></div>
             <div class="chart-wrap">
-                <div class="chart-title" data-sv="Träffprocent — Pågående match" data-en="Accuracy — Current match" data-es="Precisión actual">Träffprocent — Pågående match</div>
+                <div class="chart-title" data-sv="Träffprocent — Pågående match" data-en="Accuracy — Current match">Träffprocent — Pågående match</div>
                 <canvas id="chart-live"></canvas>
             </div>
             <div class="chart-wrap">
-                <div class="chart-title" data-sv="Träffar vs Missar" data-en="Hits vs Misses" data-es="Aciertos vs Fallos">Träffar vs Missar</div>
+                <div class="chart-title" data-sv="Träffar vs Missar" data-en="Hits vs Misses">Träffar vs Missar</div>
                 <canvas id="chart-compare"></canvas>
             </div>
             <div class="export-row">
@@ -694,7 +694,7 @@
                 <div id="match-history-list"><div class="empty">Ingen matchhistorik än</div></div>
             </div>
             <div id="detail-view" style="display:none;">
-                <button class="detail-back" id="btn-back-detail">← <span data-sv="Tillbaka" data-en="Back" data-es="Volver">Tillbaka</span></button>
+                <button class="detail-back" id="btn-back-detail">← <span data-sv="Tillbaka" data-en="Back">Tillbaka</span></button>
                 <div class="detail-title" id="detail-title"></div>
                 <div class="detail-meta" id="detail-meta"></div>
 
@@ -718,13 +718,13 @@
 
                 <!-- Laginsnitt -->
                 <div class="card">
-                    <div class="card-title" data-sv="Laginsnitt" data-en="Team Average" data-es="Promedio del equipo">Laginsnitt</div>
+                    <div class="card-title" data-sv="Laginsnitt" data-en="Team Average">Laginsnitt</div>
                     <div id="detail-team"></div>
                 </div>
 
                 <!-- Tidslinje -->
                 <div class="card">
-                    <div class="card-title" data-sv="Tidslinje" data-en="Timeline" data-es="Línea de tiempo">Tidslinje</div>
+                    <div class="card-title" data-sv="Tidslinje" data-en="Timeline">Tidslinje</div>
                     <div id="detail-timeline"></div>
                 </div>
 
@@ -732,14 +732,14 @@
                     <button class="btn btn-outline" id="btn-export-pdf-detail">📄 PDF</button>
                     <button class="btn btn-outline" id="btn-export-csv-detail">📊 CSV</button>
                 </div>
-                <button class="btn btn-danger" id="btn-delete-detail" style="width:100%;margin-top:0.5rem;" data-sv="Radera match" data-en="Delete match" data-es="Eliminar partido">Radera match</button>
+                <button class="btn btn-danger" id="btn-delete-detail" style="width:100%;margin-top:0.5rem;" data-sv="Radera match" data-en="Delete match">Radera match</button>
             </div>
         </div>
     </div>
 
 </div>
 
-<div class="offline-badge" id="offline-badge" data-sv="Offline — sparar lokalt" data-en="Offline — saving locally" data-es="Offline — guardando localmente">Offline — sparar lokalt</div>
+<div class="offline-badge" id="offline-badge" data-sv="Offline — sparar lokalt" data-en="Offline — saving locally">Offline — sparar lokalt</div>
 
 <script>
 // ============================================================
@@ -761,7 +761,7 @@ const db = firebase.database();
 // ============================================================
 // LANGUAGE MANAGER
 // ============================================================
-const LANGS = ['sv','en','es'];
+const LANGS = ['sv','en','fr'];
 const langMgr = {
     lang: localStorage.getItem('petanque-lang') || 'sv',
     apply() {
@@ -771,7 +771,7 @@ const langMgr = {
             if (el.tagName === 'INPUT') el.placeholder = t;
             else el.textContent = t;
         });
-        const flags = {sv:'🇸🇪 SV', en:'🇬🇧 EN', es:'🇪🇸 ES'};
+        const flags = {sv:'🇸🇪 SV', en:'🇬🇧 EN', es:'🇫🇷 FR'};
         const btn = document.getElementById('lang-btn');
         if (btn) btn.textContent = flags[this.lang];
     },

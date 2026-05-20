@@ -215,14 +215,14 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <body>
 
 <div class="top-bar">
-  <a class="back-btn" id="backBtn" href="index.html">← <span data-sv="Hem" data-en="Home">Hem</span></a>
-  <span class="top-title" data-sv="Poängräknare" data-en="Scoreboard">Poängräknare</span>
+  <a class="back-btn" id="backBtn" href="index.html">← <span data-sv="Hem" data-fr="Accueil" data-en="Home">Hem</span></a>
+  <span class="top-title" data-sv="Poängräknare" data-fr="Compteur de points" data-en="Scoreboard">Poängräknare</span>
   <button class="lang-btn" onclick="toggleLang()" id="langBtn">🌐 EN</button>
 </div>
 
 <div class="tab-bar">
   <button class="tab-btn active" onclick="switchTab('match')" id="tab-match" data-sv="Match" data-en="Match">Match</button>
-  <button class="tab-btn" onclick="switchTab('stats')" id="tab-stats" data-sv="Historik" data-en="History">Historik</button>
+  <button class="tab-btn" onclick="switchTab('stats')" id="tab-stats" data-sv="Historik" data-fr="Historique" data-en="History">Historik</button>
 </div>
 
 <!-- ═══ MATCH TAB ═══ -->
@@ -381,7 +381,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <button class="clear-btn" onclick="confirmClear()" data-sv="Rensa" data-en="Clear">Rensa</button>
   </div>
   <div class="stats-nav">
-    <button class="snav-btn active" onclick="switchStatsTab('overview')" data-sv="Översikt" data-en="Overview">Översikt</button>
+    <button class="snav-btn active" onclick="switchStatsTab('overview')" data-sv="Översikt" data-fr="Aperçu" data-en="Overview">Översikt</button>
     <button class="snav-btn" onclick="switchStatsTab('history')" data-sv="Matcher" data-en="Matches">Matcher</button>
   </div>
   <div class="stats-section active" id="stats-overview">
@@ -411,7 +411,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="sheet-stat"><span data-sv="Rundor spelade" data-en="Rounds played">Rundor spelade</span><span class="sv" id="winRounds">–</span></div>
     <div class="sheet-stat"><span data-sv="Störst ledning" data-en="Biggest lead">Störst ledning</span><span class="sv" id="winLead">–</span></div>
     <div class="sheet-actions">
-      <button class="mbtn mbtn-accent" onclick="closeWin(true)" data-sv="Ny match" data-en="New Match">Ny match</button>
+      <button class="mbtn mbtn-accent" onclick="closeWin(true)" data-sv="Ny match" data-fr="Nouveau match" data-en="New Match">Ny match</button>
       <button class="mbtn mbtn-ghost" onclick="closeWin(false)" data-sv="Se historik" data-en="View History">Se historik</button>
     </div>
   </div>
@@ -432,11 +432,11 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <!-- CLEAR -->
 <div class="overlay" id="clearOverlay">
   <div class="sheet">
-    <h2 data-sv="Rensa historik?" data-en="Clear history?">Rensa historik?</h2>
+    <h2 data-sv="Rensa historik?" data-fr="Effacer l'historique?" data-en="Clear history?">Rensa historik?</h2>
     <p class="sheet-sub" data-sv="All matchdata raderas permanent." data-en="All match data will be permanently deleted.">All matchdata raderas permanent.</p>
     <div class="sheet-actions">
-      <button class="mbtn mbtn-danger" onclick="clearAll()" data-sv="Ja, rensa" data-en="Yes, clear">Ja, rensa</button>
-      <button class="mbtn mbtn-ghost" onclick="document.getElementById('clearOverlay').classList.remove('show')" data-sv="Avbryt" data-en="Cancel">Avbryt</button>
+      <button class="mbtn mbtn-danger" onclick="clearAll()" data-sv="Ja, rensa" data-fr="Oui, effacer" data-en="Yes, clear">Ja, rensa</button>
+      <button class="mbtn mbtn-ghost" onclick="document.getElementById('clearOverlay').classList.remove('show')" data-sv="Avbryt" data-fr="Annuler" data-en="Cancel">Avbryt</button>
     </div>
   </div>
 </div>
@@ -774,20 +774,5 @@ function clearAll() {
     initSyncManager(firebaseConfig);
   }
 </script>
-<!-- Firebase Config -->
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyCwzdwGEjN5LVw3RSLz2dy7f70Reafbe2c",
-    authDomain: "databas-serie.firebaseapp.com",
-    databaseURL: "https://databas-serie-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "databas-serie",
-    storageBucket: "databas-serie.firebasestorage.app",
-    messagingSenderId: "672666417012",
-    appId: "1:672666417012:web:93613783fe51cd2ce81e21"
-  };
-  if (typeof initSyncManager === 'function') {
-    initSyncManager(firebaseConfig);
-  }
-</script>
-</body>
+<script>const firebaseConfig={apiKey:"AIzaSyCwzdwGEjN5LVw3RSLz2dy7f70Reafbe2c",authDomain:"databas-serie.firebaseapp.com",databaseURL:"https://databas-serie-default-rtdb.europe-west1.firebasedatabase.app",projectId:"databas-serie",storageBucket:"databas-serie.firebasestorage.app",messagingSenderId:"672666417012",appId:"1:672666417012:web:93613783fe51cd2ce81e21"};if(typeof initSyncManager==="function"){initSyncManager(firebaseConfig);}</script></body>
 </html>

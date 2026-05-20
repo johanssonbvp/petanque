@@ -1,186 +1,56 @@
-/**
- * PETANQUE TRÄNING - Language Manager
- * Copyright (c) 2026 Pär Johansson
- * All rights reserved - Proprietary and Confidential
- * https://petanquetraning.se
- * 
- * Enhetlig språkhantering för alla petanque-appar
- * Användning: <script src="lang-manager.js"></script>
- * Sedan: LanguageManager.set('en') eller LanguageManager.toggle()
- */
+// lang-manager.js - Petanque Träning
+// Språkstöd: Svenska (sv), Engelska (en), Franska (fr)
 
-const LanguageManager = (() => {
-  const STORAGE_KEY = 'petanque-lang';
-  const DEFAULT_LANG = 'sv';
-  const SUPPORTED_LANGS = ['sv', 'en', 'es'];
+const langMgr = {
+  lang: localStorage.getItem('petanque-lang') || localStorage.getItem('pt_lang') || localStorage.getItem('lang') || 'sv',
 
-  let current = DEFAULT_LANG;
-  let isInitialized = false;
+  apply() {
+    document.querySelectorAll('[data-sv]').forEach(el => {
+      const sv = el.dataset.sv;
+      const en = el.dataset.en;
+      const fr = el.dataset.fr;
 
-  return {
-    /**
-     * Initiera språkhanteraren (kör automatiskt vid DOMContentLoaded)
-     */
-    init() {
-      if (isInitialized) return;
-
-      // Hämta sparad språkinställning
-      try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved && SUPPORTED_LANGS.includes(saved)) {
-          current = saved;
-        } else {
-          // Försök använd browser-språk
-          const browserLang = navigator.language?.slice(0, 2);
-          if (browserLang && SUPPORTED_LANGS.includes(browserLang)) {
-            current = browserLang;
-          }
-        }
-      } catch (e) {
-        console.warn('[Lang] Error reading saved language:', e.message);
+      if (this.lang === 'en' && en) {
+        el.textContent = en;
+      } else if (this.lang === 'fr' && fr) {
+        el.textContent = fr;
+      } else {
+        el.textContent = sv;
       }
+    });
 
-      // Applicera på HTML-element
-      document.documentElement.lang = current;
-      isInitialized = true;
+    // Uppdatera html lang-attribut
+    document.documentElement.lang = this.lang;
 
-      // Applicera translations
-      this.applyTranslations();
+    // Uppdatera aktiv knapp om det finns lang-knappar
+    document.querySelectorAll('[data-lang]').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.lang === this.lang);
+    });
+  },
 
-      console.log(`[Lang] Initialized with language: ${current}`);
-      return current;
-    },
+  set(lang) {
+    this.lang = lang;
+    localStorage.setItem('petanque-lang', lang);
+    localStorage.setItem('pt_lang', lang);
+    localStorage.setItem('lang', lang);
+    this.apply();
+  },
 
-    /**
-     * Hämta aktuellt språk
-     */
-    get() {
-      return current;
-    },
+  toggle() {
+    const langs = ['sv', 'en', 'fr'];
+    const next = langs[(langs.indexOf(this.lang) + 1) % langs.length];
+    this.set(next);
+  },
 
-    /**
-     * Sätt språk
-     * @param {string} lang - 'sv' eller 'en'
-     * @returns {boolean} Lyckades?
-     */
-    set(lang) {
-      if (!SUPPORTED_LANGS.includes(lang)) {
-        console.warn(`[Lang] Unsupported language: ${lang}`);
-        return false;
-      }
+  // Hämta översatt text för en nyckel
+  t(svText) {
+    const el = document.querySelector(`[data-sv="${svText}"]`);
+    if (!el) return svText;
+    if (this.lang === 'en' && el.dataset.en) return el.dataset.en;
+    if (this.lang === 'fr' && el.dataset.fr) return el.dataset.fr;
+    return svText;
+  }
+};
 
-      if (lang === current) return true;
-
-      try {
-        current = lang;
-        localStorage.setItem(STORAGE_KEY, lang);
-        document.documentElement.lang = lang;
-        
-        // Applicera translations
-        this.applyTranslations();
-        
-        // Dispatch event för lyssning
-        window.dispatchEvent(new CustomEvent('language-changed', { detail: { lang } }));
-        
-        console.log(`[Lang] Language changed to: ${lang}`);
-        return true;
-      } catch (e) {
-        console.error('[Lang] Error setting language:', e.message);
-        return false;
-      }
-    },
-
-    /**
-     * Byt mellan sv, en och es
-     */
-    toggle() {
-      const index = SUPPORTED_LANGS.indexOf(current);
-      const nextIndex = (index + 1) % SUPPORTED_LANGS.length;
-      const newLang = SUPPORTED_LANGS[nextIndex];
-      return this.set(newLang);
-    },
-
-    /**
-     * Applicera translations från data-attribut
-     * Targets: [data-sv], [data-en], [data-es]
-     */
-    applyTranslations() {
-      try {
-        document.querySelectorAll('[data-sv]').forEach(el => {
-          // Hämta text baserat på aktuellt språk
-          const content = el.dataset[current] || el.dataset.sv;
-          
-          if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-            el.placeholder = content || el.placeholder;
-          } else if (el.dataset.html === 'true') {
-            el.innerHTML = content || el.innerHTML;
-          } else {
-            el.textContent = content || el.textContent;
-          }
-        });
-
-        // Update lang-buttons
-        const langBtns = document.querySelectorAll('[data-lang-toggle]');
-        langBtns.forEach(btn => {
-          const langs = { sv: '🇸🇪 SV', en: '🇬🇧 EN', es: '🇪🇸 ES' }; 
-          btn.textContent = langs[current] || '🌐';
-        });
-
-        console.log('[Lang] Translations applied for language: ' + current);
-      } catch (e) {
-        console.error('[Lang] Error applying translations:', e.message);
-      }
-    },
-
-    /**
-     * Få translation för en nyckel (för dynamisk content)
-     * @param {string} key - Translation-nyckel
-     * @param {Object} translations - {sv: '...', en: '...'}
-     * @returns {string} Translated text
-     */
-    t(key, translations = {}) {
-      if (typeof translations === 'string') {
-        // Legacy: t('sv-text', 'en-text')
-        return current === 'sv' ? arguments[0] : arguments[1];
-      }
-
-      return translations[current] || translations['sv'] || key;
-    },
-
-    /**
-     * Registrera event-lyssnare för språkändringar
-     * @param {Function} callback - Anropas när språk ändras
-     */
-    onLanguageChanged(callback) {
-      window.addEventListener('language-changed', (e) => {
-        callback(e.detail.lang);
-      });
-    },
-
-    /**
-     * Debug-info
-     */
-    debug() {
-      return {
-        current,
-        supported: SUPPORTED_LANGS,
-        storageKey: STORAGE_KEY,
-        isInitialized,
-        elementCount: document.querySelectorAll('[data-sv]').length
-      };
-    }
-  };
-})();
-
-// Auto-init när DOM är klar
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => LanguageManager.init(), 100);
-  });
-} else {
-  // DOM redan lastad
-  setTimeout(() => LanguageManager.init(), 100);
-}
-
-// Gör tillgänglig globalt
-window.LanguageManager = LanguageManager;
+// Initiera direkt
+document.addEventListener('DOMContentLoaded', () => langMgr.apply());
