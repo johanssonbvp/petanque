@@ -991,6 +991,10 @@ class MatchApp {
         const m = this.history[idx];
         if (!m) return;
 
+        console.log('[Delete] Raderar match id:', m.id, 'trainerCode:', this.trainerCode);
+        console.log('[Delete] fbRef path:', this.fbRef ? this.fbRef.toString() : 'NULL');
+        console.log('[Delete] isOnline:', this.isOnline);
+
         this.history.splice(idx, 1);
 
         const localKey = `match-history-${this.trainerCode}`;
@@ -998,14 +1002,15 @@ class MatchApp {
 
         if (this.isOnline && this.fbRef) {
             try {
-                await this.fbRef.child(m.id).remove();
-                console.log('[Firebase] Match raderad:', m.id);
+                const path = this.fbRef.child(m.id);
+                console.log('[Delete] Försöker radera sökväg:', path.toString());
+                await path.remove();
+                console.log('[Firebase] ✅ Match raderad från Firebase:', m.id);
             } catch(e) {
-                console.warn('[Firebase] Delete failed, sparar som pending:', e);
+                console.error('[Firebase] ❌ Delete misslyckades:', e.code, e.message);
                 this.addPendingDelete(m.id);
             }
         } else {
-            // Offline — spara som pending delete
             this.addPendingDelete(m.id);
             console.log('[Firebase] Offline - radering köas:', m.id);
         }
