@@ -905,7 +905,24 @@ class MatchApp {
         const listEl = document.getElementById('home-history-list');
         listEl.innerHTML = '<div class="loading"><span class="spinner"></span> Laddar...</div>';
 
+        // Hämta pending deletes INNAN vi laddar från Firebase
+        const deleteKey = `pending-deletes-${this.trainerCode}`;
+        const pendingDeletes = JSON.parse(localStorage.getItem(deleteKey) || '[]');
+
         if (this.isOnline && this.fbRef) {
+            // Radera pending-deletes från Firebase FÖRST
+            if (pendingDeletes.length > 0) {
+                for (const id of pendingDeletes) {
+                    try {
+                        await this.fbRef.child(id).remove();
+                        console.log('[Firebase] Pending delete utförd:', id);
+                    } catch(e) {
+                        console.warn('[Firebase] Pending delete misslyckades:', id, e);
+                    }
+                }
+                localStorage.removeItem(deleteKey);
+            }
+
             try {
                 const snap = await this.fbRef.orderByChild('startTime').once('value');
                 const data = snap.val();
@@ -925,12 +942,16 @@ class MatchApp {
                 document.getElementById('sync-status-home').className = 'sync-badge sync-ok';
             } catch(e) {
                 console.warn('[Firebase] Load error, using localStorage:', e);
-                this.history = JSON.parse(localStorage.getItem(`match-history-${this.trainerCode}`) || '[]');
+                // Filtrera bort pending-deletes även från localStorage-fallback
+                const all = JSON.parse(localStorage.getItem(`match-history-${this.trainerCode}`) || '[]');
+                this.history = all.filter(m => !pendingDeletes.includes(m.id));
                 document.getElementById('sync-status-home').textContent = '⚠️ Offline';
                 document.getElementById('sync-status-home').className = 'sync-badge sync-fail';
             }
         } else {
-            this.history = JSON.parse(localStorage.getItem(`match-history-${this.trainerCode}`) || '[]');
+            // Offline: filtrera bort pending-deletes från localStorage
+            const all = JSON.parse(localStorage.getItem(`match-history-${this.trainerCode}`) || '[]');
+            this.history = all.filter(m => !pendingDeletes.includes(m.id));
             document.getElementById('sync-status-home').textContent = '📱 Lokalt';
             document.getElementById('sync-status-home').className = 'sync-badge sync-pending';
         }
