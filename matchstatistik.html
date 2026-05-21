@@ -675,12 +675,17 @@
         <div class="tab-content" id="tab-analys">
             <div class="live-badge"><div class="live-dot"></div> <span data-sv="Uppdateras var 10:e sekund" data-en="Updates every 10 seconds">Uppdateras var 10:e sekund</span></div>
             <div class="chart-wrap">
-                <div class="chart-title" data-sv="Träffprocent — Pågående match" data-en="Accuracy — Current match">Träffprocent — Pågående match</div>
+                <div class="chart-title" data-sv="Träffprocent — Eget lag 🟡 vs Motståndare 🔴" data-en="Accuracy — Own team 🟡 vs Opponents 🔴">Träffprocent — Eget lag 🟡 vs Motståndare 🔴</div>
                 <canvas id="chart-live"></canvas>
             </div>
             <div class="chart-wrap">
-                <div class="chart-title" data-sv="Träffar vs Missar" data-en="Hits vs Misses">Träffar vs Missar</div>
+                <div class="chart-title" data-sv="Träffar vs Missar — alla spelare" data-en="Hits vs Misses — all players">Träffar vs Missar — alla spelare</div>
                 <canvas id="chart-compare"></canvas>
+            </div>
+            <div class="chart-wrap" id="chart-team-wrap" style="height:260px;">
+                <div class="chart-title" data-sv="Laginsnitt — Jämförelse" data-en="Team Average — Comparison">Laginsnitt — Jämförelse</div>
+                <canvas id="chart-team" style="height:200px;"></canvas>
+                <div id="team-summary"></div>
             </div>
             <div class="export-row">
                 <button class="btn btn-outline" id="btn-pdf">📄 PDF</button>
@@ -798,6 +803,7 @@ class MatchApp {
         this.liveChart = null;
         this.compareChart = null;
         this.detailChart = null;
+        this.teamChart = null;
         this.currentDetailIdx = null;
         this.currentHomeDetailIdx = null;
         this.homeDetailCharts = {};
@@ -1531,7 +1537,20 @@ class MatchApp {
     renderLiveCharts() {
         if (!this.match) return;
         const players = this.match.players;
-        const labels = players.map(p => p.name);
+        const opponents = this.match.opponents || [];
+        const oppName = this.match.opponent || 'Motståndare';
+        const myName = this.match.team || 'Eget lag';
+
+        // Etiketter: egna spelare i gult, motståndare i rött
+        const allLabels = [
+            ...players.map(p => p.name),
+            ...opponents.map(p => p.name)
+        ];
+        const bgColors = [
+            ...players.map(() => 'rgba(232,255,71,0.15)'),
+            ...opponents.map(() => 'rgba(255,128,128,0.15)')
+        ];
+
         const chartOpts = {
             responsive: true, maintainAspectRatio: false,
             plugins: { legend: { labels: { color:'#ccc' } } },
@@ -1541,33 +1560,106 @@ class MatchApp {
             }
         };
 
+        // GRAF 1: Träffprocent — alla spelare båda lag
         if (this.liveChart) this.liveChart.destroy();
         this.liveChart = new Chart(document.getElementById('chart-live'), {
             type: 'bar',
             data: {
-                labels,
+                labels: allLabels,
                 datasets: [
-                    { label: 'Lägg %', data: players.map(p => this.acc(p.stats.lagg)), backgroundColor: '#51cf66' },
-                    { label: 'Skott %', data: players.map(p => this.acc(p.stats.skott)), backgroundColor: '#e8ff47' }
+                    {
+                        label: 'Lägg %',
+                        data: [
+                            ...players.map(p => this.acc(p.stats.lagg)),
+                            ...opponents.map(p => this.acc(p.stats.lagg))
+                        ],
+                        backgroundColor: [
+                            ...players.map(() => '#51cf66'),
+                            ...opponents.map(() => '#ff8080')
+                        ]
+                    },
+                    {
+                        label: 'Skott %',
+                        data: [
+                            ...players.map(p => this.acc(p.stats.skott)),
+                            ...opponents.map(p => this.acc(p.stats.skott))
+                        ],
+                        backgroundColor: [
+                            ...players.map(() => '#e8ff47'),
+                            ...opponents.map(() => '#ff6060')
+                        ]
+                    }
                 ]
             },
             options: chartOpts
         });
 
+        // GRAF 2: Träffar vs Missar — alla spelare
         if (this.compareChart) this.compareChart.destroy();
         this.compareChart = new Chart(document.getElementById('chart-compare'), {
             type: 'bar',
             data: {
-                labels,
+                labels: allLabels,
                 datasets: [
-                    { label: 'Poängkula (lägg)', data: players.map(p => p.stats.lagg.hit), backgroundColor: '#51cf66' },
-                    { label: 'Lägg miss', data: players.map(p => p.stats.lagg.total - p.stats.lagg.hit), backgroundColor: 'rgba(81,207,102,0.25)' },
-                    { label: 'Skott träff', data: players.map(p => p.stats.skott.hit), backgroundColor: '#e8ff47' },
-                    { label: 'Skott miss', data: players.map(p => p.stats.skott.total - p.stats.skott.hit), backgroundColor: 'rgba(232,255,71,0.2)' },
+                    { label: 'Lägg träff', data: [...players.map(p => p.stats.lagg.hit), ...opponents.map(p => p.stats.lagg.hit)], backgroundColor: [...players.map(() => '#51cf66'), ...opponents.map(() => '#ff8080')] },
+                    { label: 'Lägg miss',  data: [...players.map(p => p.stats.lagg.total - p.stats.lagg.hit), ...opponents.map(p => p.stats.lagg.total - p.stats.lagg.hit)], backgroundColor: [...players.map(() => 'rgba(81,207,102,0.25)'), ...opponents.map(() => 'rgba(255,128,128,0.25)')] },
+                    { label: 'Skott träff', data: [...players.map(p => p.stats.skott.hit), ...opponents.map(p => p.stats.skott.hit)], backgroundColor: [...players.map(() => '#e8ff47'), ...opponents.map(() => '#ff6060')] },
+                    { label: 'Skott miss',  data: [...players.map(p => p.stats.skott.total - p.stats.skott.hit), ...opponents.map(p => p.stats.skott.total - p.stats.skott.hit)], backgroundColor: [...players.map(() => 'rgba(232,255,71,0.2)'), ...opponents.map(() => 'rgba(255,96,96,0.2)')] },
                 ]
             },
             options: { ...chartOpts, scales: { x: { ticks:{color:'#999'}, grid:{color:'rgba(232,255,71,0.05)'} }, y: { ticks:{color:'#999'}, grid:{color:'rgba(232,255,71,0.05)'}, min:0 } } }
         });
+
+        // GRAF 3: Laginsnitt — eget lag vs motståndare
+        if (opponents.length > 0) {
+            const avgLaggMy  = players.length ? Math.round(players.reduce((s,p) => s + this.acc(p.stats.lagg), 0) / players.length) : 0;
+            const avgSkottMy = players.length ? Math.round(players.reduce((s,p) => s + this.acc(p.stats.skott), 0) / players.length) : 0;
+            const avgLaggOpp  = Math.round(opponents.reduce((s,p) => s + this.acc(p.stats.lagg), 0) / opponents.length);
+            const avgSkottOpp = Math.round(opponents.reduce((s,p) => s + this.acc(p.stats.skott), 0) / opponents.length);
+
+            const teamEl = document.getElementById('chart-team');
+            if (teamEl) {
+                if (this.teamChart) this.teamChart.destroy();
+                this.teamChart = new Chart(teamEl, {
+                    type: 'radar',
+                    data: {
+                        labels: ['Lägg %', 'Skott %'],
+                        datasets: [
+                            { label: myName, data: [avgLaggMy, avgSkottMy], borderColor:'#e8ff47', backgroundColor:'rgba(232,255,71,0.15)', pointBackgroundColor:'#e8ff47' },
+                            { label: oppName, data: [avgLaggOpp, avgSkottOpp], borderColor:'#ff8080', backgroundColor:'rgba(255,128,128,0.15)', pointBackgroundColor:'#ff8080' }
+                        ]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { labels: { color:'#ccc' } } },
+                        scales: { r: { min:0, max:100, ticks:{color:'#999', backdropColor:'transparent'}, grid:{color:'rgba(255,255,255,0.1)'}, pointLabels:{color:'#ccc'} } }
+                    }
+                });
+
+                // Textsammanfattning under grafen
+                const summaryEl = document.getElementById('team-summary');
+                if (summaryEl) {
+                    const laggWinner = avgLaggMy >= avgLaggOpp ? `✅ ${myName}` : `⚠️ ${oppName}`;
+                    const skottWinner = avgSkottMy >= avgSkottOpp ? `✅ ${myName}` : `⚠️ ${oppName}`;
+                    summaryEl.innerHTML = `
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+                            <div style="text-align:center;padding:8px;background:rgba(232,255,71,0.08);border-radius:8px;">
+                                <div style="font-size:11px;color:#999;margin-bottom:2px">LÄGG-SNITT</div>
+                                <div style="color:#e8ff47;font-weight:700">${avgLaggMy}%</div>
+                                <div style="color:#ff8080;font-weight:700">${avgLaggOpp}%</div>
+                                <div style="font-size:10px;color:#aaa;margin-top:2px">${laggWinner} leder</div>
+                            </div>
+                            <div style="text-align:center;padding:8px;background:rgba(232,255,71,0.08);border-radius:8px;">
+                                <div style="font-size:11px;color:#999;margin-bottom:2px">SKOTT-SNITT</div>
+                                <div style="color:#e8ff47;font-weight:700">${avgSkottMy}%</div>
+                                <div style="color:#ff8080;font-weight:700">${avgSkottOpp}%</div>
+                                <div style="font-size:10px;color:#aaa;margin-top:2px">${skottWinner} leder</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+        }
     }
 
     // ---- RESET ----
@@ -1592,6 +1684,7 @@ class MatchApp {
 
         if (this.liveChart) { this.liveChart.destroy(); this.liveChart = null; }
         if (this.compareChart) { this.compareChart.destroy(); this.compareChart = null; }
+        if (this.teamChart) { this.teamChart.destroy(); this.teamChart = null; }
 
         this.match = null;
         this.matchStart = null;
