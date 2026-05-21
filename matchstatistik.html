@@ -667,6 +667,7 @@
             </table>
             <div class="match-actions">
                 <button class="btn btn-danger" id="btn-reset" data-sv="ÅTERSTÄLL" data-fr="RÉINITIALISER" data-en="RESET">ÅTERSTÄLL</button>
+                <button class="btn btn-outline" id="btn-next-round" data-sv="NÄSTA OMGÅNG ▶" data-fr="MANCHE SUIVANTE ▶" data-en="NEXT ROUND ▶" style="border-color:#e8ff47;color:#e8ff47;">NÄSTA OMGÅNG ▶</button>
                 <button class="btn btn-primary" id="btn-finish" data-sv="AVSLUTA MATCH" data-fr="TERMINER LE MATCH" data-en="FINISH MATCH">AVSLUTA MATCH</button>
             </div>
         </div>
@@ -1100,6 +1101,7 @@ class MatchApp {
         on('btn-start', 'click', () => this.startMatch());
         on('btn-finish', 'click', () => this.finishMatch());
         on('btn-reset', 'click', () => this.resetStats());
+        on('btn-next-round', 'click', () => this.nextRound(false));
         on('btn-pdf', 'click', () => this.exportPDF());
         on('btn-csv', 'click', () => this.exportCSV());
         on('btn-export-pdf-detail', 'click', () => this.exportDetailPDF());
@@ -2188,7 +2190,7 @@ class MatchApp {
             }
         });
         
-        const blob = new Blob([csv], {type:'text/csv'});
+        const blob = new Blob(['\uFEFF' + csv], {type:'text/csv;charset=utf-8'});
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href=url; a.download=`petanque-${m.name.replace(/[^a-z0-9]/gi,'_')}.csv`; a.click();
@@ -2302,7 +2304,7 @@ class MatchApp {
             }
         });
         
-        const blob = new Blob([csv], {type:'text/csv'});
+        const blob = new Blob(['\uFEFF' + csv], {type:'text/csv;charset=utf-8'});
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href=url; a.download=`petanque-${m.name.replace(/[^a-z0-9]/gi,'_')}.csv`; a.click();
@@ -2419,7 +2421,7 @@ class MatchApp {
             csv += `"${p.name}","${p.position}",${p.stats.lagg.hit},${p.stats.lagg.total},${lp},${p.stats.skott.hit},${p.stats.skott.total},${sp}\n`;
         });
         
-        const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+        const blob = new Blob(['\uFEFF' + csv], {type:'text/csv;charset=utf-8;'});
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         const filename = `match_${m.name || 'export'}_${new Date().toISOString().split('T')[0]}.csv`;
