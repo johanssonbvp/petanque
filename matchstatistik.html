@@ -897,15 +897,18 @@ class MatchApp {
         localStorage.setItem('trainer-code', this.trainerCode);
 
         const badge = document.getElementById('trainer-badge');
-        // Visa email om inloggad via Firebase Auth, annars förkortad UID
         if (badge) {
-            const fbUser = typeof firebase !== 'undefined' && firebase.auth ? firebase.auth().currentUser : null;
-            if (fbUser && fbUser.email) {
-                badge.textContent = fbUser.email;
-            } else {
-                badge.textContent = this.trainerCode.length > 20
-                    ? this.trainerCode.substring(0, 8) + '...'
-                    : this.trainerCode;
+            // Visa förkortad UID direkt, uppdatera till email när Firebase Auth svarar
+            badge.textContent = this.trainerCode.length > 20
+                ? this.trainerCode.substring(0, 8) + '...'
+                : this.trainerCode;
+
+            if (typeof firebase !== 'undefined' && firebase.auth) {
+                firebase.auth().onAuthStateChanged(user => {
+                    if (user && user.email) {
+                        badge.textContent = user.email;
+                    }
+                });
             }
         }
         
