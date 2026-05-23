@@ -72,38 +72,6 @@
         .card-title { font-size: 15px; font-weight: 600; color: #e8ff47; margin-bottom: 1rem; }
 
         /* LOGIN SCREEN */
-        #screen-login { max-width: 420px; margin: 3rem auto; }
-        .login-logo { text-align: center; margin-bottom: 2rem; }
-        .login-logo h2 { font-size: 22px; color: #e8ff47; font-weight: 700; }
-        .login-logo p { font-size: 13px; color: #999; margin-top: 0.4rem; }
-
-        .code-display {
-            font-size: 28px; font-weight: 900; letter-spacing: 4px;
-            color: #e8ff47; text-align: center; padding: 1rem;
-            background: rgba(232,255,71,0.05);
-            border: 1px solid rgba(232,255,71,0.2);
-            border-radius: 8px; margin: 1rem 0;
-            min-height: 64px; font-family: monospace;
-        }
-        .keypad {
-            display: grid; grid-template-columns: repeat(3, 1fr);
-            gap: 0.6rem; margin-bottom: 1rem;
-        }
-        .key {
-            padding: 1rem; font-size: 18px; font-weight: 700;
-            background: rgba(232,255,71,0.08);
-            border: 1px solid rgba(232,255,71,0.2);
-            border-radius: 8px; color: #e8ff47;
-            cursor: pointer; text-align: center; transition: all 0.15s;
-            user-select: none;
-        }
-        .key:hover { background: rgba(232,255,71,0.18); }
-        .key:active { transform: scale(0.95); background: rgba(232,255,71,0.28); }
-        .key.del { color: #ff6b6b; border-color: rgba(255,107,107,0.2); background: rgba(255,107,107,0.08); }
-        .key.enter { color: #0A0E27; background: #e8ff47; border-color: #e8ff47; }
-        .key.enter:hover { background: #f5ff99; }
-
-        .login-error { color: #ff6b6b; text-align: center; font-size: 13px; margin-top: 0.5rem; min-height: 20px; }
         .trainer-display {
             display: flex; justify-content: space-between; align-items: center;
             padding: 0.5rem 0.75rem;
@@ -285,8 +253,6 @@
             .chart-wrap canvas { max-height: 200px; }
             header h1 { font-size: 22px; }
             .header h2 { font-size: 18px; }
-            .keypad { gap: 0.5rem; }
-            .key { padding: 0.85rem; font-size: 16px; }
         }
     
 /* Ball counter styling */
@@ -522,53 +488,6 @@
     </header>
 
     <!-- ===== LOGIN SCREEN ===== -->
-    <div id="screen-login">
-        <div class="login-logo">
-            <h2 data-sv="Tränarens kod" data-en="Trainer code">Tränarens kod</h2>
-            <p data-sv="Ange din unika kod för att komma åt din statistik" data-en="Enter your unique code to access your statistics">Ange din unika kod för att komma åt din statistik</p>
-        </div>
-
-        <div class="card">
-            <div class="code-display" id="code-display">_</div>
-            <div class="keypad" id="keypad">
-                <div class="key" data-char="A">A</div>
-                <div class="key" data-char="B">B</div>
-                <div class="key" data-char="C">C</div>
-                <div class="key" data-char="D">D</div>
-                <div class="key" data-char="E">E</div>
-                <div class="key" data-char="F">F</div>
-                <div class="key" data-char="G">G</div>
-                <div class="key" data-char="H">H</div>
-                <div class="key" data-char="I">I</div>
-                <div class="key" data-char="J">J</div>
-                <div class="key" data-char="K">K</div>
-                <div class="key" data-char="L">L</div>
-                <div class="key" data-char="M">M</div>
-                <div class="key" data-char="N">N</div>
-                <div class="key" data-char="O">O</div>
-                <div class="key" data-char="P">P</div>
-                <div class="key" data-char="Q">Q</div>
-                <div class="key" data-char="R">R</div>
-                <div class="key" data-char="S">S</div>
-                <div class="key" data-char="T">T</div>
-                <div class="key" data-char="U">U</div>
-                <div class="key" data-char="V">V</div>
-                <div class="key" data-char="1">1</div>
-                <div class="key" data-char="2">2</div>
-                <div class="key" data-char="3">3</div>
-                <div class="key del" data-char="DEL">⌫</div>
-                <div class="key" data-char="4">4</div>
-                <div class="key" data-char="5">5</div>
-                <div class="key" data-char="6">6</div>
-                <div class="key" data-char="7">7</div>
-                <div class="key" data-char="8">8</div>
-                <div class="key" data-char="9">9</div>
-            </div>
-            <div class="key enter" id="btn-login" data-sv="LOGGA IN" data-en="LOG IN">LOGGA IN</div>
-            <div class="login-error" id="login-error"></div>
-        </div>
-    </div>
-
     <!-- ===== SETUP + HOME SCREEN ===== -->
     <div id="screen-setup" style="display:none;">
 
@@ -576,7 +495,7 @@
         <div class="trainer-display">
             <div>
                 <span style="color:#999; font-size:12px;" data-sv="Inloggad som: " data-fr="Connecté en tant que: " data-en="Logged in as: ">Inloggad som: </span>
-                <span class="trainer-code-badge" id="trainer-badge"></span>
+                <span class="trainer-code-badge" id="trainer-badge">...</span>
             </div>
             <button class="btn-logout" id="btn-logout" data-sv="Logga ut" data-fr="Se déconnecter" data-en="Log out">Logga ut</button>
         </div>
@@ -833,62 +752,50 @@ class MatchApp {
         this.currentHomeDetailIdx = null;
         this.homeDetailCharts = {};
         this.positions = ['Läggare','Mittspelare','Skytt'];
-        this.codeBuffer = '';
         this.isOnline = navigator.onLine;
         this.fbRef = null;
     }
 
     // ---- BOOT ----
     init() {
-        this.setupKeypad();
         this.setupEventListeners();
 
         window.addEventListener('online', () => { this.isOnline = true; this.checkOnline(); this.syncOfflineData(); });
         window.addEventListener('offline', () => { this.isOnline = false; this.checkOnline(); });
 
-        // Hämta UID från Firebase Auth (nytt system) eller gammal tränarkod
-        const uid = localStorage.getItem('pt_trainer_code')
-                 || localStorage.getItem('petanque-lang-uid')
-                 || localStorage.getItem('trainer-code');
-        
-        if (uid) {
-            this.login(uid);
-        } else {
-            // Ingen inloggning - redirect till index
-            window.location.href = './index.html';
-        }
-
         this.checkOnline();
         langMgr.apply();
-    }
 
-    // ---- KEYPAD ----
-    setupKeypad() {
-        document.querySelectorAll('.key[data-char]').forEach(key => {
-            key.addEventListener('click', () => {
-                const ch = key.dataset.char;
-                if (ch === 'DEL') {
-                    this.codeBuffer = this.codeBuffer.slice(0,-1);
-                } else if (ch !== 'ENTER') {
-                    if (this.codeBuffer.length < 12) this.codeBuffer += ch;
+        // Firebase Auth — samma mönster som index.html
+        if (typeof firebase !== 'undefined' && firebase.auth) {
+            firebase.auth().onAuthStateChanged(user => {
+                if (user) {
+                    const uid = user.uid;
+                    localStorage.setItem('pt_trainer_code', uid);
+                    localStorage.setItem('trainer-code', uid);
+
+                    const badge = document.getElementById('trainer-badge');
+                    if (badge) badge.textContent = user.email || uid.substring(0, 8) + '...';
+
+                    this.login(uid);
+                } else {
+                    window.location.href = './index.html';
                 }
-                this.updateCodeDisplay();
             });
-        });
-        document.getElementById('btn-login').addEventListener('click', () => {
-            if (this.codeBuffer.length < 3) {
-                document.getElementById('login-error').textContent = 'Koden måste vara minst 3 tecken';
-                return;
+        } else {
+            // Fallback om Firebase inte laddat
+            const uid = localStorage.getItem('pt_trainer_code') || localStorage.getItem('trainer-code');
+            if (uid) {
+                const badge = document.getElementById('trainer-badge');
+                if (badge) badge.textContent = uid.substring(0, 8) + '...';
+                this.login(uid);
+            } else {
+                window.location.href = './index.html';
             }
-            this.login(this.codeBuffer);
-        });
+        }
     }
 
-    updateCodeDisplay() {
-        const d = document.getElementById('code-display');
-        d.textContent = this.codeBuffer.length ? this.codeBuffer : '_';
-        document.getElementById('login-error').textContent = '';
-    }
+
 
     // ---- LOGIN ----
     login(code) {
@@ -896,24 +803,7 @@ class MatchApp {
         this.trainerCode = code;
         localStorage.setItem('trainer-code', this.trainerCode);
 
-        const badge = document.getElementById('trainer-badge');
-        if (badge) {
-            // Visa förkortad UID direkt, uppdatera till email när Firebase Auth svarar
-            badge.textContent = this.trainerCode.length > 20
-                ? this.trainerCode.substring(0, 8) + '...'
-                : this.trainerCode;
-
-            if (typeof firebase !== 'undefined' && firebase.auth) {
-                firebase.auth().onAuthStateChanged(user => {
-                    if (user && user.email) {
-                        badge.textContent = user.email;
-                    }
-                });
-            }
-        }
-        
-        const screenLogin = document.getElementById('screen-login');
-        if (screenLogin) screenLogin.style.display = 'none';
+        // Badge sätts av setupApp() via onAuthStateChanged
         
         const screenSetup = document.getElementById('screen-setup');
         if (screenSetup) screenSetup.style.display = 'block';
@@ -934,12 +824,10 @@ class MatchApp {
         window.location.href = './index.html';
         this.trainerCode = null;
         this.history = [];
-        this.codeBuffer = '';
         localStorage.removeItem('trainer-code');
-        this.updateCodeDisplay();
         document.getElementById('screen-setup').style.display = 'none';
         document.getElementById('screen-match').style.display = 'none';
-        document.getElementById('screen-login').style.display = 'block';
+
     }
 
     // ---- FIREBASE LOAD ----
@@ -2373,8 +2261,7 @@ class MatchApp {
         
         doc.setFont(undefined,'normal'); doc.setFontSize(8);
         if (m.roundActions) {
-            Object.keys(m.roundActions).sort((a,b) => +a - +b).forEach(roundNum => {
-                if (y > 270) { doc.addPage(); y = 15; }
+            Object
                 
                 doc.setFont(undefined,'bold');
                 doc.text(`Omgång ${roundNum}:`, 15, y); y+=4;
@@ -2431,18 +2318,7 @@ class MatchApp {
         // Per-omgång data
         if (m.roundActions) {
             const date = new Date(m.startTime || Date.now()).toLocaleDateString('sv-SE');
-            Object.keys(m.roundActions).sort((a,b) => +a - +b).forEach(roundNum => {
-                const roundAct = m.roundActions[roundNum];
-                m.players.forEach((p, idx) => {
-                    const actions = roundAct[idx] || [];
-                    const laggActions = actions.filter(a => a.type === 'lagg');
-                    const skottActions = actions.filter(a => a.type === 'skott');
-                    const laggHit = laggActions.filter(a => a.hit).length;
-                    const skottHit = skottActions.filter(a => a.hit).length;
-                    const laggPct = laggActions.length > 0 ? Math.round(laggHit/laggActions.length*100) : 0;
-                    const skottPct = skottActions.length > 0 ? Math.round(skottHit/skottActions.length*100) : 0;
-                    
-                    csv += `"${m.name}","${m.team || '-'}","${date}","${p.name}","${p.position}",${roundNum},${laggHit},${laggActions.length},${laggPct},${skottHit},${skottActions.length},${skottPct}\n`;
+            Object","${m.team || '-'}","${date}","${p.name}","${p.position}",${roundNum},${laggHit},${laggActions.length},${laggPct},${skottHit},${skottActions.length},${skottPct}\n`;
                 });
             });
         }
