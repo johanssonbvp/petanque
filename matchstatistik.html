@@ -572,13 +572,13 @@
     <!-- ===== SETUP + HOME SCREEN ===== -->
     <div id="screen-setup" style="display:none;">
 
-        <!-- Trainer badge -->
+        <!-- Login bar -->
         <div class="trainer-display">
             <div>
                 <span style="color:#999; font-size:12px;" data-sv="Inloggad som: " data-fr="Connecté en tant que: " data-en="Logged in as: ">Inloggad som: </span>
                 <span class="trainer-code-badge" id="trainer-badge"></span>
             </div>
-            <button class="btn-logout" id="btn-logout" data-sv="Byt kod" data-fr="Changer le code" data-en="Change code">Byt kod</button>
+            <button class="btn-logout" id="btn-logout" data-sv="Logga ut" data-fr="Se déconnecter" data-en="Log out">Logga ut</button>
         </div>
 
         <div class="card">
@@ -897,9 +897,17 @@ class MatchApp {
         localStorage.setItem('trainer-code', this.trainerCode);
 
         const badge = document.getElementById('trainer-badge');
-        if (badge) badge.textContent = this.trainerCode.length > 20 
-            ? this.trainerCode.substring(0, 8) + '...' 
-            : this.trainerCode;
+        // Visa email om inloggad via Firebase Auth, annars förkortad UID
+        if (badge) {
+            const fbUser = typeof firebase !== 'undefined' && firebase.auth ? firebase.auth().currentUser : null;
+            if (fbUser && fbUser.email) {
+                badge.textContent = fbUser.email;
+            } else {
+                badge.textContent = this.trainerCode.length > 20
+                    ? this.trainerCode.substring(0, 8) + '...'
+                    : this.trainerCode;
+            }
+        }
         
         const screenLogin = document.getElementById('screen-login');
         if (screenLogin) screenLogin.style.display = 'none';
