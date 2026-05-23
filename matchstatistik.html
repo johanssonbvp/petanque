@@ -45,7 +45,16 @@
         .meta-value { font-size: 17px; font-weight: 700; color: #e8ff47; }
 
         /* LANG TOGGLE */
-        .lang-toggle {
+        .lang-btn-match {
+        background: transparent; border: 1px solid #333;
+        color: #999; border-radius: 6px;
+        padding: 4px 8px; font-size: 0.75rem;
+        cursor: pointer; transition: all 0.2s;
+    }
+    .lang-btn-match.active {
+        border-color: var(--accent); color: var(--accent);
+    }
+    .lang-toggle {
             position: fixed; top: 1rem; right: 1rem;
             padding: 0.4rem 0.9rem;
             background: rgba(232,255,71,0.1);
@@ -481,12 +490,17 @@
 </head>
 <body>
 
-<button class="lang-toggle" id="lang-btn">🇸🇪 SV</button>
-
 <div class="container">
 
-    <header>
-        <h1 data-sv="Matchstatistik" data-fr="Statistiques de match" data-en="Match Statistics">Matchstatistik</h1>
+    <header style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px 0;">
+        <a href="./index.html" style="color:#ccc;text-decoration:none;font-size:0.85rem;padding:4px 8px;border-radius:8px;border:1px solid #333;">← <span data-sv="Hem" data-en="Home" data-fr="Accueil">Hem</span></a>
+        <h1 data-sv="Matchstatistik" data-fr="Statistiques de match" data-en="Match Statistics" style="margin:0;font-size:1.1rem;">Matchstatistik</h1>
+        <div style="display:flex;gap:4px;">
+            <button class="lang-btn-match" id="ms-btn-sv" onclick="langMgr.set('sv')">🇸🇪 SV</button>
+            <button class="lang-btn-match" id="ms-btn-en" onclick="langMgr.set('en')">🇬🇧 EN</button>
+            <button class="lang-btn-match" id="ms-btn-fr" onclick="langMgr.set('fr')">🇫🇷 FR</button>
+        </div>
+    </header>
         <div class="match-meta">
             <div class="meta-item">
                 <div class="meta-label">MATCH-ID</div>
@@ -777,9 +791,12 @@ const langMgr = {
             if (el.tagName === 'INPUT') el.placeholder = t;
             else el.textContent = t;
         });
-        const flags = {sv:'🇸🇪 SV', en:'🇬🇧 EN', es:'🇫🇷 FR'};
-        const btn = document.getElementById('lang-btn');
-        if (btn) btn.textContent = flags[this.lang];
+        ['sv','en','fr'].forEach(l => {
+            const b = document.getElementById('ms-btn-' + l);
+            if (b) {
+                b.classList.toggle('active', l === this.lang);
+            }
+        });
     },
     toggle() {
         const i = LANGS.indexOf(this.lang);
@@ -788,7 +805,7 @@ const langMgr = {
         this.apply();
     }
 };
-document.getElementById('lang-btn').addEventListener('click', () => langMgr.toggle());
+// Språkval hanteras av onclick på ms-btn-sv/en/fr
 
 // ============================================================
 // MAIN APP

@@ -221,7 +221,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 </div>
 
 <div class="tab-bar">
-  <button class="tab-btn active" onclick="switchTab('match')" id="tab-match" data-sv="Match" data-en="Match" data-fr="Match">Match</button>
+  <button class="tab-btn active" onclick="switchTab('match')" id="tab-match" data-sv="Match" data-en="Match">Match</button>
   <button class="tab-btn" onclick="switchTab('stats')" id="tab-stats" data-sv="Historik" data-fr="Historique" data-en="History">Historik</button>
 </div>
 
@@ -231,26 +231,26 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
   <!-- SETUP -->
   <div id="setupView">
-    <p class="section-label" data-sv="Spelformat" data-en="Format" data-fr="Format">Spelformat</p>
+    <p class="section-label" data-sv="Spelformat" data-en="Format">Spelformat</p>
     <div class="format-grid">
       <div class="format-card selected" data-fmt="singles" onclick="selectFormat(this)">
         <div class="format-icon">👤</div>
-        <div class="format-name" data-sv="Singel" data-en="Singles" data-fr="Tête-à-tête">Singel</div>
-        <div class="format-desc" data-sv="1 mot 1" data-en="1 vs 1" data-fr="1 contre 1">1 mot 1</div>
+        <div class="format-name" data-sv="Singel" data-en="Singles">Singel</div>
+        <div class="format-desc" data-sv="1 mot 1" data-en="1 vs 1">1 mot 1</div>
       </div>
       <div class="format-card" data-fmt="doubles" onclick="selectFormat(this)">
         <div class="format-icon">👥</div>
-        <div class="format-name" data-sv="Lag" data-en="Teams" data-fr="Équipes">Lag</div>
-        <div class="format-desc" data-sv="2 mot 2 / 3 mot 3" data-en="2 vs 2 / 3 vs 3" data-fr="2 c. 2 / 3 c. 3">2 mot 2 / 3 mot 3</div>
+        <div class="format-name" data-sv="Lag" data-en="Teams">Lag</div>
+        <div class="format-desc" data-sv="2 mot 2 / 3 mot 3" data-en="2 vs 2 / 3 vs 3">2 mot 2 / 3 mot 3</div>
       </div>
     </div>
 
-    <p class="section-label" data-sv="Spelare / Lag 1" data-en="Player / Team 1" data-fr="Joueur / Équipe 1">Spelare / Lag 1</p>
+    <p class="section-label" data-sv="Spelare / Lag 1" data-en="Player / Team 1">Spelare / Lag 1</p>
     <div class="player-inputs">
       <div class="player-row">
         <div class="player-row-top">
           <div class="player-dot dot-a"></div>
-          <span class="player-label" data-sv="NAMN" data-en="NAME" data-fr="NOM">NAMN</span>
+          <span class="player-label" data-sv="NAMN" data-en="NAME">NAMN</span>
         </div>
         <input class="name-input" id="nameA1" type="text" maxlength="20" data-placeholder-sv="Spelare 1" data-placeholder-en="Player 1" placeholder="Spelare 1">
       </div>
@@ -258,19 +258,19 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
         <div class="player-row">
           <div class="player-row-top">
             <div class="player-dot dot-a"></div>
-            <span class="player-label" data-sv="LAGKAMRAT" data-en="TEAMMATE" data-fr="COÉQUIPIER">LAGKAMRAT</span>
+            <span class="player-label" data-sv="LAGKAMRAT" data-en="TEAMMATE">LAGKAMRAT</span>
           </div>
           <input class="name-input" id="nameA2" type="text" maxlength="20" data-placeholder-sv="Spelare 2" data-placeholder-en="Player 2" placeholder="Spelare 2">
         </div>
       </div>
     </div>
 
-    <p class="section-label" style="margin-top:20px;" data-sv="Spelare / Lag 2" data-en="Player / Team 2" data-fr="Joueur / Équipe 2">Spelare / Lag 2</p>
+    <p class="section-label" style="margin-top:20px;" data-sv="Spelare / Lag 2" data-en="Player / Team 2">Spelare / Lag 2</p>
     <div class="player-inputs">
       <div class="player-row">
         <div class="player-row-top">
           <div class="player-dot dot-b"></div>
-          <span class="player-label" data-sv="NAMN" data-en="NAME" data-fr="NOM">NAMN</span>
+          <span class="player-label" data-sv="NAMN" data-en="NAME">NAMN</span>
         </div>
         <input class="name-input" id="nameB1" type="text" maxlength="20" data-placeholder-sv="Spelare 2" data-placeholder-en="Player 2" placeholder="Spelare 2">
       </div>
@@ -278,7 +278,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
         <div class="player-row">
           <div class="player-row-top">
             <div class="player-dot dot-b"></div>
-            <span class="player-label" data-sv="LAGKAMRAT" data-en="TEAMMATE" data-fr="COÉQUIPIER">LAGKAMRAT</span>
+            <span class="player-label" data-sv="LAGKAMRAT" data-en="TEAMMATE">LAGKAMRAT</span>
           </div>
           <input class="name-input" id="nameB2" type="text" maxlength="20" data-placeholder-sv="Spelare 3" data-placeholder-en="Player 3" placeholder="Spelare 3">
         </div>
@@ -287,7 +287,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
     <div class="settings-row" style="margin-top:24px;">
       <div class="setting-box">
-        <div class="setting-label" data-sv="Bollar per spelare" data-en="Balls per player" data-fr="Boules par joueur">Bollar per spelare</div>
+        <div class="setting-label" data-sv="Bollar per spelare" data-en="Balls per player">Bollar per spelare</div>
         <div class="setting-ctrl">
           <button class="ctrl-btn" onclick="adjBoules(-1)">−</button>
           <span class="ctrl-val" id="boulesVal">3</span>
@@ -295,7 +295,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
         </div>
       </div>
       <div class="setting-box">
-        <div class="setting-label" data-sv="Mål (poäng)" data-en="Target (pts)" data-fr="Objectif (pts)">Mål (poäng)</div>
+        <div class="setting-label" data-sv="Mål (poäng)" data-en="Target (pts)">Mål (poäng)</div>
         <div class="setting-ctrl">
           <button class="ctrl-btn" onclick="adjTarget(-1)">−</button>
           <span class="ctrl-val" id="targetVal">13</span>
@@ -339,19 +339,19 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     </div>
 
     <div class="round-input-card">
-      <div class="round-input-label" data-sv="Vem vann rundan?" data-en="Who won the round?" data-fr="Qui a gagné la manche?">Vem vann rundan?</div>
+      <div class="round-input-label" data-sv="Vem vann rundan?" data-en="Who won the round?">Vem vann rundan?</div>
       <div class="winner-btns">
         <div class="winner-btn" id="winBtnA" onclick="selectWinner('a')">
           <span class="winner-btn-name winner-btn-name-a" id="winBtnAName">LAG A</span>
-          <span class="winner-btn-sub" data-sv="Tryck för att välja" data-en="Tap to select" data-fr="Appuyez pour choisir">Tryck för att välja</span>
+          <span class="winner-btn-sub" data-sv="Tryck för att välja" data-en="Tap to select">Tryck för att välja</span>
         </div>
         <div class="winner-btn" id="winBtnB" onclick="selectWinner('b')">
           <span class="winner-btn-name winner-btn-name-b" id="winBtnBName">LAG B</span>
-          <span class="winner-btn-sub" data-sv="Tryck för att välja" data-en="Tap to select" data-fr="Appuyez pour choisir">Tryck för att välja</span>
+          <span class="winner-btn-sub" data-sv="Tryck för att välja" data-en="Tap to select">Tryck för att välja</span>
         </div>
       </div>
 
-      <div class="pts-label" data-sv="Antal poäng denna runda" data-en="Points this round" data-fr="Points cette manche">Antal poäng denna runda</div>
+      <div class="pts-label" data-sv="Antal poäng denna runda" data-en="Points this round">Antal poäng denna runda</div>
       <div class="pts-row">
         <button class="pts-minus" onclick="adjRoundPts(-1)">−</button>
         <span class="pts-val" id="roundPtsVal">1</span>
@@ -359,7 +359,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       </div>
 
       <button class="confirm-btn" id="confirmBtn" onclick="confirmRound()" disabled
-        data-sv="Bekräfta runda" data-en="Confirm Round" data-fr="Confirmer la manche">Bekräfta runda</button>
+        data-sv="Bekräfta runda" data-en="Confirm Round">Bekräfta runda</button>
     </div>
 
     <div class="rounds-wrap">
@@ -377,8 +377,8 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <div class="tab-content" id="tab-stats-content">
 <div class="wrap">
   <div class="stats-top">
-    <h2 data-sv="Matchhistorik" data-en="Match History">Matchhistorik</h2>
-    <button class="clear-btn" onclick="confirmClear()" data-sv="Rensa" data-en="Clear">Rensa</button>
+    <h2 data-sv="Matchhistorik" data-en="Match History" data-fr="Historique des parties">Matchhistorik</h2>
+    <button class="clear-btn" onclick="confirmClear()" data-sv="Rensa" data-en="Clear" data-fr="Effacer">Rensa</button>
   </div>
   <div class="stats-nav">
     <button class="snav-btn active" onclick="switchStatsTab('overview')" data-sv="Översikt" data-fr="Aperçu" data-en="Overview">Översikt</button>
@@ -390,7 +390,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <div class="ov-card"><span class="ov-val" id="ovRounds" style="color:var(--mid)">0</span><span class="ov-lbl" data-sv="Rundor totalt" data-en="Total Rounds">Rundor totalt</span></div>
       <div class="ov-card"><span class="ov-val" id="ovAvgRounds" style="color:var(--a)">–</span><span class="ov-lbl" data-sv="Snitt rundor" data-en="Avg Rounds">Snitt rundor</span></div>
     </div>
-    <p class="section-label" data-sv="Senaste match" data-en="Latest Match">Senaste match</p>
+    <p class="section-label" data-sv="Senaste match" data-en="Latest Match" data-fr="Dernier match">Senaste match</p>
     <div id="latestMatch"></div>
   </div>
   <div class="stats-section" id="stats-history">
@@ -412,7 +412,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="sheet-stat"><span data-sv="Störst ledning" data-en="Biggest lead">Störst ledning</span><span class="sv" id="winLead">–</span></div>
     <div class="sheet-actions">
       <button class="mbtn mbtn-accent" onclick="closeWin(true)" data-sv="Ny match" data-fr="Nouveau match" data-en="New Match">Ny match</button>
-      <button class="mbtn mbtn-ghost" onclick="closeWin(false)" data-sv="Se historik" data-en="View History">Se historik</button>
+      <button class="mbtn mbtn-ghost" onclick="closeWin(false)" data-sv="Se historik" data-en="View History" data-fr="Voir l'historique">Se historik</button>
     </div>
   </div>
 </div>
@@ -420,8 +420,8 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <!-- ABANDON -->
 <div class="overlay" id="abandonOverlay">
   <div class="sheet">
-    <h2 data-sv="Avbryt match?" data-en="Abandon match?">Avbryt match?</h2>
-    <p class="sheet-sub" data-sv="Pågående match sparas inte." data-en="Ongoing match will not be saved.">Pågående match sparas inte.</p>
+    <h2 data-sv="Avbryt match?" data-en="Abandon match?" data-fr="Abandonner la partie?">Avbryt match?</h2>
+    <p class="sheet-sub" data-sv="Pågående match sparas inte." data-en="Ongoing match will not be saved." data-fr="La partie en cours ne sera pas sauvegardée.">Pågående match sparas inte.</p>
     <div class="sheet-actions">
       <button class="mbtn mbtn-danger" onclick="abandonMatch()" data-sv="Ja, avbryt" data-en="Yes, abandon">Ja, avbryt</button>
       <button class="mbtn mbtn-ghost" onclick="document.getElementById('abandonOverlay').classList.remove('show')" data-sv="Fortsätt spela" data-en="Keep playing">Fortsätt spela</button>
@@ -433,7 +433,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <div class="overlay" id="clearOverlay">
   <div class="sheet">
     <h2 data-sv="Rensa historik?" data-fr="Effacer l'historique?" data-en="Clear history?">Rensa historik?</h2>
-    <p class="sheet-sub" data-sv="All matchdata raderas permanent." data-en="All match data will be permanently deleted.">All matchdata raderas permanent.</p>
+    <p class="sheet-sub" data-sv="All matchdata raderas permanent." data-en="All match data will be permanently deleted." data-fr="Toutes les données seront supprimées.">All matchdata raderas permanent.</p>
     <div class="sheet-actions">
       <button class="mbtn mbtn-danger" onclick="clearAll()" data-sv="Ja, rensa" data-fr="Oui, effacer" data-en="Yes, clear">Ja, rensa</button>
       <button class="mbtn mbtn-ghost" onclick="document.getElementById('clearOverlay').classList.remove('show')" data-sv="Avbryt" data-fr="Annuler" data-en="Cancel">Avbryt</button>
@@ -448,22 +448,12 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 let lang = localStorage.getItem('petanque-lang') || localStorage.getItem('pt_lang') || localStorage.getItem('lang') || 'sv';
 function applyLang() {
   document.querySelectorAll('[data-sv]').forEach(el => {
-    const txt = lang==='fr' ? (el.dataset.fr || el.dataset.en || el.dataset.sv)
-              : lang==='en' ? (el.dataset.en || el.dataset.sv)
-              : el.dataset.sv;
-    if (txt != null) el.textContent = txt;
+    el.textContent = lang==='sv' ? el.dataset.sv : el.dataset.en;
   });
   document.querySelectorAll('[data-placeholder-sv]').forEach(el => {
-    const ph = lang==='fr' ? (el.dataset.placeholderFr || el.dataset.placeholderEn || el.dataset.placeholderSv)
-             : lang==='en' ? (el.dataset.placeholderEn || el.dataset.placeholderSv)
-             : el.dataset.placeholderSv;
-    if (ph != null) el.placeholder = ph;
+    el.placeholder = lang==='sv' ? el.dataset.placeholderSv : el.dataset.placeholderEn;
   });
-  // Markera aktiv språkknapp
-  ['sv','en','fr'].forEach(l => {
-    const b = document.getElementById('btn-'+l);
-    if (b) b.style.borderColor = l===lang ? 'var(--accent)' : '';
-  });
+  document.getElementById('langBtn').textContent = lang==='sv' ? '🌐 EN' : '🌐 SV';
   document.documentElement.lang = lang;
 }
 function setLangApp(l) {
@@ -732,7 +722,7 @@ function renderStats() {
 
   const latest = document.getElementById('latestMatch');
   latest.innerHTML = matches.length ? buildMatchCard(matches[0])
-    : `<div class="empty-state"><div class="empty-icon">🏆</div><div class="empty-text">${lang==='sv'?'Inga matcher ännu':'No matches yet'}</div><div class="empty-sub">${lang==='sv'?'Starta en match för att se historik.':'Start a match to see history.'}</div></div>`;
+    : `<div class="empty-state"><div class="empty-icon">🏆</div><div class="empty-text">${lang==='fr'?'Aucune partie encore':lang==='en'?'No matches yet':'Inga matcher ännu'}</div><div class="empty-sub">${lang==='fr'?'Démarrez une partie pour voir l\'historique.':lang==='en'?'Start a match to see history.':'Starta en match för att se historik.'}</div></div>`;
 
   const hist = document.getElementById('matchHistory');
   hist.innerHTML = '';
@@ -788,5 +778,5 @@ function clearAll() {
     initSyncManager(firebaseConfig);
   }
 </script>
-</body>
+<script>const firebaseConfig={apiKey:"AIzaSyCwzdwGEjN5LVw3RSLz2dy7f70Reafbe2c",authDomain:"databas-serie.firebaseapp.com",databaseURL:"https://databas-serie-default-rtdb.europe-west1.firebasedatabase.app",projectId:"databas-serie",storageBucket:"databas-serie.firebasestorage.app",messagingSenderId:"672666417012",appId:"1:672666417012:web:93613783fe51cd2ce81e21"};if(typeof initSyncManager==="function"){initSyncManager(firebaseConfig);}</script></body>
 </html>

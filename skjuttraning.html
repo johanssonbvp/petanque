@@ -169,7 +169,13 @@ function renderEfficiency(history) {
     document.getElementById('eff-index-bar').style.background = indexColor;
     
     // Label baserat på index
-    const label = eff.index >= 80 ? 'Utmärkt' : eff.index >= 65 ? 'Bra' : eff.index >= 50 ? 'Medel' : eff.index >= 35 ? 'Under medel' : 'Behöver träning';
+    const grades = {
+        sv: ['Behöver träning','Under medel','Medel','Bra','Utmärkt'],
+        en: ['Needs training','Below average','Average','Good','Excellent'],
+        fr: ['Entraînement requis','Sous la moyenne','Moyen','Bien','Excellent']
+    };
+    const g = grades[lang] || grades.sv;
+    const label = eff.index >= 80 ? g[4] : eff.index >= 65 ? g[3] : eff.index >= 50 ? g[2] : eff.index >= 35 ? g[1] : g[0];
     document.getElementById('eff-index-label').textContent = label;
     
     // Uppdatera komponent-labels och värden
@@ -180,9 +186,11 @@ function renderEfficiency(history) {
     // Uppdatera labels
     const labels = document.querySelectorAll('.eff-row-label');
     const icons = document.querySelectorAll('.eff-row-icon');
-    if (labels[0]) labels[0].textContent = 'Poängvärde';
-    if (labels[1]) labels[1].textContent = 'Återhämtning';
-    if (labels[2]) labels[2].textContent = 'Startskott';
+    const effLabels = {sv:['Poängvärde','Återhämtning','Startskott'],en:['Score value','Recovery','Opening shots'],fr:['Valeur score','Récupération','Premiers tirs']};
+    const el = effLabels[lang] || effLabels.sv;
+    if (labels[0]) labels[0].textContent = el[0];
+    if (labels[1]) labels[1].textContent = el[1];
+    if (labels[2]) labels[2].textContent = el[2];
     if (icons[0]) icons[0].textContent = '🎯';
     if (icons[1]) icons[1].textContent = '↩️';
     if (icons[2]) icons[2].textContent = '⚡';
@@ -200,7 +208,9 @@ function renderEfficiency(history) {
     }, 300);
     
     // Tooltip
-    const progText = eff.progEff > 60 ? '📈 Positiv trend' : eff.progEff < 40 ? '📉 Negativ trend' : '➡️ Stabil trend';
+    const trendTexts = {sv:['📉 Negativ trend','➡️ Stabil trend','📈 Positiv trend'],en:['📉 Negative trend','➡️ Stable trend','📈 Positive trend'],fr:['📉 Tendance négative','➡️ Tendance stable','📈 Tendance positive']};
+    const tt = trendTexts[lang] || trendTexts.sv;
+    const progText = eff.progEff > 60 ? tt[2] : eff.progEff < 40 ? tt[0] : tt[1];
     const seqNote = eff.hasSeqData 
         ? `${eff.seqSessions} sessioner med sekvensdata`
         : 'Ingen sekvensdata ännu - fortsätt träna!';
