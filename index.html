@@ -659,25 +659,6 @@
   </div>
 </div>
 
-<!-- LOCAL DATA MIGRATION MODAL -->
-<div id="local-migration-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.97);z-index:10002;align-items:center;justify-content:center;">
-  <div style="background:#0f1419;padding:32px 24px;border-radius:16px;border:1px solid #1a1f2e;text-align:center;max-width:440px;width:90%;margin:20px auto;">
-    <div style="font-size:40px;margin-bottom:12px;">📱➡️☁️</div>
-    <h2 style="color:#e8ff47;font-size:20px;margin-bottom:8px;">Vi hittade träningsdata!</h2>
-    <p style="color:#8a8a9e;font-size:13px;margin-bottom:16px;line-height:1.6;">
-      Det finns sparad träningsdata på den här enheten. Vill du koppla den till ditt nya konto så att den säkerhetskopieras i molnet?
-    </p>
-    <div id="local-migration-summary" style="background:#080810;border-radius:8px;padding:12px;margin-bottom:20px;text-align:left;font-size:13px;color:#ccc;line-height:1.8;"></div>
-    <button onclick="doLocalMigration()" style="width:100%;padding:14px;background:#e8ff47;color:#080810;border:none;border-radius:8px;font-weight:800;font-size:15px;cursor:pointer;margin-bottom:10px;">
-      ✅ Ja, flytta min data till molnet
-    </button>
-    <button onclick="skipLocalMigration()" style="width:100%;padding:11px;background:transparent;border:1px solid #1a1f2e;color:#8a8a9e;border-radius:8px;font-size:14px;cursor:pointer;">
-      Nej tack, börja om från början
-    </button>
-    <div id="local-migration-status" style="margin-top:12px;font-size:13px;min-height:20px;"></div>
-  </div>
-</div>
-
 <!-- OLD LOGIN MODAL (kept for compatibility, hidden) -->
 <div id="login-modal" style="display:none;">
   <input type="text" id="trainer-code-input">
@@ -877,9 +858,24 @@
         <span class="faq-toggle">▼</span>
       </div>
       <div class="faq-answer">
-        <p data-sv="Nej! Petanque Träning är helt gratis. Ingen prenumeration, inga dolda kostnader. Allt du behöver för att spåra din utveckling är inkluderat." 
+        <p data-sv="Nej! Petanque Träning är helt gratis. Ingen prenumeration, inga dolda kostnader. Allt du behöver för att spåra din utveckling är inkluderat."
+           data-fr="Non ! Pétanque Entraînement est totalement gratuit. Pas d'abonnement, pas de frais cachés."
            data-en="No! Petanque Training is completely free. No subscription, no hidden costs. Everything you need to track your progress is included.">
           Nej! Petanque Träning är helt gratis. Ingen prenumeration, inga dolda kostnader. Allt du behöver för att spåra din utveckling är inkluderat.
+        </p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+        <span data-sv="Behöver jag skapa ett konto?" data-fr="Dois-je créer un compte?" data-en="Do I need to create an account?">Behöver jag skapa ett konto?</span>
+        <span class="faq-toggle">▼</span>
+      </div>
+      <div class="faq-answer">
+        <p data-sv="Ja, för att använda Matchstatistik behöver du ett gratis konto med email och lösenord. Det tar bara en minut och gör att din data säkerhetskopieras i molnet och finns tillgänglig på alla dina enheter."
+           data-fr="Oui, pour utiliser les Statistiques de match, vous avez besoin d'un compte gratuit. Cela prend une minute et permet de sauvegarder vos données dans le cloud."
+           data-en="Yes, to use Match Statistics you need a free account with email and password. It only takes a minute and ensures your data is backed up in the cloud and available on all your devices.">
+          Ja, för att använda Matchstatistik behöver du ett gratis konto med email och lösenord. Det tar bara en minut och gör att din data säkerhetskopieras i molnet och finns tillgänglig på alla dina enheter.
         </p>
       </div>
     </div>
@@ -890,22 +886,24 @@
         <span class="faq-toggle">▼</span>
       </div>
       <div class="faq-answer">
-        <p data-sv="Ja! Appen är en PWA (Progressive Web App) som fungerar offline. Dina data sparas lokalt på enheten och synkroniseras när du är online igen." 
-           data-en="Yes! The app is a PWA (Progressive Web App) that works offline. Your data is saved locally on your device and synced when you're online again.">
-          Ja! Appen är en PWA (Progressive Web App) som fungerar offline. Dina data sparas lokalt på enheten och synkroniseras när du är online igen.
+        <p data-sv="Ja! Appen fungerar offline för skjutträning, läggträning, precisionsskytte och dagbok. Data sparas lokalt och laddas upp till molnet automatiskt när du är online igen. Matchstatistik kräver internetuppkoppling."
+           data-fr="Oui ! L'application fonctionne hors ligne pour l'entraînement au tir, au pointé, la précision et le journal. Les données sont sauvegardées localement et synchronisées automatiquement. Les statistiques de match nécessitent une connexion."
+           data-en="Yes! The app works offline for shooting training, pointing, precision shooting and the diary. Data is saved locally and automatically synced to the cloud when you're back online. Match Statistics requires an internet connection.">
+          Ja! Appen fungerar offline för skjutträning, läggträning, precisionsskytte och dagbok. Data sparas lokalt och laddas upp till molnet automatiskt när du är online igen. Matchstatistik kräver internetuppkoppling.
         </p>
       </div>
     </div>
 
     <div class="faq-item">
       <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
-        <span data-sv="Vilka webbläsare stöds?" data-fr="Quels navigateurs sont pris en charge?" data-en="Which browsers are supported?">Vilka webbläsare stöds?</span>
+        <span data-sv="Kan jag använda appen på flera enheter?" data-fr="Puis-je utiliser l'application sur plusieurs appareils?" data-en="Can I use the app on multiple devices?">Kan jag använda appen på flera enheter?</span>
         <span class="faq-toggle">▼</span>
       </div>
       <div class="faq-answer">
-        <p data-sv="Appen fungerar på de flesta moderna webbläsare – Chrome, Firefox, Safari, Edge. Det fungerar bäst på mobil, men även på dator!" 
-           data-en="The app works on most modern browsers – Chrome, Firefox, Safari, Edge. It works best on mobile, but also on desktop!">
-          Appen fungerar på de flesta moderna webbläsare – Chrome, Firefox, Safari, Edge. Det fungerar bäst på mobil, men även på dator!
+        <p data-sv="Ja! När du loggar in med ditt konto synkroniseras din data automatiskt mellan alla enheter. Logga in med samma email på din telefon, surfplatta eller dator så finns all statistik tillgänglig."
+           data-fr="Oui ! Lorsque vous vous connectez avec votre compte, vos données sont automatiquement synchronisées entre tous vos appareils."
+           data-en="Yes! When you log in with your account, your data is automatically synced across all your devices. Log in with the same email on your phone, tablet or computer and all your statistics will be available.">
+          Ja! När du loggar in med ditt konto synkroniseras din data automatiskt mellan alla enheter. Logga in med samma email på din telefon, surfplatta eller dator så finns all statistik tillgänglig.
         </p>
       </div>
     </div>
@@ -916,9 +914,10 @@
         <span class="faq-toggle">▼</span>
       </div>
       <div class="faq-answer">
-        <p data-sv="Du kan använda den direkt i webbläsaren eller installera den som en egen app. På iOS/Android, se efter en 'Lägg till på hemskärm'-knapp i webbläsarens meny." 
-           data-en="You can use it directly in your browser or install it as a standalone app. On iOS/Android, look for an 'Add to Home Screen' button in your browser menu.">
-          Du kan använda den direkt i webbläsaren eller installera den som en egen app. På iOS/Android, se efter en 'Lägg till på hemskärm'-knapp i webbläsarens meny.
+        <p data-sv="Du kan använda appen direkt i webbläsaren eller installera den på hemskärmen. På iPhone: tryck på dela-ikonen i Safari och välj 'Lägg till på hemskärmen'. På Android: tryck på menyn i Chrome och välj 'Lägg till på startskärmen'."
+           data-fr="Vous pouvez utiliser l'application directement dans le navigateur ou l'installer sur l'écran d'accueil. Sur iPhone : appuyez sur l'icône de partage dans Safari et choisissez 'Sur l'écran d'accueil'. Sur Android : appuyez sur le menu dans Chrome et choisissez 'Ajouter à l'écran d'accueil'."
+           data-en="You can use the app directly in your browser or install it on your home screen. On iPhone: tap the share icon in Safari and select 'Add to Home Screen'. On Android: tap the menu in Chrome and select 'Add to Home Screen'.">
+          Du kan använda appen direkt i webbläsaren eller installera den på hemskärmen. På iPhone: tryck på dela-ikonen i Safari och välj 'Lägg till på hemskärmen'. På Android: tryck på menyn i Chrome och välj 'Lägg till på startskärmen'.
         </p>
       </div>
     </div>
@@ -929,12 +928,28 @@
         <span class="faq-toggle">▼</span>
       </div>
       <div class="faq-answer">
-        <p data-sv="Din data sparas lokalt på din enhet och krypteras. Vi samlar inte in personlig information eller använder dig för reklamändamål." 
-           data-en="Your data is saved locally on your device and encrypted. We don't collect personal information or use you for advertising purposes.">
-          Din data sparas lokalt på din enhet och krypteras. Vi samlar inte in personlig information eller använder dig för reklamändamål.
+        <p data-sv="Ja. Din data lagras säkert i Firebase (Google Cloud) och är kopplad till ditt personliga konto. Vi samlar inte in personlig information, säljer inte data och visar inga annonser."
+           data-fr="Oui. Vos données sont stockées de manière sécurisée dans Firebase (Google Cloud) et liées à votre compte personnel. Nous ne collectons pas d'informations personnelles et ne vendons pas vos données."
+           data-en="Yes. Your data is securely stored in Firebase (Google Cloud) and linked to your personal account. We don't collect personal information, sell data or show ads.">
+          Ja. Din data lagras säkert i Firebase (Google Cloud) och är kopplad till ditt personliga konto. Vi samlar inte in personlig information, säljer inte data och visar inga annonser.
         </p>
       </div>
     </div>
+
+    <div class="faq-item">
+      <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+        <span data-sv="Vilka webbläsare stöds?" data-fr="Quels navigateurs sont pris en charge?" data-en="Which browsers are supported?">Vilka webbläsare stöds?</span>
+        <span class="faq-toggle">▼</span>
+      </div>
+      <div class="faq-answer">
+        <p data-sv="Appen fungerar på alla moderna webbläsare — Chrome, Safari, Firefox och Edge. Den är optimerad för mobil men fungerar även utmärkt på dator och surfplatta."
+           data-fr="L'application fonctionne sur tous les navigateurs modernes — Chrome, Safari, Firefox et Edge. Elle est optimisée pour mobile mais fonctionne aussi très bien sur ordinateur."
+           data-en="The app works on all modern browsers — Chrome, Safari, Firefox and Edge. It's optimized for mobile but also works great on desktop and tablet.">
+          Appen fungerar på alla moderna webbläsare — Chrome, Safari, Firefox och Edge. Den är optimerad för mobil men fungerar även utmärkt på dator och surfplatta.
+        </p>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -942,7 +957,7 @@
 <footer>
   <div class="footer-links">
     <a href="https://github.com/johanssonbvp/skyttetraning" target="_blank">GitHub</a>
-    <a href="mailto:par@example.com">Kontakt</a>
+    <a href="mailto:info@petanquetraning.se">Kontakt</a>
     <a href="#privacy">Integritet</a>
   </div>
   <p data-sv="Gjord med ❤️ av Pär Johansson | © 2026 Petanque Träning" data-fr="Fait avec ❤️ par Pär Johansson | © 2026 Pétanque Entraînement" 
@@ -1183,120 +1198,6 @@ async function doMigration() {
   }
 }
 
-// ============================================================
-// LOKAL DATA MIGRATION
-// ============================================================
-
-// Kolla vilken lokal data som finns
-function checkForLocalData() {
-  const keys = {
-    'pt_h': 'Skjutträning',
-    'pt_lagg_history': 'Läggträning', 
-    'pt_dagbok': 'Träningsdagbok',
-    'pt_precision_v2': 'Precisionsskytte'
-  };
-  const found = {};
-  for (const [key, label] of Object.entries(keys)) {
-    try {
-      const val = localStorage.getItem(key);
-      if (val) {
-        const parsed = JSON.parse(val);
-        const count = Array.isArray(parsed) ? parsed.length : Object.keys(parsed).length;
-        if (count > 0) found[key] = { label, count, data: parsed };
-      }
-    } catch(e) {}
-  }
-  return Object.keys(found).length > 0 ? found : null;
-}
-
-// Visa modal med sammanfattning av hittad data
-function showLocalMigrationModal() {
-  const data = checkForLocalData();
-  if (!data) return;
-
-  const summaryEl = document.getElementById('local-migration-summary');
-  if (summaryEl) {
-    summaryEl.innerHTML = Object.values(data).map(d => 
-      `✅ <strong style="color:#fff">${d.label}</strong>: ${d.count} poster hittade`
-    ).join('<br>');
-  }
-  document.getElementById('local-migration-modal').style.display = 'flex';
-}
-
-// Flytta lokal data till Firebase
-async function doLocalMigration() {
-  const statusEl = document.getElementById('local-migration-status');
-  const user = firebase.auth().currentUser;
-  if (!user) return;
-
-  statusEl.style.color = '#e8ff47';
-  statusEl.textContent = 'Flyttar din data...';
-
-  try {
-    const data = checkForLocalData();
-    if (!data) { skipLocalMigration(); return; }
-
-    // Firebase-sökvägar per nyckel
-    const fbPaths = {
-      'pt_h': 'shooting',
-      'pt_lagg_history': 'lagg',
-      'pt_dagbok': 'dagbok',
-      'pt_precision_v2': 'precision'
-    };
-
-    let moved = 0;
-    for (const [lsKey, info] of Object.entries(data)) {
-      const fbPath = fbPaths[lsKey];
-      if (fbPath) {
-        await firebase.database()
-          .ref('coaches/' + user.uid + '/localData/' + fbPath)
-          .set(info.data);
-        moved++;
-      }
-    }
-
-    // Markera som migrerad
-    localStorage.setItem('pt_local_migrated_' + user.uid, new Date().toISOString());
-    await firebase.database().ref('coaches/' + user.uid + '/_meta').set({
-      email: user.email,
-      created: new Date().toISOString(),
-      localMigrated: true,
-      localMigratedDate: new Date().toISOString()
-    });
-
-    statusEl.style.color = '#4ade80';
-    statusEl.textContent = '✅ ' + moved + ' datatyper sparade i molnet!';
-
-    setTimeout(() => {
-      document.getElementById('local-migration-modal').style.display = 'none';
-      localStorage.setItem('pt_trainer_code', user.uid);
-      localStorage.setItem('trainer-code', user.uid);
-      onUserLoggedIn(user);
-    }, 1800);
-
-  } catch(e) {
-    console.error('Local migration error:', e);
-    statusEl.style.color = '#ff6b6b';
-    statusEl.textContent = 'Fel: ' + e.message + ' — din data finns kvar lokalt.';
-    setTimeout(() => {
-      document.getElementById('local-migration-modal').style.display = 'none';
-      skipLocalMigration();
-    }, 3000);
-  }
-}
-
-// Hoppa över lokal migration
-function skipLocalMigration() {
-  const user = firebase.auth().currentUser;
-  if (!user) return;
-  localStorage.setItem('pt_local_migrated_' + user.uid, 'skipped');
-  localStorage.setItem('pt_trainer_code', user.uid);
-  localStorage.setItem('trainer-code', user.uid);
-  document.getElementById('local-migration-modal').style.display = 'none';
-  // Visa gamla migration-modal (för tränarkod) om de vill
-  document.getElementById('migration-modal').style.display = 'flex';
-}
-
 // Hoppa över migrering
 function skipMigration() {
   const user = firebase.auth().currentUser;
@@ -1354,6 +1255,103 @@ function onUserLoggedIn(user) {
   
   // Starta auto-sync
   waitForFirebaseAndSync();
+
+  // Auto-restore: ladda ner Firebase-data till localStorage om lokalt är tomt
+  autoRestoreFromFirebase(uid);
+}
+
+async function autoRestoreFromFirebase(uid) {
+  // Mappning Firebase-sökväg → localStorage-nyckel
+  const restoreMap = {
+    'shooting/history':   { key: 'pt_h',              check: arr => Array.isArray(arr) && arr.length > 0 },
+    'pointing/history':   { key: 'pt_lagg_history',   check: arr => Array.isArray(arr) && arr.length > 0 },
+    'diary':              { key: 'pt_dagbok',          check: arr => Array.isArray(arr) && arr.length > 0 },
+    'precision/history':  { key: 'pt_precision_v2',   check: arr => Array.isArray(arr) && arr.length > 0 },
+    'pointing/current':   { key: 'pt_lagg_session',   check: v => v !== null },
+    'precision/current':  { key: 'pt_precision_session', check: v => v !== null },
+  };
+
+  let restored = 0;
+
+  for (const [fbPath, { key, check }] of Object.entries(restoreMap)) {
+    try {
+      // Kolla om det redan finns lokal data — skippa i så fall
+      const local = localStorage.getItem(key);
+      if (local) {
+        try {
+          const parsed = JSON.parse(local);
+          if (check(parsed)) continue; // Lokal data finns — inget att göra
+        } catch(e) {}
+      }
+
+      // Lokal data saknas — hämta från Firebase
+      const snap = await firebase.database()
+        .ref('coaches/' + uid + '/' + fbPath)
+        .once('value');
+      const fbData = snap.val();
+
+      if (fbData && check(fbData)) {
+        localStorage.setItem(key, JSON.stringify(fbData));
+        restored++;
+        console.log('[AutoRestore] Återställde', key, 'från Firebase');
+      }
+    } catch(e) {
+      console.warn('[AutoRestore] Kunde inte hämta', fbPath, e);
+    }
+  }
+
+  if (restored > 0) {
+    console.log('[AutoRestore] Återställde', restored, 'datatyper från Firebase');
+  }
+
+  // Efter restore — kolla om det finns lokal data som saknas i Firebase och ladda upp den
+  await autoBackupToFirebase(uid);
+}
+
+async function autoBackupToFirebase(uid) {
+  const backupMap = {
+    'pt_h':                { fbPath: 'shooting/history' },
+    'pt_lagg_history':     { fbPath: 'pointing/history' },
+    'pt_dagbok':           { fbPath: 'diary' },
+    'pt_precision_v2':     { fbPath: 'precision/history' },
+    'pt_lagg_session':     { fbPath: 'pointing/current' },
+    'pt_precision_session':{ fbPath: 'precision/current' },
+  };
+
+  let backed = 0;
+
+  for (const [lsKey, { fbPath }] of Object.entries(backupMap)) {
+    try {
+      const local = localStorage.getItem(lsKey);
+      if (!local) continue;
+
+      const localData = JSON.parse(local);
+      const localCount = Array.isArray(localData) ? localData.length : Object.keys(localData).length;
+      if (localCount === 0) continue;
+
+      // Kolla vad som finns i Firebase
+      const snap = await firebase.database()
+        .ref('coaches/' + uid + '/' + fbPath)
+        .once('value');
+      const fbData = snap.val();
+      const fbCount = fbData ? (Array.isArray(fbData) ? fbData.length : Object.keys(fbData).length) : 0;
+
+      // Ladda upp om lokalt har mer data
+      if (localCount > fbCount) {
+        await firebase.database()
+          .ref('coaches/' + uid + '/' + fbPath)
+          .set(localData);
+        backed++;
+        console.log('[AutoBackup] Laddade upp', lsKey, '(' + localCount + ' poster) till Firebase');
+      }
+    } catch(e) {
+      console.warn('[AutoBackup] Kunde inte ladda upp', lsKey, e);
+    }
+  }
+
+  if (backed > 0) {
+    console.log('[AutoBackup] Säkerhetskopierade', backed, 'datatyper till Firebase');
+  }
 }
 
 
@@ -1427,14 +1425,7 @@ window.addEventListener('DOMContentLoaded', function() {
           onUserLoggedIn(user);
         } else {
           document.getElementById('auth-modal').style.display = 'none';
-          // Kolla om det finns lokal träningsdata att migrera
-          const hasLocalData = checkForLocalData();
-          const alreadyMigratedLocal = localStorage.getItem('pt_local_migrated_' + user.uid);
-          if (hasLocalData && !alreadyMigratedLocal) {
-            showLocalMigrationModal();
-          } else {
-            document.getElementById('migration-modal').style.display = 'flex';
-          }
+          document.getElementById('migration-modal').style.display = 'flex';
         }
       } else {
         document.getElementById('auth-modal').style.display = 'none';
@@ -1864,5 +1855,37 @@ async function importAllData(event) {
     <button onclick="closeBackupMenu()" style="width: 100%; padding: 10px; background: transparent; color: #8a8a9e; border: none; cursor: pointer; margin-top: 10px;">Stäng</button>
   </div>
 </div>
+<script>
+// ============================================================
+// SERVICE WORKER - Registrering + automatisk uppdatering
+// ============================================================
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => {
+        console.log('[SW] Registrerad:', reg.scope);
+
+        // Kolla om ny version finns vid varje laddning
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          console.log('[SW] Ny version hittad, installerar...');
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              console.log('[SW] Ny version redo - aktiverar...');
+              newWorker.postMessage({ type: 'SKIP_WAITING' });
+            }
+          });
+        });
+      })
+      .catch(err => console.warn('[SW] Registrering misslyckades:', err));
+
+    // Ladda om sidan när ny SW tar över — användaren märker knappt av det
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      console.log('[SW] Ny version aktiv - laddar om...');
+      window.location.reload();
+    });
+  });
+}
+</script>
 </body>
 </html>
