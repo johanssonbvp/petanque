@@ -798,6 +798,13 @@ const langMgr = {
             }
         });
     },
+    set(l) {
+        this.lang = l;
+        localStorage.setItem('petanque-lang', l);
+        localStorage.setItem('pt_lang', l);
+        localStorage.setItem('lang', l);
+        this.apply();
+    },
     toggle() {
         const i = LANGS.indexOf(this.lang);
         this.lang = LANGS[(i+1) % LANGS.length];
