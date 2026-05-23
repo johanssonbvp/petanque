@@ -221,7 +221,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 </div>
 
 <div class="tab-bar">
-  <button class="tab-btn active" onclick="switchTab('match')" id="tab-match" data-sv="Match" data-en="Match">Match</button>
+  <button class="tab-btn active" onclick="switchTab('match')" id="tab-match" data-sv="Match" data-en="Match" data-fr="Match">Match</button>
   <button class="tab-btn" onclick="switchTab('stats')" id="tab-stats" data-sv="Historik" data-fr="Historique" data-en="History">Historik</button>
 </div>
 
@@ -231,26 +231,26 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
   <!-- SETUP -->
   <div id="setupView">
-    <p class="section-label" data-sv="Spelformat" data-en="Format">Spelformat</p>
+    <p class="section-label" data-sv="Spelformat" data-en="Format" data-fr="Format">Spelformat</p>
     <div class="format-grid">
       <div class="format-card selected" data-fmt="singles" onclick="selectFormat(this)">
         <div class="format-icon">👤</div>
-        <div class="format-name" data-sv="Singel" data-en="Singles">Singel</div>
-        <div class="format-desc" data-sv="1 mot 1" data-en="1 vs 1">1 mot 1</div>
+        <div class="format-name" data-sv="Singel" data-en="Singles" data-fr="Tête-à-tête">Singel</div>
+        <div class="format-desc" data-sv="1 mot 1" data-en="1 vs 1" data-fr="1 contre 1">1 mot 1</div>
       </div>
       <div class="format-card" data-fmt="doubles" onclick="selectFormat(this)">
         <div class="format-icon">👥</div>
-        <div class="format-name" data-sv="Lag" data-en="Teams">Lag</div>
-        <div class="format-desc" data-sv="2 mot 2 / 3 mot 3" data-en="2 vs 2 / 3 vs 3">2 mot 2 / 3 mot 3</div>
+        <div class="format-name" data-sv="Lag" data-en="Teams" data-fr="Équipes">Lag</div>
+        <div class="format-desc" data-sv="2 mot 2 / 3 mot 3" data-en="2 vs 2 / 3 vs 3" data-fr="2 c. 2 / 3 c. 3">2 mot 2 / 3 mot 3</div>
       </div>
     </div>
 
-    <p class="section-label" data-sv="Spelare / Lag 1" data-en="Player / Team 1">Spelare / Lag 1</p>
+    <p class="section-label" data-sv="Spelare / Lag 1" data-en="Player / Team 1" data-fr="Joueur / Équipe 1">Spelare / Lag 1</p>
     <div class="player-inputs">
       <div class="player-row">
         <div class="player-row-top">
           <div class="player-dot dot-a"></div>
-          <span class="player-label" data-sv="NAMN" data-en="NAME">NAMN</span>
+          <span class="player-label" data-sv="NAMN" data-en="NAME" data-fr="NOM">NAMN</span>
         </div>
         <input class="name-input" id="nameA1" type="text" maxlength="20" data-placeholder-sv="Spelare 1" data-placeholder-en="Player 1" placeholder="Spelare 1">
       </div>
@@ -258,19 +258,19 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
         <div class="player-row">
           <div class="player-row-top">
             <div class="player-dot dot-a"></div>
-            <span class="player-label" data-sv="LAGKAMRAT" data-en="TEAMMATE">LAGKAMRAT</span>
+            <span class="player-label" data-sv="LAGKAMRAT" data-en="TEAMMATE" data-fr="COÉQUIPIER">LAGKAMRAT</span>
           </div>
           <input class="name-input" id="nameA2" type="text" maxlength="20" data-placeholder-sv="Spelare 2" data-placeholder-en="Player 2" placeholder="Spelare 2">
         </div>
       </div>
     </div>
 
-    <p class="section-label" style="margin-top:20px;" data-sv="Spelare / Lag 2" data-en="Player / Team 2">Spelare / Lag 2</p>
+    <p class="section-label" style="margin-top:20px;" data-sv="Spelare / Lag 2" data-en="Player / Team 2" data-fr="Joueur / Équipe 2">Spelare / Lag 2</p>
     <div class="player-inputs">
       <div class="player-row">
         <div class="player-row-top">
           <div class="player-dot dot-b"></div>
-          <span class="player-label" data-sv="NAMN" data-en="NAME">NAMN</span>
+          <span class="player-label" data-sv="NAMN" data-en="NAME" data-fr="NOM">NAMN</span>
         </div>
         <input class="name-input" id="nameB1" type="text" maxlength="20" data-placeholder-sv="Spelare 2" data-placeholder-en="Player 2" placeholder="Spelare 2">
       </div>
@@ -278,7 +278,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
         <div class="player-row">
           <div class="player-row-top">
             <div class="player-dot dot-b"></div>
-            <span class="player-label" data-sv="LAGKAMRAT" data-en="TEAMMATE">LAGKAMRAT</span>
+            <span class="player-label" data-sv="LAGKAMRAT" data-en="TEAMMATE" data-fr="COÉQUIPIER">LAGKAMRAT</span>
           </div>
           <input class="name-input" id="nameB2" type="text" maxlength="20" data-placeholder-sv="Spelare 3" data-placeholder-en="Player 3" placeholder="Spelare 3">
         </div>
@@ -287,7 +287,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
     <div class="settings-row" style="margin-top:24px;">
       <div class="setting-box">
-        <div class="setting-label" data-sv="Bollar per spelare" data-en="Balls per player">Bollar per spelare</div>
+        <div class="setting-label" data-sv="Bollar per spelare" data-en="Balls per player" data-fr="Boules par joueur">Bollar per spelare</div>
         <div class="setting-ctrl">
           <button class="ctrl-btn" onclick="adjBoules(-1)">−</button>
           <span class="ctrl-val" id="boulesVal">3</span>
@@ -295,7 +295,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
         </div>
       </div>
       <div class="setting-box">
-        <div class="setting-label" data-sv="Mål (poäng)" data-en="Target (pts)">Mål (poäng)</div>
+        <div class="setting-label" data-sv="Mål (poäng)" data-en="Target (pts)" data-fr="Objectif (pts)">Mål (poäng)</div>
         <div class="setting-ctrl">
           <button class="ctrl-btn" onclick="adjTarget(-1)">−</button>
           <span class="ctrl-val" id="targetVal">13</span>
@@ -304,7 +304,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       </div>
     </div>
 
-    <button class="start-btn" onclick="startMatch()" data-sv="Starta match" data-en="Start Match">Starta match</button>
+    <button class="start-btn" onclick="startMatch()" data-sv="Starta match" data-en="Start Match" data-fr="Démarrer la partie">Starta match</button>
   </div>
 
   <!-- MATCH VIEW -->
@@ -339,19 +339,19 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     </div>
 
     <div class="round-input-card">
-      <div class="round-input-label" data-sv="Vem vann rundan?" data-en="Who won the round?">Vem vann rundan?</div>
+      <div class="round-input-label" data-sv="Vem vann rundan?" data-en="Who won the round?" data-fr="Qui a gagné la manche?">Vem vann rundan?</div>
       <div class="winner-btns">
         <div class="winner-btn" id="winBtnA" onclick="selectWinner('a')">
           <span class="winner-btn-name winner-btn-name-a" id="winBtnAName">LAG A</span>
-          <span class="winner-btn-sub" data-sv="Tryck för att välja" data-en="Tap to select">Tryck för att välja</span>
+          <span class="winner-btn-sub" data-sv="Tryck för att välja" data-en="Tap to select" data-fr="Appuyez pour choisir">Tryck för att välja</span>
         </div>
         <div class="winner-btn" id="winBtnB" onclick="selectWinner('b')">
           <span class="winner-btn-name winner-btn-name-b" id="winBtnBName">LAG B</span>
-          <span class="winner-btn-sub" data-sv="Tryck för att välja" data-en="Tap to select">Tryck för att välja</span>
+          <span class="winner-btn-sub" data-sv="Tryck för att välja" data-en="Tap to select" data-fr="Appuyez pour choisir">Tryck för att välja</span>
         </div>
       </div>
 
-      <div class="pts-label" data-sv="Antal poäng denna runda" data-en="Points this round">Antal poäng denna runda</div>
+      <div class="pts-label" data-sv="Antal poäng denna runda" data-en="Points this round" data-fr="Points cette manche">Antal poäng denna runda</div>
       <div class="pts-row">
         <button class="pts-minus" onclick="adjRoundPts(-1)">−</button>
         <span class="pts-val" id="roundPtsVal">1</span>
@@ -359,7 +359,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       </div>
 
       <button class="confirm-btn" id="confirmBtn" onclick="confirmRound()" disabled
-        data-sv="Bekräfta runda" data-en="Confirm Round">Bekräfta runda</button>
+        data-sv="Bekräfta runda" data-en="Confirm Round" data-fr="Confirmer la manche">Bekräfta runda</button>
     </div>
 
     <div class="rounds-wrap">

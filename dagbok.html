@@ -169,17 +169,17 @@ input[type="date"].text-input{color-scheme:dark;}
 </head>
 <body>
 
-<div class="save-flash" id="saveFlash">✓ <span data-sv="Sparat!" data-en="Saved!">Sparat!</span></div>
+<div class="save-flash" id="saveFlash">✓ <span data-sv="Sparat!" data-en="Saved!" data-fr="Sauvegardé!">Sparat!</span></div>
 
 <div class="top-bar">
   <a class="back-btn" href="index.html">← <span data-sv="Hem" data-fr="Accueil" data-en="Home">Hem</span></a>
-  <span class="top-title" data-sv="Träningsdagbok" data-en="Training Journal">Träningsdagbok</span>
+  <span class="top-title" data-sv="Träningsdagbok" data-en="Training Journal" data-fr="Journal d'entraînement">Träningsdagbok</span>
   <div style="display:flex;gap:4px"><button class="lang-btn" id="btn-sv" onclick="setLangApp('sv')" style="padding:4px 8px">🇸🇪 SV</button><button class="lang-btn" id="btn-en" onclick="setLangApp('en')" style="padding:4px 8px">🇬🇧 EN</button><button class="lang-btn" id="btn-fr" onclick="setLangApp('fr')" style="padding:4px 8px">🇫🇷 FR</button></div>
 </div>
 
 <div class="tab-bar">
-  <button class="tab-btn active" onclick="switchTab('new')" id="tab-new" data-sv="Nytt inlägg" data-en="New Entry">Nytt inlägg</button>
-  <button class="tab-btn" onclick="switchTab('cal')" id="tab-cal" data-sv="Kalender" data-en="Calendar">Kalender</button>
+  <button class="tab-btn active" onclick="switchTab('new')" id="tab-new" data-sv="Nytt inlägg" data-en="New Entry" data-fr="Nouvelle entrée">Nytt inlägg</button>
+  <button class="tab-btn" onclick="switchTab('cal')" id="tab-cal" data-sv="Kalender" data-en="Calendar" data-fr="Calendrier">Kalender</button>
 </div>
 
 <!-- ═══ NEW ENTRY TAB ═══ -->
@@ -191,11 +191,11 @@ input[type="date"].text-input{color-scheme:dark;}
     <!-- DATUM + PLATS -->
     <div class="date-place-row">
       <div>
-        <label class="form-label" data-sv="Datum" data-en="Date">Datum</label>
+        <label class="form-label" data-sv="Datum" data-en="Date" data-fr="Date">Datum</label>
         <input class="text-input" type="date" id="entryDate">
       </div>
       <div>
-        <label class="form-label" data-sv="Plats" data-en="Location">Plats</label>
+        <label class="form-label" data-sv="Plats" data-en="Location" data-fr="Lieu">Plats</label>
         <input class="text-input" type="text" id="entryPlace" maxlength="40"
           data-placeholder-sv="T.ex. Hagaparken" data-placeholder-en="e.g. Hagaparken" placeholder="T.ex. Hagaparken">
       </div>
@@ -203,7 +203,7 @@ input[type="date"].text-input{color-scheme:dark;}
 
     <!-- TYP AV PASS -->
     <div class="form-row">
-      <label class="form-label" data-sv="Typ av träning" data-en="Training type">Typ av träning</label>
+      <label class="form-label" data-sv="Typ av träning" data-en="Training type" data-fr="Type d'entraînement">Typ av träning</label>
       <div class="type-pills">
         <div class="type-pill" data-type="shoot" onclick="selectType(this)">
           🎯 <span data-sv="Skjutträning" data-fr="Tir" data-en="Shooting">Skjutträning</span>
@@ -212,17 +212,17 @@ input[type="date"].text-input{color-scheme:dark;}
           🪃 <span data-sv="Läggträning" data-fr="Jeu de boules" data-en="Pointing">Läggträning</span>
         </div>
         <div class="type-pill" data-type="match" onclick="selectType(this)">
-          🏆 <span data-sv="Match" data-en="Match">Match</span>
+          🏆 <span data-sv="Match" data-en="Match" data-fr="Match">Match</span>
         </div>
         <div class="type-pill" data-type="annan" onclick="selectType(this)">
-          ✨ <span data-sv="Annat" data-en="Other">Annat</span>
+          ✨ <span data-sv="Annat" data-en="Other" data-fr="Autre">Annat</span>
         </div>
       </div>
     </div>
 
     <!-- KÄNSLA -->
     <div class="form-row">
-      <label class="form-label" data-sv="Hur kändes det?" data-en="How did it feel?">Hur kändes det?</label>
+      <label class="form-label" data-sv="Hur kändes det?" data-en="How did it feel?" data-fr="Comment ça s'est passé?">Hur kändes det?</label>
       <div class="stars-row" id="starsRow">
         <button class="star-btn" data-val="1" onclick="setMood(1)">⭐</button>
         <button class="star-btn" data-val="2" onclick="setMood(2)">⭐</button>
@@ -234,14 +234,14 @@ input[type="date"].text-input{color-scheme:dark;}
 
     <!-- ANTECKNINGAR -->
     <div class="form-row" style="margin-bottom:20px;">
-      <label class="form-label" data-sv="Anteckningar" data-en="Notes">Anteckningar</label>
+      <label class="form-label" data-sv="Anteckningar" data-en="Notes" data-fr="Notes">Anteckningar</label>
       <textarea class="note-area" id="entryNote" rows="4"
         data-placeholder-sv="Vad tränade du på? Hur gick det? Vad vill du förbättra?"
         data-placeholder-en="What did you train? How did it go? What do you want to improve?"
         placeholder="Vad tränade du på? Hur gick det? Vad vill du förbättra?"></textarea>
     </div>
 
-    <button class="save-btn" onclick="trackDagbokEntry(); saveEntry()" data-sv="Spara inlägg" data-en="Save Entry">Spara inlägg</button>
+    <button class="save-btn" onclick="trackDagbokEntry(); saveEntry()" data-sv="Spara inlägg" data-en="Save Entry" data-fr="Sauvegarder">Spara inlägg</button>
   </div>
 
 </div>
@@ -261,9 +261,9 @@ input[type="date"].text-input{color-scheme:dark;}
   <div class="cal-grid" id="calGrid"></div>
 
   <div class="cal-legend">
-    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--ok)"></div><span data-sv="Mycket bra" data-en="Great">Mycket bra</span></div>
-    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--mid)"></div><span data-sv="Okej" data-en="Okay">Okej</span></div>
-    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--fail)"></div><span data-sv="Svårt" data-en="Tough">Svårt</span></div>
+    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--ok)"></div><span data-sv="Mycket bra" data-en="Great" data-fr="Très bien">Mycket bra</span></div>
+    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--mid)"></div><span data-sv="Okej" data-en="Okay" data-fr="Correct">Okej</span></div>
+    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--fail)"></div><span data-sv="Svårt" data-en="Tough" data-fr="Difficile">Svårt</span></div>
   </div>
 
   <!-- ENTRIES LIST for current month -->
@@ -280,7 +280,7 @@ input[type="date"].text-input{color-scheme:dark;}
     <div id="dayEntries"></div>
     <div class="sheet-actions">
       <button class="mbtn mbtn-ghost" onclick="document.getElementById('dayOverlay').classList.remove('show')"
-        data-sv="Stäng" data-en="Close">Stäng</button>
+        data-sv="Stäng" data-en="Close" data-fr="Fermer">Stäng</button>
     </div>
   </div>
 </div>
@@ -288,9 +288,9 @@ input[type="date"].text-input{color-scheme:dark;}
 <!-- DELETE CONFIRM MODAL -->
 <div class="overlay" id="deleteOverlay">
   <div class="sheet">
-    <h2 data-sv="Ta bort inlägg?" data-en="Delete entry?">Ta bort inlägg?</h2>
+    <h2 data-sv="Ta bort inlägg?" data-en="Delete entry?" data-fr="Supprimer l'entrée?">Ta bort inlägg?</h2>
     <div class="sheet-actions">
-      <button class="mbtn mbtn-danger" onclick="confirmDelete()" data-sv="Ja, ta bort" data-en="Yes, delete">Ja, ta bort</button>
+      <button class="mbtn mbtn-danger" onclick="confirmDelete()" data-sv="Ja, ta bort" data-en="Yes, delete" data-fr="Oui, supprimer">Ja, ta bort</button>
       <button class="mbtn mbtn-ghost" onclick="document.getElementById('deleteOverlay').classList.remove('show')"
         data-sv="Avbryt" data-fr="Annuler" data-en="Cancel">Avbryt</button>
     </div>

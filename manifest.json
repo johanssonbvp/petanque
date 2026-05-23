@@ -9,7 +9,11 @@
   "theme_color": "#080810",
   "orientation": "portrait-primary",
   "scope": "/",
-  "categories": ["sports", "health", "fitness"],
+  "categories": [
+    "sports",
+    "health",
+    "fitness"
+  ],
   "lang": "sv-SE",
   "dir": "auto",
   "prefer_related_applications": false,
@@ -39,20 +43,6 @@
       "purpose": "maskable"
     }
   ],
-  "screenshots": [
-    {
-      "src": "./screenshot-narrow-192x540.png",
-      "sizes": "192x540",
-      "type": "image/png",
-      "form_factor": "narrow"
-    },
-    {
-      "src": "./screenshot-wide-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "form_factor": "wide"
-    }
-  ],
   "shortcuts": [
     {
       "name": "Skjutträning",
@@ -61,8 +51,8 @@
       "url": "./skjuttraning.html?utm_source=pwa-shortcut",
       "icons": [
         {
-          "src": "./icon-96x96.png",
-          "sizes": "96x96",
+          "src": "./icon-192.png",
+          "sizes": "192x192",
           "type": "image/png"
         }
       ]
@@ -74,8 +64,8 @@
       "url": "./laggtraning.html?utm_source=pwa-shortcut",
       "icons": [
         {
-          "src": "./icon-96x96.png",
-          "sizes": "96x96",
+          "src": "./icon-192.png",
+          "sizes": "192x192",
           "type": "image/png"
         }
       ]
@@ -87,8 +77,8 @@
       "url": "./tavlingssimulator.html?utm_source=pwa-shortcut",
       "icons": [
         {
-          "src": "./icon-96x96.png",
-          "sizes": "96x96",
+          "src": "./icon-192.png",
+          "sizes": "192x192",
           "type": "image/png"
         }
       ]
@@ -100,8 +90,8 @@
       "url": "./dagbok.html?utm_source=pwa-shortcut",
       "icons": [
         {
-          "src": "./icon-96x96.png",
-          "sizes": "96x96",
+          "src": "./icon-192.png",
+          "sizes": "192x192",
           "type": "image/png"
         }
       ]
