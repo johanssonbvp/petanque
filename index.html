@@ -659,6 +659,25 @@
   </div>
 </div>
 
+<!-- LOCAL DATA MIGRATION MODAL -->
+<div id="local-migration-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.97);z-index:10002;align-items:center;justify-content:center;">
+  <div style="background:#0f1419;padding:32px 24px;border-radius:16px;border:1px solid #1a1f2e;text-align:center;max-width:440px;width:90%;margin:20px auto;">
+    <div style="font-size:40px;margin-bottom:12px;">📱➡️☁️</div>
+    <h2 style="color:#e8ff47;font-size:20px;margin-bottom:8px;">Vi hittade träningsdata!</h2>
+    <p style="color:#8a8a9e;font-size:13px;margin-bottom:16px;line-height:1.6;">
+      Det finns sparad träningsdata på den här enheten. Vill du koppla den till ditt nya konto så att den säkerhetskopieras i molnet?
+    </p>
+    <div id="local-migration-summary" style="background:#080810;border-radius:8px;padding:12px;margin-bottom:20px;text-align:left;font-size:13px;color:#ccc;line-height:1.8;"></div>
+    <button onclick="doLocalMigration()" style="width:100%;padding:14px;background:#e8ff47;color:#080810;border:none;border-radius:8px;font-weight:800;font-size:15px;cursor:pointer;margin-bottom:10px;">
+      ✅ Ja, flytta min data till molnet
+    </button>
+    <button onclick="skipLocalMigration()" style="width:100%;padding:11px;background:transparent;border:1px solid #1a1f2e;color:#8a8a9e;border-radius:8px;font-size:14px;cursor:pointer;">
+      Nej tack, börja om från början
+    </button>
+    <div id="local-migration-status" style="margin-top:12px;font-size:13px;min-height:20px;"></div>
+  </div>
+</div>
+
 <!-- OLD LOGIN MODAL (kept for compatibility, hidden) -->
 <div id="login-modal" style="display:none;">
   <input type="text" id="trainer-code-input">
@@ -1164,6 +1183,120 @@ async function doMigration() {
   }
 }
 
+// ============================================================
+// LOKAL DATA MIGRATION
+// ============================================================
+
+// Kolla vilken lokal data som finns
+function checkForLocalData() {
+  const keys = {
+    'pt_h': 'Skjutträning',
+    'pt_lagg_history': 'Läggträning', 
+    'pt_dagbok': 'Träningsdagbok',
+    'pt_precision_v2': 'Precisionsskytte'
+  };
+  const found = {};
+  for (const [key, label] of Object.entries(keys)) {
+    try {
+      const val = localStorage.getItem(key);
+      if (val) {
+        const parsed = JSON.parse(val);
+        const count = Array.isArray(parsed) ? parsed.length : Object.keys(parsed).length;
+        if (count > 0) found[key] = { label, count, data: parsed };
+      }
+    } catch(e) {}
+  }
+  return Object.keys(found).length > 0 ? found : null;
+}
+
+// Visa modal med sammanfattning av hittad data
+function showLocalMigrationModal() {
+  const data = checkForLocalData();
+  if (!data) return;
+
+  const summaryEl = document.getElementById('local-migration-summary');
+  if (summaryEl) {
+    summaryEl.innerHTML = Object.values(data).map(d => 
+      `✅ <strong style="color:#fff">${d.label}</strong>: ${d.count} poster hittade`
+    ).join('<br>');
+  }
+  document.getElementById('local-migration-modal').style.display = 'flex';
+}
+
+// Flytta lokal data till Firebase
+async function doLocalMigration() {
+  const statusEl = document.getElementById('local-migration-status');
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+
+  statusEl.style.color = '#e8ff47';
+  statusEl.textContent = 'Flyttar din data...';
+
+  try {
+    const data = checkForLocalData();
+    if (!data) { skipLocalMigration(); return; }
+
+    // Firebase-sökvägar per nyckel
+    const fbPaths = {
+      'pt_h': 'shooting',
+      'pt_lagg_history': 'lagg',
+      'pt_dagbok': 'dagbok',
+      'pt_precision_v2': 'precision'
+    };
+
+    let moved = 0;
+    for (const [lsKey, info] of Object.entries(data)) {
+      const fbPath = fbPaths[lsKey];
+      if (fbPath) {
+        await firebase.database()
+          .ref('coaches/' + user.uid + '/localData/' + fbPath)
+          .set(info.data);
+        moved++;
+      }
+    }
+
+    // Markera som migrerad
+    localStorage.setItem('pt_local_migrated_' + user.uid, new Date().toISOString());
+    await firebase.database().ref('coaches/' + user.uid + '/_meta').set({
+      email: user.email,
+      created: new Date().toISOString(),
+      localMigrated: true,
+      localMigratedDate: new Date().toISOString()
+    });
+
+    statusEl.style.color = '#4ade80';
+    statusEl.textContent = '✅ ' + moved + ' datatyper sparade i molnet!';
+
+    setTimeout(() => {
+      document.getElementById('local-migration-modal').style.display = 'none';
+      localStorage.setItem('pt_trainer_code', user.uid);
+      localStorage.setItem('trainer-code', user.uid);
+      onUserLoggedIn(user);
+    }, 1800);
+
+  } catch(e) {
+    console.error('Local migration error:', e);
+    statusEl.style.color = '#ff6b6b';
+    statusEl.textContent = 'Fel: ' + e.message + ' — din data finns kvar lokalt.';
+    setTimeout(() => {
+      document.getElementById('local-migration-modal').style.display = 'none';
+      skipLocalMigration();
+    }, 3000);
+  }
+}
+
+// Hoppa över lokal migration
+function skipLocalMigration() {
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+  localStorage.setItem('pt_local_migrated_' + user.uid, 'skipped');
+  localStorage.setItem('pt_trainer_code', user.uid);
+  localStorage.setItem('trainer-code', user.uid);
+  document.getElementById('local-migration-modal').style.display = 'none';
+  // Visa gamla migration-modal (för tränarkod) om de vill
+  document.getElementById('migration-modal').style.display = 'flex';
+}
+
 // Hoppa över migrering
 function skipMigration() {
   const user = firebase.auth().currentUser;
@@ -1294,7 +1427,14 @@ window.addEventListener('DOMContentLoaded', function() {
           onUserLoggedIn(user);
         } else {
           document.getElementById('auth-modal').style.display = 'none';
-          document.getElementById('migration-modal').style.display = 'flex';
+          // Kolla om det finns lokal träningsdata att migrera
+          const hasLocalData = checkForLocalData();
+          const alreadyMigratedLocal = localStorage.getItem('pt_local_migrated_' + user.uid);
+          if (hasLocalData && !alreadyMigratedLocal) {
+            showLocalMigrationModal();
+          } else {
+            document.getElementById('migration-modal').style.display = 'flex';
+          }
         }
       } else {
         document.getElementById('auth-modal').style.display = 'none';
