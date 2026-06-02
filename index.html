@@ -1865,7 +1865,13 @@ if ('serviceWorker' in navigator) {
       .then(reg => {
         console.log('[SW] Registrerad:', reg.scope);
 
-        // Kolla om ny version finns vid varje laddning
+        // iOS-fix: tvinga en update-check varje gång appen öppnas
+        // Utan detta kollar iOS aldrig efter ny version i standalone-läge
+        reg.update().then(() => {
+          console.log('[SW] Update-check klar');
+        }).catch(() => {});
+
+        // Lyssna på ny version som hittas
         reg.addEventListener('updatefound', () => {
           const newWorker = reg.installing;
           console.log('[SW] Ny version hittad, installerar...');
@@ -1879,8 +1885,12 @@ if ('serviceWorker' in navigator) {
       })
       .catch(err => console.warn('[SW] Registrering misslyckades:', err));
 
-    // Ladda om sidan när ny SW tar över — användaren märker knappt av det
+    // Ladda om sidan när ny SW tar över
+    // På iOS: sidan laddas om automatiskt när ny version aktiveras
+    let swRefreshing = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (swRefreshing) return; // Förhindra dubbel-reload
+      swRefreshing = true;
       console.log('[SW] Ny version aktiv - laddar om...');
       window.location.reload();
     });
