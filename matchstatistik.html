@@ -2045,7 +2045,20 @@ class MatchApp {
             
             csv += `"${p.name}","${p.position}",${p.stats.lagg.hit},${p.stats.lagg.total},${laggAcc},${p.stats.skott.hit},${p.stats.skott.total},${skottAcc},${lagStreaks.lagg.maxHit},${lagStreaks.lagg.maxMiss},${lagStreaks.skott.maxHit},${lagStreaks.skott.maxMiss},"${laggAcc}% (${laggDiff>0?'+':''}${laggDiff}%)","${skottAcc}% (${skottDiff>0?'+':''}${skottDiff}%)"\n`;
         });
-        
+
+        // ---- MOTSTÅNDARE STATISTIK ----
+        if (m.opponents && m.opponents.length > 0) {
+            csv += `\n${(m.opponent || 'MOTSTÅNDARE').toUpperCase()} - STATISTIK\n`;
+            csv += `Spelare,Position,Lägg träffar,Lägg totalt,Lägg %,Skott träffar,Skott totalt,Skott %,Längsta träffsekvens Lägg,Längsta misssekvens Lägg,Längsta träffsekvens Skott,Längsta misssekvens Skott\n`;
+            const oppStreaks = this.calcOpponentStreaks(m);
+            m.opponents.forEach((p, idx) => {
+                const laggAcc = this.acc(p.stats.lagg);
+                const skottAcc = this.acc(p.stats.skott);
+                const s = oppStreaks[idx] || {lagg:{maxHit:0,maxMiss:0},skott:{maxHit:0,maxMiss:0}};
+                csv += `"${p.name}","${p.position}",${p.stats.lagg.hit},${p.stats.lagg.total},${laggAcc},${p.stats.skott.hit},${p.stats.skott.total},${skottAcc},${s.lagg.maxHit},${s.lagg.maxMiss},${s.skott.maxHit},${s.skott.maxMiss}\n`;
+            });
+        }
+
         csv += `\nPOSITION-ANALYS\nPosition,Lägg träffar,Lägg totalt,Lägg %,Skott träffar,Skott totalt,Skott %\n`;
         const posStats = this.getPositionStats(m);
         Object.entries(posStats).forEach(([pos, stats]) => {
@@ -2159,7 +2172,20 @@ class MatchApp {
             
             csv += `"${p.name}","${p.position}",${p.stats.lagg.hit},${p.stats.lagg.total},${laggAcc},${p.stats.skott.hit},${p.stats.skott.total},${skottAcc},${lagStreaks.lagg.maxHit},${lagStreaks.lagg.maxMiss},${lagStreaks.skott.maxHit},${lagStreaks.skott.maxMiss},"${laggAcc}% (${laggDiff>0?'+':''}${laggDiff}%)","${skottAcc}% (${skottDiff>0?'+':''}${skottDiff}%)"\n`;
         });
-        
+
+        // ---- MOTSTÅNDARE STATISTIK ----
+        if (m.opponents && m.opponents.length > 0) {
+            csv += `\n${(m.opponent || 'MOTSTÅNDARE').toUpperCase()} - STATISTIK\n`;
+            csv += `Spelare,Position,Lägg träffar,Lägg totalt,Lägg %,Skott träffar,Skott totalt,Skott %,Längsta träffsekvens Lägg,Längsta misssekvens Lägg,Längsta träffsekvens Skott,Längsta misssekvens Skott\n`;
+            const oppStreaks = this.calcOpponentStreaks(m);
+            m.opponents.forEach((p, idx) => {
+                const laggAcc = this.acc(p.stats.lagg);
+                const skottAcc = this.acc(p.stats.skott);
+                const s = oppStreaks[idx] || {lagg:{maxHit:0,maxMiss:0},skott:{maxHit:0,maxMiss:0}};
+                csv += `"${p.name}","${p.position}",${p.stats.lagg.hit},${p.stats.lagg.total},${laggAcc},${p.stats.skott.hit},${p.stats.skott.total},${skottAcc},${s.lagg.maxHit},${s.lagg.maxMiss},${s.skott.maxHit},${s.skott.maxMiss}\n`;
+            });
+        }
+
         csv += `\nPOSITION-ANALYS\nPosition,Lägg träffar,Lägg totalt,Lägg %,Skott träffar,Skott totalt,Skott %\n`;
         const posStats = this.getPositionStats(m);
         Object.entries(posStats).forEach(([pos, stats]) => {
@@ -2262,6 +2288,7 @@ class MatchApp {
         // Per-omgång data
         if (m.roundActions) {
             const date = new Date(m.startTime || Date.now()).toLocaleDateString('sv-SE');
+            const oppLabel = m.opponent || 'Motståndare';
             Object.keys(m.roundActions).sort((a,b) => +a - +b).forEach(roundNum => {
                 const roundAct = m.roundActions[roundNum];
                 m.players.forEach((p, idx) => {
@@ -2275,6 +2302,20 @@ class MatchApp {
                     
                     csv += `"${m.name}","${m.team || '-'}","${date}","${p.name}","${p.position}",${roundNum},${laggHit},${laggActions.length},${laggPct},${skottHit},${skottActions.length},${skottPct}\n`;
                 });
+                // Motståndarens klot för samma omgång
+                if (m.opponents) {
+                    m.opponents.forEach((p, idx) => {
+                        const actions = roundAct['opp_' + idx] || [];
+                        const laggActions = actions.filter(a => a.type === 'lagg');
+                        const skottActions = actions.filter(a => a.type === 'skott');
+                        const laggHit = laggActions.filter(a => a.hit).length;
+                        const skottHit = skottActions.filter(a => a.hit).length;
+                        const laggPct = laggActions.length > 0 ? Math.round(laggHit/laggActions.length*100) : 0;
+                        const skottPct = skottActions.length > 0 ? Math.round(skottHit/skottActions.length*100) : 0;
+
+                        csv += `"${m.name}","${oppLabel}","${date}","${p.name}","${p.position}",${roundNum},${laggHit},${laggActions.length},${laggPct},${skottHit},${skottActions.length},${skottPct}\n`;
+                    });
+                }
             });
         }
         
@@ -2286,6 +2327,17 @@ class MatchApp {
             const sp = this.acc(p.stats.skott);
             csv += `"${p.name}","${p.position}",${p.stats.lagg.hit},${p.stats.lagg.total},${lp},${p.stats.skott.hit},${p.stats.skott.total},${sp}\n`;
         });
+
+        // Motståndare - totaler
+        if (m.opponents && m.opponents.length > 0) {
+            csv += `\n=== ${(m.opponent || 'MOTSTÅNDARE').toUpperCase()} - TOTALT ===\n`;
+            csv += 'Spelare,Position,Lagg_Poang,Lagg_Total,Lagg_Procent,Skott_Troff,Skott_Total,Skott_Procent\n';
+            m.opponents.forEach(p => {
+                const lp = this.acc(p.stats.lagg);
+                const sp = this.acc(p.stats.skott);
+                csv += `"${p.name}","${p.position}",${p.stats.lagg.hit},${p.stats.lagg.total},${lp},${p.stats.skott.hit},${p.stats.skott.total},${sp}\n`;
+            });
+        }
         
         const blob = new Blob(['\uFEFF' + csv], {type:'text/csv;charset=utf-8;'});
         const url = URL.createObjectURL(blob);
@@ -2321,6 +2373,36 @@ class MatchApp {
                 currentStreaks[ev.player][type].hits = 0;
                 streaks[ev.player][type].maxMiss = Math.max(streaks[ev.player][type].maxMiss, currentStreaks[ev.player][type].misses);
             }
+        });
+        return streaks;
+    }
+
+    // ---- STREAKS FÖR MOTSTÅNDARE (baserat på roundActions, ingen timeline) ----
+    calcOpponentStreaks(match) {
+        const streaks = {};
+        if (!match.opponents) return streaks;
+        match.opponents.forEach((p, idx) => {
+            streaks[idx] = { lagg: {maxHit:0,maxMiss:0}, skott: {maxHit:0,maxMiss:0} };
+        });
+        if (!match.roundActions) return streaks;
+
+        const rounds = Object.keys(match.roundActions).sort((a,b) => +a - +b);
+        match.opponents.forEach((p, idx) => {
+            const oppKey = 'opp_' + idx;
+            let cur = { lagg:{hits:0,misses:0}, skott:{hits:0,misses:0} };
+            rounds.forEach(r => {
+                const actions = (match.roundActions[r][oppKey]) || [];
+                actions.forEach(a => {
+                    const t = a.type;
+                    if (a.hit) {
+                        cur[t].hits++; cur[t].misses = 0;
+                        streaks[idx][t].maxHit = Math.max(streaks[idx][t].maxHit, cur[t].hits);
+                    } else {
+                        cur[t].misses++; cur[t].hits = 0;
+                        streaks[idx][t].maxMiss = Math.max(streaks[idx][t].maxMiss, cur[t].misses);
+                    }
+                });
+            });
         });
         return streaks;
     }
