@@ -624,6 +624,7 @@
                 <tbody id="live-table-body"></tbody>
             </table>
             <div class="match-actions">
+                <button class="btn btn-outline" id="btn-undo" data-sv="↩ ÅNGRA" data-fr="↩ ANNULER" data-en="↩ UNDO" style="border-color:#ff9f43;color:#ff9f43;">↩ ÅNGRA</button>
                 <button class="btn btn-danger" id="btn-reset" data-sv="ÅTERSTÄLL" data-fr="RÉINITIALISER" data-en="RESET">ÅTERSTÄLL</button>
                 <button class="btn btn-outline" id="btn-next-round" data-sv="NÄSTA OMGÅNG ▶" data-fr="MANCHE SUIVANTE ▶" data-en="NEXT ROUND ▶" style="border-color:#e8ff47;color:#e8ff47;">NÄSTA OMGÅNG ▶</button>
                 <button class="btn btn-primary" id="btn-finish" data-sv="AVSLUTA MATCH" data-fr="TERMINER LE MATCH" data-en="FINISH MATCH">AVSLUTA MATCH</button>
@@ -1031,6 +1032,7 @@ class MatchApp {
         on('btn-finish', 'click', () => this.finishMatch());
         on('btn-reset', 'click', () => this.resetStats());
         on('btn-next-round', 'click', () => this.nextRound(false));
+        on('btn-undo', 'click', () => this.undoLast());
         on('btn-pdf', 'click', () => this.exportPDF());
         on('btn-csv', 'click', () => this.exportCSV());
         on('btn-export-pdf-detail', 'click', () => this.exportDetailPDF());
@@ -1093,7 +1095,8 @@ class MatchApp {
             ],
             timeline: [],
             currentRound: 1,
-            roundActions: { 1: {} }
+            roundActions: { 1: {} },
+            actionHistory: []
         };
 
         document.getElementById('hdr-id').textContent = this.match.id.slice(-8);
@@ -1210,7 +1213,7 @@ class MatchApp {
         this.match.players.forEach((p, idx) => {
             const playerActions = roundActions[idx] || [];
             const count = playerActions.length;
-            const badge = document.getElementById('ball-count-' + idx);
+            const badge = document.getElementById('own-ball-count-' + idx);
             if (badge) {
                 badge.textContent = count + '/2';
                 badge.className = 'player-ball-count';
@@ -1271,7 +1274,11 @@ class MatchApp {
         if (hit) p.stats[type].hit++;
         
         this.match.roundActions[currentRound][oppKey].push({ type, hit });
-        
+
+        // Spara i ångra-historik
+        if (!this.match.actionHistory) this.match.actionHistory = [];
+        this.match.actionHistory.push({ team: 'opp', playerIdx, type, hit, round: currentRound });
+
         if (navigator.vibrate) navigator.vibrate(hit ? 80 : 40);
         
         this.renderLiveTable();
@@ -1315,6 +1322,10 @@ class MatchApp {
         const label = type === 'lagg' ? (hit ? 'Poängkula ✓' : 'Lägg miss ✗') : (hit ? 'Skott träff ✓' : 'Skott miss ✗');
         this.match.timeline.push({ time: elapsed, player: p.name, type, hit, label });
 
+        // Spara i ångra-historik
+        if (!this.match.actionHistory) this.match.actionHistory = [];
+        this.match.actionHistory.push({ team: 'own', playerIdx, type, hit, round: this.match.currentRound });
+
         // Haptic feedback
         if (navigator.vibrate) {
             navigator.vibrate(hit ? 80 : 40);
@@ -1323,6 +1334,56 @@ class MatchApp {
         this.renderLiveTable();
         this.updateBallCounts();
         this.checkAutoNextRound();
+    }
+
+    // ---- ÅNGRA SENASTE ----
+    undoLast() {
+        if (!this.match.actionHistory || this.match.actionHistory.length === 0) {
+            this.showToast('Inget att ångra');
+            return;
+        }
+
+        const last = this.match.actionHistory.pop();
+        const round = last.round;
+
+        if (last.team === 'own') {
+            // Återställ statistik för egen spelare
+            const p = this.match.players[last.playerIdx];
+            p.stats[last.type].total--;
+            if (last.hit) p.stats[last.type].hit--;
+
+            // Ta bort senaste klotet från omgångens roundActions
+            const balls = (this.match.roundActions[round] || {})[last.playerIdx];
+            if (balls && balls.length > 0) balls.pop();
+
+            // Ta bort senaste timeline-posten
+            this.match.timeline.pop();
+        } else {
+            // Återställ statistik för motståndare
+            const p = this.match.opponents[last.playerIdx];
+            p.stats[last.type].total--;
+            if (last.hit) p.stats[last.type].hit--;
+
+            // Ta bort senaste klotet från omgångens roundActions
+            const oppKey = 'opp_' + last.playerIdx;
+            const balls = (this.match.roundActions[round] || {})[oppKey];
+            if (balls && balls.length > 0) balls.pop();
+        }
+
+        // Om ångrat klot var i en tidigare omgång (t.ex. precis efter auto-nästa-omgång), gå tillbaka
+        if (round !== this.match.currentRound) {
+            this.match.currentRound = round;
+        }
+
+        if (navigator.vibrate) navigator.vibrate(30);
+
+        const pName = last.team === 'own'
+            ? this.match.players[last.playerIdx].name
+            : this.match.opponents[last.playerIdx].name;
+
+        this.renderLiveTable();
+        this.updateBallCounts();
+        this.showToast('↩ Ångrade: ' + pName + ' (' + last.type + ')');
     }
 
     // ---- CHECK AUTO NEXT ROUND ----
@@ -1467,8 +1528,15 @@ class MatchApp {
     resetStats() {
         if (!confirm('Återställ all statistik?')) return;
         this.match.players.forEach(p => { p.stats = { lagg:{hit:0,total:0}, skott:{hit:0,total:0} }; });
+        if (this.match.opponents) {
+            this.match.opponents.forEach(p => { p.stats = { lagg:{hit:0,total:0}, skott:{hit:0,total:0} }; });
+        }
         this.match.timeline = [];
+        this.match.actionHistory = [];
+        this.match.currentRound = 1;
+        this.match.roundActions = { 1: {} };
         this.renderLiveTable();
+        this.updateBallCounts();
     }
 
     // ---- FINISH MATCH ----
