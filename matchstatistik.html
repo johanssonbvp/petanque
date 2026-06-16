@@ -46,6 +46,42 @@
         .meta-label { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; }
         .meta-value { font-size: 17px; font-weight: 700; color: #e8ff47; }
 
+.round-modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85); z-index: 10000;
+    display: flex; align-items: center; justify-content: center; padding: 1rem;
+}
+.round-modal-card {
+    background: #11161f; border: 1px solid #2a3548; border-radius: 16px;
+    padding: 1.5rem; max-width: 420px; width: 100%;
+}
+.round-modal-title {
+    font-size: 18px; font-weight: 700; color: #e8ff47; text-align: center; margin-bottom: 0.25rem;
+}
+.round-modal-sub {
+    font-size: 13px; color: #999; text-align: center; margin-bottom: 1.25rem;
+}
+.round-modal-team-label {
+    font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 0.5rem; text-align: center;
+}
+.round-modal-team-label.own { color: #e8ff47; }
+.round-modal-team-label.opp { color: #ff8080; }
+.round-modal-points {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 1rem;
+}
+.round-modal-points button {
+    aspect-ratio: 1; border-radius: 10px; border: 1px solid #2a3548; background: #1a2330;
+    color: #fff; font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.15s;
+}
+.round-modal-points.own button:hover { background: #e8ff47; color: #080810; border-color: #e8ff47; }
+.round-modal-points.opp button:hover { background: #ff8080; color: #1a0000; border-color: #ff8080; }
+.round-modal-skip {
+    width: 100%; padding: 0.65rem; margin-top: 0.5rem; border-radius: 8px;
+    border: 1px solid #2a3548; background: transparent; color: #999; font-size: 13px; cursor: pointer;
+}
+.round-modal-skip:hover { color: #ccc; border-color: #555; }
+
         /* LANG TOGGLE */
         .lang-btn-match {
         background: transparent; border: 1px solid #333;
@@ -508,6 +544,10 @@
             <div class="meta-item">
                 <div class="meta-label" data-sv="OMGÅNG" data-fr="MANCHE" data-en="ROUND">OMGÅNG</div>
                 <div class="meta-value" id="hdr-round" style="font-size: 24px; font-weight: 700; color: #e8ff47;">1</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label" data-sv="RESULTAT" data-fr="SCORE" data-en="SCORE">RESULTAT</div>
+                <div class="meta-value" id="hdr-score" style="font-size: 24px; font-weight: 700; color: #fff;">0 - 0</div>
             </div>
         </div>
     </header>
@@ -1096,7 +1136,9 @@ class MatchApp {
             timeline: [],
             currentRound: 1,
             roundActions: { 1: {} },
-            actionHistory: []
+            actionHistory: [],
+            roundScores: {},
+            score: { own: 0, opp: 0 }
         };
 
         document.getElementById('hdr-id').textContent = this.match.id.slice(-8);
@@ -1108,6 +1150,7 @@ class MatchApp {
 
         this.buildPlayerGrid();
         this.renderLiveTable();
+        this.updateScoreDisplay();
 
         this.timerInterval = setInterval(() => {
             const mins = Math.floor((new Date() - this.matchStart) / 60000);
@@ -1372,6 +1415,16 @@ class MatchApp {
 
         // Om ångrat klot var i en tidigare omgång (t.ex. precis efter auto-nästa-omgång), gå tillbaka
         if (round !== this.match.currentRound) {
+            // Om omgången redan fått ett resultat, riv upp det eftersom omgången öppnas igen
+            if (this.match.roundScores && this.match.roundScores[this.match.currentRound - 1]) {
+                const prevRound = this.match.currentRound - 1;
+                const prevResult = this.match.roundScores[prevRound];
+                if (prevResult && this.match.score) {
+                    this.match.score[prevResult.winner] -= prevResult.points;
+                }
+                delete this.match.roundScores[prevRound];
+                this.updateScoreDisplay();
+            }
             this.match.currentRound = round;
         }
 
@@ -1410,7 +1463,7 @@ class MatchApp {
     // ---- NEXT ROUND ----
     nextRound(isAuto) {
         if (!this.match.currentRound) this.match.currentRound = 1;
-        
+
         if (!isAuto) {
             const roundActions = (this.match.roundActions || {})[this.match.currentRound] || {};
             const total = Object.values(roundActions).reduce((s, a) => s + a.length, 0);
@@ -1418,13 +1471,68 @@ class MatchApp {
                 if (!confirm('⚠️ Bara ' + total + '/6 klot. Fortsätt?')) return;
             }
         }
-        
-        this.match.currentRound++;
-        this.updateBallCounts();
-        
-        if (!isAuto) {
-            this.showToast('🎯 Omgång ' + this.match.currentRound);
+
+        const finishedRound = this.match.currentRound;
+        this.showRoundScoreModal(finishedRound, () => {
+            this.match.currentRound = finishedRound + 1;
+            this.updateBallCounts();
+            if (!isAuto) {
+                this.showToast('🎯 Omgång ' + this.match.currentRound);
+            }
+        });
+    }
+
+    // ---- ROUND SCORE MODAL ----
+    showRoundScoreModal(roundNum, onDone) {
+        this._roundModalDone = onDone;
+        const modal = document.getElementById('round-score-modal');
+        const title = document.getElementById('round-modal-title');
+        const ownLabel = document.getElementById('round-modal-own-label');
+        const oppLabel = document.getElementById('round-modal-opp-label');
+
+        if (title) {
+            const titles = {
+                sv: `Omgång ${roundNum} klar \u2014 vem vann?`,
+                en: `Round ${roundNum} done \u2014 who won?`,
+                fr: `Manche ${roundNum} termin\u00e9e \u2014 qui a gagn\u00e9?`
+            };
+            title.textContent = titles[langMgr.lang] || titles.sv;
         }
+        if (ownLabel) ownLabel.textContent = (this.match.team || 'VÅRT LAG').toUpperCase();
+        if (oppLabel) oppLabel.textContent = (this.match.opponent || 'MOTSTÅNDARNA').toUpperCase();
+
+        if (modal) modal.style.display = 'flex';
+    }
+
+    selectRoundResult(winner, points) {
+        if (!this.match.roundScores) this.match.roundScores = {};
+        if (!this.match.score) this.match.score = { own: 0, opp: 0 };
+
+        const roundNum = this.match.currentRound;
+        this.match.roundScores[roundNum] = { winner, points };
+        this.match.score[winner] += points;
+
+        this.updateScoreDisplay();
+        this.closeRoundScoreModal();
+    }
+
+    skipRoundScore() {
+        this.closeRoundScoreModal();
+    }
+
+    closeRoundScoreModal() {
+        const modal = document.getElementById('round-score-modal');
+        if (modal) modal.style.display = 'none';
+        const done = this._roundModalDone;
+        this._roundModalDone = null;
+        if (done) done();
+    }
+
+    updateScoreDisplay() {
+        const el = document.getElementById('hdr-score');
+        if (!el) return;
+        const score = this.match.score || { own: 0, opp: 0 };
+        el.textContent = `${score.own} - ${score.opp}`;
     }
     
     // ---- TOAST ----
@@ -1535,8 +1643,11 @@ class MatchApp {
         this.match.actionHistory = [];
         this.match.currentRound = 1;
         this.match.roundActions = { 1: {} };
+        this.match.roundScores = {};
+        this.match.score = { own: 0, opp: 0 };
         this.renderLiveTable();
         this.updateBallCounts();
+        this.updateScoreDisplay();
     }
 
     // ---- FINISH MATCH ----
@@ -1599,7 +1710,7 @@ class MatchApp {
                 <div class="history-item" onclick="app.showHomeDetail(${idx})">
                     <div class="history-header">
                         <div>
-                            <div class="history-name">${m.name}</div>
+                            <div class="history-name">${m.name}${this.scoreText(m)}</div>
                             <div class="history-sub">${m.team} • ${date} ${time}</div>
                         </div>
                         <div class="history-dur">${m.duration ?? 0} min</div>
@@ -1621,7 +1732,7 @@ class MatchApp {
                 <div class="history-item" onclick="app.showDetail(${idx})">
                     <div class="history-header">
                         <div>
-                            <div class="history-name">${m.name}</div>
+                            <div class="history-name">${m.name}${this.scoreText(m)}</div>
                             <div class="history-sub">${m.team} • ${date} ${time}</div>
                         </div>
                         <div class="history-dur">${m.duration ?? 0} min</div>
@@ -1643,7 +1754,7 @@ class MatchApp {
         const date = new Date(m.startTime).toLocaleDateString('sv-SE');
         const time = new Date(m.startTime).toLocaleTimeString('sv-SE', {hour:'2-digit',minute:'2-digit'});
         document.getElementById('detail-title').textContent = m.name;
-        document.getElementById('detail-meta').textContent = `${m.team} • ${date} ${time} • ${m.duration ?? 0} min`;
+        document.getElementById('detail-meta').textContent = `${m.team} • ${date} ${time} • ${m.duration ?? 0} min${this.scoreText(m)}`;
 
         const labels = m.players.map(p => p.name);
         const chartBase = {
@@ -1840,7 +1951,7 @@ class MatchApp {
         const date = new Date(m.startTime).toLocaleDateString('sv-SE');
         const time = new Date(m.startTime).toLocaleTimeString('sv-SE', {hour:'2-digit',minute:'2-digit'});
         document.getElementById('home-detail-title').textContent = m.name;
-        document.getElementById('home-detail-meta').textContent = `${m.team} • ${date} ${time} • ${m.duration ?? 0} min`;
+        document.getElementById('home-detail-meta').textContent = `${m.team} • ${date} ${time} • ${m.duration ?? 0} min${this.scoreText(m)}`;
 
         const labels = m.players.map(p => p.name);
         const chartBase = {
@@ -2027,7 +2138,23 @@ class MatchApp {
         const date = new Date(m.startTime).toLocaleDateString('sv-SE');
         const time = new Date(m.startTime).toLocaleTimeString('sv-SE', {hour:'2-digit',minute:'2-digit'});
         
-        let csv = `Match: ${m.name}\nLag: ${m.team}\nDatum: ${date}\nTid: ${time}\nVaraktighet: ${m.duration??0} min\nTränarkod: ${this.trainerCode}\n\n`;
+        let csv = `Match: ${m.name}\nLag: ${m.team}\nDatum: ${date}\nTid: ${time}\nVaraktighet: ${m.duration??0} min\nTränarkod: ${this.trainerCode}\n`;
+        if (m.score) {
+            csv += `Resultat: ${m.team || 'Vi'} ${m.score.own} - ${m.score.opp} ${m.opponent || 'Motst.'}\n`;
+        }
+        csv += `\n`;
+
+        if (m.roundScores && Object.keys(m.roundScores).length > 0) {
+            csv += `OMGÅNGSRESULTAT\n`;
+            csv += `Omgång,Vinnare,Poäng\n`;
+            Object.keys(m.roundScores).sort((a,b) => +a - +b).forEach(r => {
+                const res = m.roundScores[r];
+                const winnerName = res.winner === 'own' ? (m.team || 'Vi') : (m.opponent || 'Motst.');
+                csv += `${r},"${winnerName}",${res.points}\n`;
+            });
+            csv += `\n`;
+        }
+
         csv += `SPELARE STATISTIK\n`;
         csv += `Spelare,Position,Lägg träffar,Lägg totalt,Lägg %,Skott träffar,Skott totalt,Skott %,Längsta träffsekvens Lägg,Längsta misssekvens Lägg,Längsta träffsekvens Skott,Längsta misssekvens Skott,Lägg vs snitt,Skott vs snitt\n`;
         
@@ -2154,7 +2281,23 @@ class MatchApp {
         const date = new Date(m.startTime).toLocaleDateString('sv-SE');
         const time = new Date(m.startTime).toLocaleTimeString('sv-SE', {hour:'2-digit',minute:'2-digit'});
         
-        let csv = `Match: ${m.name}\nLag: ${m.team}\nDatum: ${date}\nTid: ${time}\nVaraktighet: ${m.duration??0} min\nTränarkod: ${this.trainerCode}\n\n`;
+        let csv = `Match: ${m.name}\nLag: ${m.team}\nDatum: ${date}\nTid: ${time}\nVaraktighet: ${m.duration??0} min\nTränarkod: ${this.trainerCode}\n`;
+        if (m.score) {
+            csv += `Resultat: ${m.team || 'Vi'} ${m.score.own} - ${m.score.opp} ${m.opponent || 'Motst.'}\n`;
+        }
+        csv += `\n`;
+
+        if (m.roundScores && Object.keys(m.roundScores).length > 0) {
+            csv += `OMGÅNGSRESULTAT\n`;
+            csv += `Omgång,Vinnare,Poäng\n`;
+            Object.keys(m.roundScores).sort((a,b) => +a - +b).forEach(r => {
+                const res = m.roundScores[r];
+                const winnerName = res.winner === 'own' ? (m.team || 'Vi') : (m.opponent || 'Motst.');
+                csv += `${r},"${winnerName}",${res.points}\n`;
+            });
+            csv += `\n`;
+        }
+
         csv += `SPELARE STATISTIK\n`;
         csv += `Spelare,Position,Lägg träffar,Lägg totalt,Lägg %,Skott träffar,Skott totalt,Skott %,Längsta träffsekvens Lägg,Längsta misssekvens Lägg,Längsta träffsekvens Skott,Längsta misssekvens Skott,Lägg vs snitt,Skott vs snitt\n`;
         
@@ -2282,8 +2425,22 @@ class MatchApp {
     exportCSV() {
         const m = this.match || (this.history.length ? this.history[this.history.length-1] : null);
         if (!m) { alert('Ingen matchdata att exportera'); return; }
-        
-        let csv = 'Match,Lag,Datum,Spelare,Position,Omgang,Lagg_Poang,Lagg_Total,Lagg_Procent,Skott_Troff,Skott_Total,Skott_Procent\n';
+
+        let csv = '';
+        if (m.score) {
+            csv += `=== RESULTAT: ${m.team || 'Vi'} ${m.score.own} - ${m.score.opp} ${m.opponent || 'Motst.'} ===\n`;
+        }
+        if (m.roundScores && Object.keys(m.roundScores).length > 0) {
+            csv += `OMGÅNGSRESULTAT\nOmgång,Vinnare,Poäng\n`;
+            Object.keys(m.roundScores).sort((a,b) => +a - +b).forEach(r => {
+                const res = m.roundScores[r];
+                const winnerName = res.winner === 'own' ? (m.team || 'Vi') : (m.opponent || 'Motst.');
+                csv += `${r},"${winnerName}",${res.points}\n`;
+            });
+            csv += `\n`;
+        }
+
+        csv += 'Match,Lag,Datum,Spelare,Position,Omgang,Lagg_Poang,Lagg_Total,Lagg_Procent,Skott_Troff,Skott_Total,Skott_Procent\n';
         
         // Per-omgång data
         if (m.roundActions) {
@@ -2345,6 +2502,15 @@ class MatchApp {
         const filename = `match_${m.name || 'export'}_${new Date().toISOString().split('T')[0]}.csv`;
         a.href=url; a.download=filename; a.click();
         URL.revokeObjectURL(url);
+    }
+
+
+    // ---- SCORE TEXT (för historik/detalj) ----
+    scoreText(m) {
+        if (!m.score || (m.score.own === 0 && m.score.opp === 0)) return '';
+        const teamName = m.team || 'Vi';
+        const oppName = m.opponent || 'Motst.';
+        return ` • ${teamName} ${m.score.own} - ${m.score.opp} ${oppName}`;
     }
 
     // ---- HELPERS ----
@@ -2473,5 +2639,34 @@ class MatchApp {
 const app = new MatchApp();
 document.addEventListener('DOMContentLoaded', () => app.init());
 </script>
+<!-- ROUND SCORE MODAL -->
+<div id="round-score-modal" class="round-modal-overlay" style="display:none;">
+    <div class="round-modal-card">
+        <div class="round-modal-title" id="round-modal-title">Vem vann omgången?</div>
+        <div class="round-modal-sub" data-sv="Tryck på antal poäng för vinnande lag" data-en="Tap the number of points for the winning team" data-fr="Appuyez sur le nombre de points de l'équipe gagnante">Tryck på antal poäng för vinnande lag</div>
+
+        <div class="round-modal-team-label own" id="round-modal-own-label">VÅRT LAG</div>
+        <div class="round-modal-points own">
+            <button onclick="app.selectRoundResult('own',1)">1</button>
+            <button onclick="app.selectRoundResult('own',2)">2</button>
+            <button onclick="app.selectRoundResult('own',3)">3</button>
+            <button onclick="app.selectRoundResult('own',4)">4</button>
+            <button onclick="app.selectRoundResult('own',5)">5</button>
+            <button onclick="app.selectRoundResult('own',6)">6</button>
+        </div>
+
+        <div class="round-modal-team-label opp" id="round-modal-opp-label">MOTSTÅNDARNA</div>
+        <div class="round-modal-points opp">
+            <button onclick="app.selectRoundResult('opp',1)">1</button>
+            <button onclick="app.selectRoundResult('opp',2)">2</button>
+            <button onclick="app.selectRoundResult('opp',3)">3</button>
+            <button onclick="app.selectRoundResult('opp',4)">4</button>
+            <button onclick="app.selectRoundResult('opp',5)">5</button>
+            <button onclick="app.selectRoundResult('opp',6)">6</button>
+        </div>
+
+        <button class="round-modal-skip" onclick="app.skipRoundScore()" data-sv="Hoppa över" data-en="Skip" data-fr="Passer">Hoppa över</button>
+    </div>
+</div>
 </body>
 </html>
