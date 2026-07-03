@@ -641,16 +641,21 @@
         </div>
 
         <div class="card">
-            <div class="card-title" data-sv="Ny match" data-fr="Nouveau match" data-en="New match">Ny match</div>
+            <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;">
+                <span data-sv="Ny match" data-fr="Nouveau match" data-en="New match">Ny match</span>
+                <button onclick="app.openManagePlayers()" style="background:none;border:1px solid #2a3548;color:#999;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;" onmouseover="this.style.color='#e8ff47';this.style.borderColor='#e8ff47'" onmouseout="this.style.color='#999';this.style.borderColor='#2a3548'" data-sv="⚙️ Spelare" data-en="⚙️ Players" data-fr="⚙️ Joueurs">⚙️ Spelare</button>
+            </div>
 
             <!-- Format: Tripplar/Dubblar -->
             <div class="input-group">
                 <label data-sv="Format" data-en="Format" data-fr="Format">Format</label>
                 <div class="format-selector">
-                    <button class="format-btn active" id="fmt-triple" onclick="app.setFormat('triple')">
+                    <button class="format-btn active" id="fmt-triple" onclick="app.setFormat('triple')"
+                        data-sv="🎯 Tripplar (3v3)" data-en="🎯 Triples (3v3)" data-fr="🎯 Triplettes (3v3)">
                         🎯 Tripplar (3v3)
                     </button>
-                    <button class="format-btn" id="fmt-double" onclick="app.setFormat('double')">
+                    <button class="format-btn" id="fmt-double" onclick="app.setFormat('double')"
+                        data-sv="⚡ Dubblar (2v2)" data-en="⚡ Doubles (2v2)" data-fr="⚡ Doublettes (2v2)">
                         ⚡ Dubblar (2v2)
                     </button>
                 </div>
@@ -698,10 +703,6 @@
                     </select>
                 </div>
             </div>
-
-            <button class="manage-players-btn" onclick="app.openManagePlayers()">
-                ⚙️ Hantera spelare
-            </button>
 
             <button class="btn btn-primary" id="btn-start" style="margin-top:1rem;"
                 data-sv="STARTA MATCH" data-fr="DÉMARRER LE MATCH" data-en="START MATCH">STARTA MATCH</button>
@@ -883,6 +884,11 @@ const langMgr = {
             if (!t) return;
             if (el.tagName === 'INPUT') el.placeholder = t;
             else el.textContent = t;
+        });
+        // Placeholders med data-sv-placeholder
+        document.querySelectorAll('[data-sv-placeholder]').forEach(el => {
+            const ph = el.getAttribute('data-' + this.lang + '-placeholder') || el.getAttribute('data-sv-placeholder');
+            if (ph) el.placeholder = ph;
         });
         ['sv','en','fr'].forEach(l => {
             const b = document.getElementById('ms-btn-' + l);
@@ -2679,9 +2685,9 @@ class MatchApp {
     async addPlayer() {
         const nameEl = document.getElementById('new-player-name');
         const name = nameEl.value.trim();
-        if (!name) { this.showToast('⚠️ Ange ett namn'); return; }
+        if (!name) { this.showToast({ sv:'⚠️ Ange ett namn', en:'⚠️ Enter a name', fr:'⚠️ Entrez un nom' }[langMgr.lang] || '⚠️ Ange ett namn'); return; }
         if (this.players.find(p => p.name.toLowerCase() === name.toLowerCase())) {
-            this.showToast('⚠️ ' + name + ' finns redan'); return;
+            this.showToast('⚠️ ' + name + ' ' + ({ sv:'finns redan', en:'already exists', fr:'existe déjà' }[langMgr.lang] || 'finns redan')); return;
         }
         const player = { name };
         try {
@@ -2698,11 +2704,11 @@ class MatchApp {
         nameEl.focus();
         this.renderPlayerList();
         this.buildPlayerDropdowns();
-        this.showToast('✅ ' + name + ' tillagd');
+        this.showToast('✅ ' + name + ' ' + ({ sv:'tillagd', en:'added', fr:'ajouté(e)' }[langMgr.lang] || 'tillagd'));
     }
 
     async deletePlayer(id) {
-        if (!confirm('Ta bort spelaren?')) return;
+        if (!confirm({ sv:'Ta bort spelaren?', en:'Remove player?', fr:'Supprimer le joueur?' }[langMgr.lang] || 'Ta bort spelaren?')) return;
         this.players = this.players.filter(p => p.id !== id);
         try {
             await firebase.database()
@@ -2718,7 +2724,8 @@ class MatchApp {
         const el = document.getElementById('player-db-list');
         if (!el) return;
         if (!this.players || this.players.length === 0) {
-            el.innerHTML = '<div style="color:#999;font-size:13px;text-align:center;padding:1rem;">Inga spelare sparade än</div>';
+            const emptyTxt = { sv: 'Inga spelare sparade än', en: 'No players saved yet', fr: 'Aucun joueur enregistré' };
+            el.innerHTML = `<div style="color:#999;font-size:13px;text-align:center;padding:1rem;">${emptyTxt[langMgr.lang] || emptyTxt.sv}</div>`;
             return;
         }
         el.innerHTML = this.players
@@ -2726,7 +2733,8 @@ class MatchApp {
             .map(p => `
             <div class="player-list-item">
                 <span class="pli-name">${p.name}</span>
-                <button class="pli-del" onclick="app.deletePlayer('${p.id}')">Ta bort</button>
+                <button class="pli-del" onclick="app.deletePlayer('${p.id}')"
+                    data-sv="Ta bort" data-en="Remove" data-fr="Supprimer">Ta bort</button>
             </div>`).join('');
     }
 
@@ -2740,14 +2748,16 @@ class MatchApp {
             const sel = document.getElementById(slot.id);
             if (!sel) return;
             const current = sel.value;
-            const opts = ['<option value="">– Välj spelare –</option>'];
+            const sel_placeholder = { sv: '– Välj spelare –', en: '– Select player –', fr: '– Choisir un joueur –' };
+        const sel_newplayer = { sv: '+ Skriv nytt namn...', en: '+ Type new name...', fr: '+ Saisir un nouveau nom...' };
+        const opts = [`<option value="">${sel_placeholder[langMgr.lang] || sel_placeholder.sv}</option>`];
             (this.players || [])
                 .sort((a, b) => a.name.localeCompare(b.name))
                 .forEach(p => {
                     const sel_flag = p.name === current ? ' selected' : '';
                     opts.push(`<option value="${p.name}"${sel_flag}>${p.name}</option>`);
                 });
-            opts.push('<option value="__new__">+ Skriv nytt namn...</option>');
+            opts.push(`<option value="__new__">${sel_newplayer[langMgr.lang] || sel_newplayer.sv}</option>`);
             sel.innerHTML = opts.join('');
             if (current) sel.value = current;
         });
@@ -2926,16 +2936,17 @@ document.addEventListener('DOMContentLoaded', () => app.init());
 <!-- MANAGE PLAYERS MODAL -->
 <div id="manage-players-modal" class="manage-modal-overlay" style="display:none;">
     <div class="manage-modal-card">
-        <div class="manage-modal-title">⚙️ Hantera spelare</div>
+        <div class="manage-modal-title" data-sv="⚙️ Hantera spelare" data-en="⚙️ Manage players" data-fr="⚙️ Gérer les joueurs">⚙️ Hantera spelare</div>
         <div id="player-db-list">
-            <div style="color:#999;font-size:13px;text-align:center;padding:1rem;">Inga spelare sparade än</div>
+            <div style="color:#999;font-size:13px;text-align:center;padding:1rem;" data-sv="Inga spelare sparade än" data-en="No players saved yet" data-fr="Aucun joueur enregistré">Inga spelare sparade än</div>
         </div>
         <div class="add-player-row">
-            <input type="text" id="new-player-name" placeholder="Spelarens namn" maxlength="30"
-                onkeydown="if(event.key==='Enter') app.addPlayer()">
-            <button onclick="app.addPlayer()">+ Lägg till</button>
+            <input type="text" id="new-player-name" placeholder="Spelarens namn"
+                data-sv-placeholder="Spelarens namn" data-en-placeholder="Player name" data-fr-placeholder="Nom du joueur"
+                maxlength="30" onkeydown="if(event.key==='Enter') app.addPlayer()">
+            <button onclick="app.addPlayer()" data-sv="+ Lägg till" data-en="+ Add" data-fr="+ Ajouter">+ Lägg till</button>
         </div>
-        <button class="manage-close-btn" onclick="app.closeManagePlayers()">Stäng</button>
+        <button class="manage-close-btn" onclick="app.closeManagePlayers()" data-sv="Stäng" data-en="Close" data-fr="Fermer">Stäng</button>
     </div>
 </div>
 
