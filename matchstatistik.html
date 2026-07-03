@@ -2678,14 +2678,12 @@ class MatchApp {
 
     async addPlayer() {
         const nameEl = document.getElementById('new-player-name');
-        const posEl = document.getElementById('new-player-pos');
         const name = nameEl.value.trim();
-        const pos = posEl.value;
         if (!name) { this.showToast('⚠️ Ange ett namn'); return; }
         if (this.players.find(p => p.name.toLowerCase() === name.toLowerCase())) {
-            this.showToast('⚠️ Spelaren finns redan'); return;
+            this.showToast('⚠️ ' + name + ' finns redan'); return;
         }
-        const player = { name, defaultPosition: pos };
+        const player = { name };
         try {
             const ref = await firebase.database()
                 .ref('coaches/' + this.trainerCode + '/players')
@@ -2697,6 +2695,7 @@ class MatchApp {
         }
         localStorage.setItem('pt_players_' + this.trainerCode, JSON.stringify(this.players));
         nameEl.value = '';
+        nameEl.focus();
         this.renderPlayerList();
         this.buildPlayerDropdowns();
         this.showToast('✅ ' + name + ' tillagd');
@@ -2726,10 +2725,7 @@ class MatchApp {
             .sort((a, b) => a.name.localeCompare(b.name))
             .map(p => `
             <div class="player-list-item">
-                <div>
-                    <span class="pli-name">${p.name}</span>
-                    <span class="pli-pos">${p.defaultPosition || ''}</span>
-                </div>
+                <span class="pli-name">${p.name}</span>
                 <button class="pli-del" onclick="app.deletePlayer('${p.id}')">Ta bort</button>
             </div>`).join('');
     }
@@ -2935,12 +2931,8 @@ document.addEventListener('DOMContentLoaded', () => app.init());
             <div style="color:#999;font-size:13px;text-align:center;padding:1rem;">Inga spelare sparade än</div>
         </div>
         <div class="add-player-row">
-            <input type="text" id="new-player-name" placeholder="Namn" maxlength="30">
-            <select id="new-player-pos">
-                <option value="Läggare">Läggare</option>
-                <option value="Mittspelare">Mittspelare</option>
-                <option value="Skytt" selected>Skytt</option>
-            </select>
+            <input type="text" id="new-player-name" placeholder="Spelarens namn" maxlength="30"
+                onkeydown="if(event.key==='Enter') app.addPlayer()">
             <button onclick="app.addPlayer()">+ Lägg till</button>
         </div>
         <button class="manage-close-btn" onclick="app.closeManagePlayers()">Stäng</button>
