@@ -82,6 +82,81 @@
 }
 .round-modal-skip:hover { color: #ccc; border-color: #555; }
 
+/* ---- PLAYER DATABASE ---- */
+.player-select-wrap { position: relative; }
+.player-select-wrap select {
+    width: 100%; padding: 10px 12px; background: var(--card, #1a2030);
+    color: #fff; border: 1px solid #2a3548; border-radius: 8px;
+    font-size: 14px; appearance: none; cursor: pointer;
+}
+.player-select-wrap::after {
+    content: '▾'; position: absolute; right: 12px; top: 50%;
+    transform: translateY(-50%); color: #999; pointer-events: none;
+}
+.manage-players-btn {
+    background: none; border: 1px solid #2a3548; color: #999;
+    border-radius: 6px; padding: 5px 10px; font-size: 12px; cursor: pointer;
+    margin-top: 6px; width: 100%;
+}
+.manage-players-btn:hover { border-color: #e8ff47; color: #e8ff47; }
+
+/* ---- FORMAT SELECTOR ---- */
+.format-selector {
+    display: flex; gap: 8px; margin-bottom: 1rem;
+}
+.format-btn {
+    flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #2a3548;
+    background: #1a2030; color: #999; font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: all 0.15s; text-align: center;
+}
+.format-btn.active { border-color: #e8ff47; color: #e8ff47; background: rgba(232,255,71,0.08); }
+
+/* ---- MANAGE PLAYERS MODAL ---- */
+.manage-modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9); z-index: 10001;
+    display: flex; align-items: center; justify-content: center; padding: 1rem;
+}
+.manage-modal-card {
+    background: #11161f; border: 1px solid #2a3548; border-radius: 16px;
+    padding: 1.5rem; max-width: 400px; width: 100%; max-height: 80vh; overflow-y: auto;
+}
+.manage-modal-title {
+    font-size: 17px; font-weight: 700; color: #e8ff47; margin-bottom: 1rem;
+}
+.player-list-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 0; border-bottom: 1px solid #1a2030; font-size: 14px;
+}
+.player-list-item .pli-name { color: #fff; font-weight: 600; }
+.player-list-item .pli-pos { color: #999; font-size: 12px; margin-left: 8px; }
+.player-list-item .pli-del {
+    background: none; border: 1px solid #3a2020; color: #ff6b6b;
+    border-radius: 6px; padding: 3px 8px; font-size: 12px; cursor: pointer;
+}
+.player-list-item .pli-del:hover { background: #3a2020; }
+.add-player-row {
+    display: flex; gap: 8px; margin-top: 1rem;
+}
+.add-player-row input {
+    flex: 1; padding: 8px 10px; background: #1a2030; border: 1px solid #2a3548;
+    border-radius: 8px; color: #fff; font-size: 13px;
+}
+.add-player-row select {
+    padding: 8px; background: #1a2030; border: 1px solid #2a3548;
+    border-radius: 8px; color: #fff; font-size: 13px; cursor: pointer;
+}
+.add-player-row button {
+    padding: 8px 14px; background: #e8ff47; color: #080810;
+    border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px;
+}
+.manage-close-btn {
+    width: 100%; padding: 10px; margin-top: 1rem; border-radius: 8px;
+    border: 1px solid #2a3548; background: transparent; color: #999;
+    font-size: 13px; cursor: pointer;
+}
+.manage-close-btn:hover { color: #ccc; border-color: #555; }
+
         /* LANG TOGGLE */
         .lang-btn-match {
         background: transparent; border: 1px solid #333;
@@ -567,6 +642,20 @@
 
         <div class="card">
             <div class="card-title" data-sv="Ny match" data-fr="Nouveau match" data-en="New match">Ny match</div>
+
+            <!-- Format: Tripplar/Dubblar -->
+            <div class="input-group">
+                <label data-sv="Format" data-en="Format" data-fr="Format">Format</label>
+                <div class="format-selector">
+                    <button class="format-btn active" id="fmt-triple" onclick="app.setFormat('triple')">
+                        🎯 Tripplar (3v3)
+                    </button>
+                    <button class="format-btn" id="fmt-double" onclick="app.setFormat('double')">
+                        ⚡ Dubblar (2v2)
+                    </button>
+                </div>
+            </div>
+
             <div class="input-group">
                 <label data-sv="Matchnamn" data-fr="Nom du match" data-en="Match name">Matchnamn</label>
                 <input type="text" id="inp-matchname" placeholder="T.ex. Träning mot Västra">
@@ -579,19 +668,43 @@
                 <label data-sv="Motståndarlag" data-fr="Équipe adverse" data-en="Opponent team">Motståndarlag</label>
                 <input type="text" id="inp-opponent" placeholder="T.ex. IK Boule">
             </div>
+
+            <!-- Spelare 1: Läggare (alltid synlig) -->
             <div class="input-group">
                 <label data-sv="Läggare" data-fr="Pointeur" data-en="Pointer">Läggare</label>
-                <input type="text" id="inp-p1" placeholder="T.ex. Anders">
+                <div class="player-select-wrap">
+                    <select id="inp-p1" onchange="app.onPlayerSelect(this)">
+                        <option value="">– Välj spelare –</option>
+                    </select>
+                </div>
             </div>
-            <div class="input-group">
+
+            <!-- Spelare 2: Mittspelare (dold vid Dubblar) -->
+            <div class="input-group" id="inp-p2-wrap">
                 <label data-sv="Mittspelare" data-fr="Milieu" data-en="Middle player">Mittspelare</label>
-                <input type="text" id="inp-p2" placeholder="T.ex. Lisa">
+                <div class="player-select-wrap">
+                    <select id="inp-p2" onchange="app.onPlayerSelect(this)">
+                        <option value="">– Välj spelare –</option>
+                    </select>
+                </div>
             </div>
+
+            <!-- Spelare 3: Skytt (alltid synlig, men sist) -->
             <div class="input-group">
-                <label data-sv="Skytt" data-fr="Tireur" data-en="Shooter">Skytt</label>
-                <input type="text" id="inp-p3" placeholder="T.ex. Per">
+                <label id="inp-p3-label" data-sv="Skytt" data-fr="Tireur" data-en="Shooter">Skytt</label>
+                <div class="player-select-wrap">
+                    <select id="inp-p3" onchange="app.onPlayerSelect(this)">
+                        <option value="">– Välj spelare –</option>
+                    </select>
+                </div>
             </div>
-            <button class="btn btn-primary" id="btn-start" data-sv="STARTA MATCH" data-fr="DÉMARRER LE MATCH" data-en="START MATCH">STARTA MATCH</button>
+
+            <button class="manage-players-btn" onclick="app.openManagePlayers()">
+                ⚙️ Hantera spelare
+            </button>
+
+            <button class="btn btn-primary" id="btn-start" style="margin-top:1rem;"
+                data-sv="STARTA MATCH" data-fr="DÉMARRER LE MATCH" data-en="START MATCH">STARTA MATCH</button>
         </div>
 
         <!-- HOME HISTORY -->
@@ -810,6 +923,8 @@ class MatchApp {
         this.currentHomeDetailIdx = null;
         this.homeDetailCharts = {};
         this.positions = ['Läggare','Mittspelare','Skytt'];
+        this.matchFormat = 'triple';
+        this.players = [];
         this.codeBuffer = '';
         this.isOnline = navigator.onLine;
         this.fbRef = null;
@@ -889,6 +1004,7 @@ class MatchApp {
         
         const screenSetup = document.getElementById('screen-setup');
         if (screenSetup) screenSetup.style.display = 'block';
+        this.loadPlayers();
 
         this.fbRef = db.ref(`coaches/${this.trainerCode}/matches`);
         this.loadHistory();
@@ -1111,11 +1227,23 @@ class MatchApp {
     startMatch() {
         const name = document.getElementById('inp-matchname').value.trim() || 'Utan namn';
         const team = document.getElementById('inp-teamname').value.trim() || 'Mitt lag';
-        const names = [
-            document.getElementById('inp-p1').value.trim() || 'Läggare',
-            document.getElementById('inp-p2').value.trim() || 'Mittspelare',
-            document.getElementById('inp-p3').value.trim() || 'Skytt'
-        ];
+        const fmt = this.matchFormat || 'triple';
+
+        let names, positions;
+        if (fmt === 'double') {
+            names = [
+                document.getElementById('inp-p1').value.trim() || 'Läggare',
+                document.getElementById('inp-p3').value.trim() || 'Skytt'
+            ];
+            positions = ['Läggare', 'Skytt'];
+        } else {
+            names = [
+                document.getElementById('inp-p1').value.trim() || 'Läggare',
+                document.getElementById('inp-p2').value.trim() || 'Mittspelare',
+                document.getElementById('inp-p3').value.trim() || 'Skytt'
+            ];
+            positions = ['Läggare', 'Mittspelare', 'Skytt'];
+        }
 
         const opponent = document.getElementById('inp-opponent').value.trim() || 'Motståndare';
         this.matchStart = new Date();
@@ -1124,21 +1252,28 @@ class MatchApp {
             name, team, opponent,
             startTime: this.matchStart.toISOString(),
             trainerCode: this.trainerCode,
-            players: names.map((n,i) => ({
-                name: n, position: this.positions[i],
+            players: names.map((n, i) => ({
+                name: n, position: positions[i],
                 stats: { lagg:{hit:0,total:0}, skott:{hit:0,total:0} }
             })),
             opponents: [
-                { name: 'M1', position: 'Läggare', stats: { lagg:{hit:0,total:0}, skott:{hit:0,total:0} } },
-                { name: 'M2', position: 'Mittspelare', stats: { lagg:{hit:0,total:0}, skott:{hit:0,total:0} } },
-                { name: 'M3', position: 'Skytt', stats: { lagg:{hit:0,total:0}, skott:{hit:0,total:0} } }
+                ...(fmt === 'double' ? [
+                    { name: 'M1', position: 'Läggare', stats: { lagg:{hit:0,total:0}, skott:{hit:0,total:0} } },
+                    { name: 'M2', position: 'Skytt', stats: { lagg:{hit:0,total:0}, skott:{hit:0,total:0} } }
+                ] : [
+                    { name: 'M1', position: 'Läggare', stats: { lagg:{hit:0,total:0}, skott:{hit:0,total:0} } },
+                    { name: 'M2', position: 'Mittspelare', stats: { lagg:{hit:0,total:0}, skott:{hit:0,total:0} } },
+                    { name: 'M3', position: 'Skytt', stats: { lagg:{hit:0,total:0}, skott:{hit:0,total:0} } }
+                ])
             ],
             timeline: [],
             currentRound: 1,
             roundActions: { 1: {} },
             actionHistory: [],
             roundScores: {},
-            score: { own: 0, opp: 0 }
+            score: { own: 0, opp: 0 },
+            format: fmt,
+            ballsPerPlayer: this.getBallsPerPlayer()
         };
 
         document.getElementById('hdr-id').textContent = this.match.id.slice(-8);
@@ -1220,7 +1355,7 @@ class MatchApp {
             <div class="player-header">
                 <span class="player-role">${p.position}</span>
                 <span class="player-name">${p.name}</span>
-                <span class="player-ball-count" id="${isOpponent ? 'opp' : 'own'}-ball-count-${idx}">0/2</span>
+                <span class="player-ball-count" id="${isOpponent ? 'opp' : 'own'}-ball-count-${idx}">0/${this.match.ballsPerPlayer || 2}</span>
             </div>
             <div class="action-grid">
                 <div class="action-col">
@@ -1253,22 +1388,24 @@ class MatchApp {
             roundDisplay.textContent = currentRound;
         }
         
+        const bpp = this.match.ballsPerPlayer || 2;
+
         this.match.players.forEach((p, idx) => {
             const playerActions = roundActions[idx] || [];
             const count = playerActions.length;
             const badge = document.getElementById('own-ball-count-' + idx);
             if (badge) {
-                badge.textContent = count + '/2';
+                badge.textContent = count + '/' + bpp;
                 badge.className = 'player-ball-count';
-                if (count >= 2) badge.classList.add('ball-count-full');
+                if (count >= bpp) badge.classList.add('ball-count-full');
             }
             const buttons = document.querySelectorAll('button[data-player="' + idx + '"]');
             buttons.forEach(btn => {
-                btn.disabled = count >= 2;
-                btn.classList.toggle('btn-disabled', count >= 2);
+                btn.disabled = count >= bpp;
+                btn.classList.toggle('btn-disabled', count >= bpp);
             });
             const card = document.getElementById('player-card-' + idx);
-            if (card) card.classList.toggle('card-full', count >= 2);
+            if (card) card.classList.toggle('card-full', count >= bpp);
         });
 
         // Samma logik för motståndarlaget
@@ -1278,17 +1415,17 @@ class MatchApp {
                 const count = oppActions.length;
                 const badge = document.getElementById('opp-ball-count-' + idx);
                 if (badge) {
-                    badge.textContent = count + '/2';
+                    badge.textContent = count + '/' + bpp;
                     badge.className = 'player-ball-count';
-                    if (count >= 2) badge.classList.add('ball-count-full');
+                    if (count >= bpp) badge.classList.add('ball-count-full');
                 }
                 const buttons = document.querySelectorAll('button[data-opp="' + idx + '"]');
                 buttons.forEach(btn => {
-                    btn.disabled = count >= 2;
-                    btn.classList.toggle('btn-disabled', count >= 2);
+                    btn.disabled = count >= bpp;
+                    btn.classList.toggle('btn-disabled', count >= bpp);
                 });
                 const card = document.getElementById('opp-card-' + idx);
-                if (card) card.classList.toggle('card-full', count >= 2);
+                if (card) card.classList.toggle('card-full', count >= bpp);
             });
         }
     }
@@ -1306,9 +1443,10 @@ class MatchApp {
             this.match.roundActions[currentRound][oppKey] = [];
         }
         
-        // Kolla om 2 klot redan loggats
-        if (this.match.roundActions[currentRound][oppKey].length >= 2) {
-            this.showToast('⚠️ Spelaren har redan lagt 2 klot');
+        // Kolla om max klot redan loggats
+        const bppOpp = this.match.ballsPerPlayer || 2;
+        if (this.match.roundActions[currentRound][oppKey].length >= bppOpp) {
+            this.showToast('⚠️ Spelaren har redan lagt ' + bppOpp + ' klot');
             return;
         }
         
@@ -1353,8 +1491,9 @@ class MatchApp {
         
         // Check if player already has 2 balls
         const playerBalls = this.match.roundActions[this.match.currentRound][playerIdx];
-        if (playerBalls.length >= 2) {
-            this.showToast('⚠️ Redan 2 klot');
+        const bppLog = this.match.ballsPerPlayer || 2;
+        if (playerBalls.length >= bppLog) {
+            this.showToast('⚠️ Spelaren har redan lagt ' + bppLog + ' klot');
             return;
         }
         
@@ -1451,8 +1590,9 @@ class MatchApp {
             return sum + ((roundActions['opp_' + idx] || []).length);
         }, 0);
 
-        const ownFull = ownBalls >= (this.match.players.length * 2);
-        const oppFull = oppBalls >= ((this.match.opponents || []).length * 2);
+        const bppCheck = this.match.ballsPerPlayer || 2;
+        const ownFull = ownBalls >= (this.match.players.length * bppCheck);
+        const oppFull = oppBalls >= ((this.match.opponents || []).length * bppCheck);
 
         if (ownFull && oppFull) {
             this.showToast('✅ Omgång ' + this.match.currentRound + ' klar - byter...');
@@ -1668,7 +1808,7 @@ class MatchApp {
         this.match = null;
         this.matchStart = null;
 
-        ['inp-matchname','inp-teamname','inp-p1','inp-p2','inp-p3'].forEach(id => { document.getElementById(id).value = ''; });
+        ['inp-matchname','inp-teamname','inp-p1','inp-p2','inp-p3'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
         document.getElementById('hdr-id').textContent = '---';
         document.getElementById('hdr-time').textContent = '---';
         document.getElementById('hdr-round').textContent = '-';
@@ -2513,6 +2653,154 @@ class MatchApp {
         return ` • ${teamName} ${m.score.own} - ${m.score.opp} ${oppName}`;
     }
 
+    // ============================================================
+    // SPELARDATABAS
+    // ============================================================
+    async loadPlayers() {
+        if (!this.trainerCode) return;
+        try {
+            const snap = await firebase.database()
+                .ref('coaches/' + this.trainerCode + '/players')
+                .orderByChild('name')
+                .once('value');
+            this.players = [];
+            if (snap.val()) {
+                snap.forEach(child => {
+                    this.players.push({ id: child.key, ...child.val() });
+                });
+            }
+        } catch(e) {
+            this.players = JSON.parse(localStorage.getItem('pt_players_' + this.trainerCode) || '[]');
+        }
+        this.buildPlayerDropdowns();
+        this.renderPlayerList();
+    }
+
+    async addPlayer() {
+        const nameEl = document.getElementById('new-player-name');
+        const posEl = document.getElementById('new-player-pos');
+        const name = nameEl.value.trim();
+        const pos = posEl.value;
+        if (!name) { this.showToast('⚠️ Ange ett namn'); return; }
+        if (this.players.find(p => p.name.toLowerCase() === name.toLowerCase())) {
+            this.showToast('⚠️ Spelaren finns redan'); return;
+        }
+        const player = { name, defaultPosition: pos };
+        try {
+            const ref = await firebase.database()
+                .ref('coaches/' + this.trainerCode + '/players')
+                .push(player);
+            this.players.push({ id: ref.key, ...player });
+        } catch(e) {
+            const id = 'p_' + Date.now();
+            this.players.push({ id, ...player });
+        }
+        localStorage.setItem('pt_players_' + this.trainerCode, JSON.stringify(this.players));
+        nameEl.value = '';
+        this.renderPlayerList();
+        this.buildPlayerDropdowns();
+        this.showToast('✅ ' + name + ' tillagd');
+    }
+
+    async deletePlayer(id) {
+        if (!confirm('Ta bort spelaren?')) return;
+        this.players = this.players.filter(p => p.id !== id);
+        try {
+            await firebase.database()
+                .ref('coaches/' + this.trainerCode + '/players/' + id)
+                .remove();
+        } catch(e) {}
+        localStorage.setItem('pt_players_' + this.trainerCode, JSON.stringify(this.players));
+        this.renderPlayerList();
+        this.buildPlayerDropdowns();
+    }
+
+    renderPlayerList() {
+        const el = document.getElementById('player-db-list');
+        if (!el) return;
+        if (!this.players || this.players.length === 0) {
+            el.innerHTML = '<div style="color:#999;font-size:13px;text-align:center;padding:1rem;">Inga spelare sparade än</div>';
+            return;
+        }
+        el.innerHTML = this.players
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map(p => `
+            <div class="player-list-item">
+                <div>
+                    <span class="pli-name">${p.name}</span>
+                    <span class="pli-pos">${p.defaultPosition || ''}</span>
+                </div>
+                <button class="pli-del" onclick="app.deletePlayer('${p.id}')">Ta bort</button>
+            </div>`).join('');
+    }
+
+    buildPlayerDropdowns() {
+        const format = this.matchFormat || 'triple';
+        const slots = format === 'double'
+            ? [{ id: 'inp-p1', label: 'Läggare' }, { id: 'inp-p3', label: 'Skytt' }]
+            : [{ id: 'inp-p1', label: 'Läggare' }, { id: 'inp-p2', label: 'Mittspelare' }, { id: 'inp-p3', label: 'Skytt' }];
+
+        slots.forEach(slot => {
+            const sel = document.getElementById(slot.id);
+            if (!sel) return;
+            const current = sel.value;
+            const opts = ['<option value="">– Välj spelare –</option>'];
+            (this.players || [])
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .forEach(p => {
+                    const sel_flag = p.name === current ? ' selected' : '';
+                    opts.push(`<option value="${p.name}"${sel_flag}>${p.name}</option>`);
+                });
+            opts.push('<option value="__new__">+ Skriv nytt namn...</option>');
+            sel.innerHTML = opts.join('');
+            if (current) sel.value = current;
+        });
+    }
+
+    onPlayerSelect(sel) {
+        if (sel.value === '__new__') {
+            const name = prompt('Ange spelarens namn:');
+            if (name && name.trim()) {
+                const opt = document.createElement('option');
+                opt.value = name.trim();
+                opt.textContent = name.trim();
+                sel.insertBefore(opt, sel.lastElementChild);
+                sel.value = name.trim();
+            } else {
+                sel.value = '';
+            }
+        }
+    }
+
+    openManagePlayers() {
+        this.renderPlayerList();
+        document.getElementById('manage-players-modal').style.display = 'flex';
+    }
+
+    closeManagePlayers() {
+        document.getElementById('manage-players-modal').style.display = 'none';
+        this.buildPlayerDropdowns();
+    }
+
+    // ============================================================
+    // FORMAT: DUBBLAR / TRIPPLAR
+    // ============================================================
+    setFormat(fmt) {
+        this.matchFormat = fmt;
+        document.getElementById('fmt-triple').classList.toggle('active', fmt === 'triple');
+        document.getElementById('fmt-double').classList.toggle('active', fmt === 'double');
+
+        // Visa/dölj mittspelaren
+        const p2wrap = document.getElementById('inp-p2-wrap');
+        if (p2wrap) p2wrap.style.display = fmt === 'double' ? 'none' : '';
+
+        this.buildPlayerDropdowns();
+    }
+
+    getBallsPerPlayer() {
+        return (this.matchFormat || 'triple') === 'double' ? 3 : 2;
+    }
+
     // ---- HELPERS ----
     acc(stat) { return stat.total ? Math.round((stat.hit/stat.total)*100) : 0; }
     accClass(acc, total) { return !total ? 'acc-neutral' : acc>=50 ? 'acc-good' : 'acc-bad'; }
@@ -2639,6 +2927,26 @@ class MatchApp {
 const app = new MatchApp();
 document.addEventListener('DOMContentLoaded', () => app.init());
 </script>
+<!-- MANAGE PLAYERS MODAL -->
+<div id="manage-players-modal" class="manage-modal-overlay" style="display:none;">
+    <div class="manage-modal-card">
+        <div class="manage-modal-title">⚙️ Hantera spelare</div>
+        <div id="player-db-list">
+            <div style="color:#999;font-size:13px;text-align:center;padding:1rem;">Inga spelare sparade än</div>
+        </div>
+        <div class="add-player-row">
+            <input type="text" id="new-player-name" placeholder="Namn" maxlength="30">
+            <select id="new-player-pos">
+                <option value="Läggare">Läggare</option>
+                <option value="Mittspelare">Mittspelare</option>
+                <option value="Skytt" selected>Skytt</option>
+            </select>
+            <button onclick="app.addPlayer()">+ Lägg till</button>
+        </div>
+        <button class="manage-close-btn" onclick="app.closeManagePlayers()">Stäng</button>
+    </div>
+</div>
+
 <!-- ROUND SCORE MODAL -->
 <div id="round-score-modal" class="round-modal-overlay" style="display:none;">
     <div class="round-modal-card">
