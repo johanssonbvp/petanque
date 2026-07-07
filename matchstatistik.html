@@ -338,6 +338,16 @@
         }
         .btn-miss-log:hover { background: rgba(255,107,107,0.25); }
         .btn-miss-log:active { transform: scale(0.96); }
+        .action-btn-stang {
+            background: rgba(255,159,67,0.1);
+            color: #ff9f43;
+            border: 1px solid rgba(255,159,67,0.3);
+            border-radius: 8px; padding: 0.5rem; font-size: 12px;
+            font-weight: 700; cursor: pointer; width: 100%; transition: all 0.15s;
+        }
+        .action-btn-stang:hover { background: rgba(255,159,67,0.25); }
+        .action-btn-stang:active { transform: scale(0.96); }
+        .action-btn-stang:disabled { opacity: 0.3; cursor: not-allowed; }
 
         /* PLAYER GRID */
         .player-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap: 1.25rem; margin-bottom: 1.25rem; }
@@ -836,7 +846,7 @@
                 <thead>
                     <tr>
                         <th data-sv="Spelare" data-en="Player">Spelare</th>
-                        <th data-sv="Lägg Poängkula/Tot" data-en="Lägg Ball/Tot">Lägg Poängkula/Tot</th>
+                        <th data-sv="Lägg P/S/Tot" data-en="Lägg H/B/Tot" data-fr="Pointé P/B/Tot">Lägg P/S/Tot</th>
                         <th class="tc">Lägg %</th>
                         <th data-sv="Skott Träff/Tot" data-en="Shot Hit/Tot">Skott Träff/Tot</th>
                         <th class="tc">Skott %</th>
@@ -1480,6 +1490,9 @@ class MatchApp {
                     <div class="action-col-label">LÄGG</div>
                     <button class="action-btn action-btn-success" data-${isOpponent ? 'opp' : 'player'}="${idx}" 
                         onclick="app.${isOpponent ? 'logOpponent' : 'log'}(${idx},'lagg',true)">✓ Poäng</button>
+                    <button class="action-btn action-btn-stang" data-${isOpponent ? 'opp' : 'player'}="${idx}"
+                        data-sv="⊙ Stängn." data-en="⊙ Block" data-fr="⊙ Blocage"
+                        onclick="app.${isOpponent ? 'logOpponent' : 'log'}(${idx},'lagg',false,true)">⊙ Stängn.</button>
                     <button class="action-btn action-btn-miss" data-${isOpponent ? 'opp' : 'player'}="${idx}"
                         onclick="app.${isOpponent ? 'logOpponent' : 'log'}(${idx},'lagg',false)">✗ Miss</button>
                 </div>
@@ -1549,7 +1562,7 @@ class MatchApp {
     }
 
     // ---- LOG OPPONENT ----
-    logOpponent(playerIdx, type, hit) {
+    logOpponent(playerIdx, type, hit, stang = false) {
         if (!this.match.opponents) return;
         
         const currentRound = this.match.currentRound || 1;
@@ -1571,8 +1584,12 @@ class MatchApp {
         const p = this.match.opponents[playerIdx];
         p.stats[type].total++;
         if (hit) p.stats[type].hit++;
+        if (stang && !hit) {
+            if (!p.stats[type].stang) p.stats[type].stang = 0;
+            p.stats[type].stang++;
+        }
         
-        this.match.roundActions[currentRound][oppKey].push({ type, hit });
+        this.match.roundActions[currentRound][oppKey].push({ type, hit, stang: stang && !hit });
 
         // Spara i ångra-historik
         if (!this.match.actionHistory) this.match.actionHistory = [];
@@ -1588,10 +1605,14 @@ class MatchApp {
     }
     
     // ---- LOG ----
-    log(playerIdx, type, hit) {
+    log(playerIdx, type, hit, stang = false) {
         const p = this.match.players[playerIdx];
         p.stats[type].total++;
         if (hit) p.stats[type].hit++;
+        if (stang && !hit) {
+            if (!p.stats[type].stang) p.stats[type].stang = 0;
+            p.stats[type].stang++;
+        }
 
         // Setup för omgång-tracking
         if (!this.match.currentRound) this.match.currentRound = 1;
@@ -1616,10 +1637,21 @@ class MatchApp {
         }
         
         // Add this ball
-        playerBalls.push({ type, hit });
+        playerBalls.push({ type, hit, stang: stang && !hit });
 
         const elapsed = Math.floor((new Date() - this.matchStart) / 60000);
-        const label = type === 'lagg' ? (hit ? 'Poängkula ✓' : 'Lägg miss ✗') : (hit ? 'Skott träff ✓' : 'Skott miss ✗');
+        const _lang = typeof langMgr !== 'undefined' ? langMgr.lang : 'sv';
+        const _laggLabels = {
+            hit:  { sv: 'Poängkula ✓', en: 'Hit ✓', fr: 'Pointé ✓' },
+            stang:{ sv: 'Stängning ⊙', en: 'Block ⊙', fr: 'Blocage ⊙' },
+            miss: { sv: 'Lägg miss ✗', en: 'Pointer miss ✗', fr: 'Pointé manqué ✗' },
+        };
+        const _skottLabels = {
+            hit:  { sv: 'Skott träff ✓', en: 'Shot hit ✓', fr: 'Tir réussi ✓' },
+            miss: { sv: 'Skott miss ✗', en: 'Shot miss ✗', fr: 'Tir manqué ✗' },
+        };
+        const laggLabel = hit ? _laggLabels.hit[_lang] : (stang ? _laggLabels.stang[_lang] : _laggLabels.miss[_lang]);
+        const label = type === 'lagg' ? laggLabel : (hit ? _skottLabels.hit[_lang] : _skottLabels.miss[_lang]);
         this.match.timeline.push({ time: elapsed, player: p.name, type, hit, label });
 
         // Spara i ångra-historik
@@ -1817,7 +1849,7 @@ class MatchApp {
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td class="pname" style="color:#e8ff47">${p.name}</td>
-                <td>${p.stats.lagg.hit}/${p.stats.lagg.total}</td>
+                <td>${p.stats.lagg.hit}/${p.stats.lagg.stang||0}/${p.stats.lagg.total}</td>
                 <td class="tc ${this.accClass(la, p.stats.lagg.total)}">${la}%</td>
                 <td>${p.stats.skott.hit}/${p.stats.skott.total}</td>
                 <td class="tc ${this.accClass(sa, p.stats.skott.total)}">${sa}%</td>
@@ -1837,7 +1869,7 @@ class MatchApp {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td class="pname" style="color:#ff8080">${p.name}</td>
-                    <td>${p.stats.lagg.hit}/${p.stats.lagg.total}</td>
+                    <td>${p.stats.lagg.hit}/${p.stats.lagg.stang||0}/${p.stats.lagg.total}</td>
                     <td class="tc ${this.accClass(la, p.stats.lagg.total)}">${la}%</td>
                     <td>${p.stats.skott.hit}/${p.stats.skott.total}</td>
                     <td class="tc ${this.accClass(sa, p.stats.skott.total)}">${sa}%</td>
@@ -2414,7 +2446,7 @@ class MatchApp {
         }
 
         csv += `SPELARE STATISTIK\n`;
-        csv += `Spelare,Position,Lägg träffar,Lägg totalt,Lägg %,Skott träffar,Skott totalt,Skott %,Längsta träffsekvens Lägg,Längsta misssekvens Lägg,Längsta träffsekvens Skott,Längsta misssekvens Skott,Lägg vs snitt,Skott vs snitt\n`;
+        csv += `Spelare,Position,Lägg träffar,Lägg stängningar,Lägg totalt,Lägg %,Skott träffar,Skott totalt,Skott %,Längsta träffsekvens Lägg,Längsta misssekvens Lägg,Längsta träffsekvens Skott,Längsta misssekvens Skott,Lägg vs snitt,Skott vs snitt\n`;
         
         const streaks = this.calcStreaks(m);
         const hist = {};
@@ -2428,7 +2460,7 @@ class MatchApp {
             const skottDiff = skottAcc - ha.skottAvg;
             const lagStreaks = streaks[p.name];
             
-            csv += `"${p.name}","${p.position}",${p.stats.lagg.hit},${p.stats.lagg.total},${laggAcc},${p.stats.skott.hit},${p.stats.skott.total},${skottAcc},${lagStreaks.lagg.maxHit},${lagStreaks.lagg.maxMiss},${lagStreaks.skott.maxHit},${lagStreaks.skott.maxMiss},"${laggAcc}% (${laggDiff>0?'+':''}${laggDiff}%)","${skottAcc}% (${skottDiff>0?'+':''}${skottDiff}%)"\n`;
+            csv += `"${p.name}","${p.position}",${p.stats.lagg.hit},${p.stats.lagg.stang||0},${p.stats.lagg.total},${laggAcc},${p.stats.skott.hit},${p.stats.skott.total},${skottAcc},${lagStreaks.lagg.maxHit},${lagStreaks.lagg.maxMiss},${lagStreaks.skott.maxHit},${lagStreaks.skott.maxMiss},"${laggAcc}% (${laggDiff>0?'+':''}${laggDiff}%)","${skottAcc}% (${skottDiff>0?'+':''}${skottDiff}%)"\n`;
         });
 
         // ---- MOTSTÅNDARE STATISTIK ----
@@ -2557,7 +2589,7 @@ class MatchApp {
         }
 
         csv += `SPELARE STATISTIK\n`;
-        csv += `Spelare,Position,Lägg träffar,Lägg totalt,Lägg %,Skott träffar,Skott totalt,Skott %,Längsta träffsekvens Lägg,Längsta misssekvens Lägg,Längsta träffsekvens Skott,Längsta misssekvens Skott,Lägg vs snitt,Skott vs snitt\n`;
+        csv += `Spelare,Position,Lägg träffar,Lägg stängningar,Lägg totalt,Lägg %,Skott träffar,Skott totalt,Skott %,Längsta träffsekvens Lägg,Längsta misssekvens Lägg,Längsta träffsekvens Skott,Längsta misssekvens Skott,Lägg vs snitt,Skott vs snitt\n`;
         
         const streaks = this.calcStreaks(m);
         const hist = {};
@@ -2571,7 +2603,7 @@ class MatchApp {
             const skottDiff = skottAcc - ha.skottAvg;
             const lagStreaks = streaks[p.name];
             
-            csv += `"${p.name}","${p.position}",${p.stats.lagg.hit},${p.stats.lagg.total},${laggAcc},${p.stats.skott.hit},${p.stats.skott.total},${skottAcc},${lagStreaks.lagg.maxHit},${lagStreaks.lagg.maxMiss},${lagStreaks.skott.maxHit},${lagStreaks.skott.maxMiss},"${laggAcc}% (${laggDiff>0?'+':''}${laggDiff}%)","${skottAcc}% (${skottDiff>0?'+':''}${skottDiff}%)"\n`;
+            csv += `"${p.name}","${p.position}",${p.stats.lagg.hit},${p.stats.lagg.stang||0},${p.stats.lagg.total},${laggAcc},${p.stats.skott.hit},${p.stats.skott.total},${skottAcc},${lagStreaks.lagg.maxHit},${lagStreaks.lagg.maxMiss},${lagStreaks.skott.maxHit},${lagStreaks.skott.maxMiss},"${laggAcc}% (${laggDiff>0?'+':''}${laggDiff}%)","${skottAcc}% (${skottDiff>0?'+':''}${skottDiff}%)"\n`;
         });
 
         // ---- MOTSTÅNDARE STATISTIK ----
@@ -2942,6 +2974,7 @@ class MatchApp {
                 const ps = players[p.name];
                 ps.laggHit   += p.stats.lagg.hit;
                 ps.laggTotal += p.stats.lagg.total;
+                ps.laggStang  = (ps.laggStang || 0) + (p.stats.lagg.stang || 0);
                 ps.skottHit   += p.stats.skott.hit;
                 ps.skottTotal += p.stats.skott.total;
                 ps.matches.push({
@@ -3012,7 +3045,7 @@ class MatchApp {
                 <div class="player-stat-avatar">${initials}</div>
                 <div class="player-stat-info">
                     <div class="player-stat-name">${ps.name}</div>
-                    <div class="player-stat-sub">${ps.matches.length} matcher</div>
+                    <div class="player-stat-sub">${ps.matches.length} ${langMgr&&langMgr.lang==='en'?'matches':langMgr&&langMgr.lang==='fr'?'matchs':'matcher'}${ps.laggStang>0?' • '+ps.laggStang+' '+(langMgr&&langMgr.lang==='en'?'blocks':langMgr&&langMgr.lang==='fr'?'blocages':'stängn.')+'.':''}</div>
                 </div>
                 <div class="player-stat-numbers">
                     <div class="player-stat-num-item">
@@ -3044,7 +3077,12 @@ class MatchApp {
         const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
         document.getElementById('pdet-avatar').textContent = initials;
         document.getElementById('pdet-name').textContent = name;
-        document.getElementById('pdet-sub').textContent = ps.matches.length + ' matcher • ' + (ps.matches[0] ? ps.matches[0].date.toLocaleDateString('sv-SE') : '') + ' – ' + (ps.matches[ps.matches.length-1] ? ps.matches[ps.matches.length-1].date.toLocaleDateString('sv-SE') : '');
+        const stangTotDet = ps.laggStang || 0;
+        const _stangWord = { sv: 'stängn.', en: 'blocks', fr: 'blocages' };
+        const _matchWord = { sv: 'matcher', en: 'matches', fr: 'matchs' };
+        const _l = typeof langMgr !== 'undefined' ? langMgr.lang : 'sv';
+        const stangStrDet = stangTotDet > 0 ? ` • ${stangTotDet} ${_stangWord[_l] || _stangWord.sv}` : '';
+        document.getElementById('pdet-sub').textContent = ps.matches.length + ' ' + (_matchWord[_l] || _matchWord.sv) + stangStrDet + ' • ' + (ps.matches[0] ? ps.matches[0].date.toLocaleDateString('sv-SE') : '') + ' – ' + (ps.matches[ps.matches.length-1] ? ps.matches[ps.matches.length-1].date.toLocaleDateString('sv-SE') : '');
 
         const laggPct  = ps.laggTotal  ? Math.round(ps.laggHit  / ps.laggTotal  * 100) : null;
         const skottPct = ps.skottTotal ? Math.round(ps.skottHit / ps.skottTotal * 100) : null;
