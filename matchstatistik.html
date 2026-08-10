@@ -21,11 +21,51 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
+        /* ---- TEMA-VARIABLER ---- */
+        :root {
+            --bg-main:    #080810;
+            --bg-card:    #11161f;
+            --bg-card2:   #1a2030;
+            --bg-card3:   #1a2330;
+            --bg-deep:    #0A0E27;
+            --border-col: #2a3548;
+            --border2:    #1a1f3a;
+            --text-main:  #ffffff;
+            --text-sec:   #aaaaaa;
+            --text-muted: #666666;
+            --text-dim:   #999999;
+            --text-faint: #555555;
+            --accent:     #e8ff47;
+            --accent-dim: #f5ff99;
+            --navy:       #1a3a5c;
+            --navy2:      #2a6090;
+        }
+
+        body.light-mode {
+            --bg-main:    #ffffff;
+            --bg-card:    #f5f5f5;
+            --bg-card2:   #eeeeee;
+            --bg-card3:   #e8e8e8;
+            --bg-deep:    #e0e0e0;
+            --border-col: #cccccc;
+            --border2:    #d8d8d8;
+            --text-main:  #111111;
+            --text-sec:   #333333;
+            --text-muted: #555555;
+            --text-dim:   #666666;
+            --text-faint: #888888;
+            --accent:     #1a3a5c;
+            --accent-dim: #2a5a8c;
+            --navy:       #1a3a5c;
+            --navy2:      #2a6090;
+        }
+
+
         * { margin:0; padding:0; box-sizing:border-box; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0A0E27 0%, #1a1f3a 100%);
+            background: linear-gradient(135deg, var(--bg-deep) 0%, #1a1f3a 100%);
             color: #e0e0e0;
             min-height: 100vh;
             padding: 1rem;
@@ -40,11 +80,11 @@
             border: 1px solid rgba(232,255,71,0.2);
             border-radius: 12px; margin-bottom: 1.5rem; margin-top: 0.5rem;
         }
-        header h1 { font-size: 26px; color: #e8ff47; font-weight: 700; }
+        header h1 { font-size: 26px; color: var(--accent); font-weight: 700; }
         .match-meta { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
         .meta-item { text-align: center; }
-        .meta-label { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; }
-        .meta-value { font-size: 17px; font-weight: 700; color: #e8ff47; }
+        .meta-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+        .meta-value { font-size: 17px; font-weight: 700; color: var(--accent); }
 
 .round-modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -52,64 +92,64 @@
     display: flex; align-items: center; justify-content: center; padding: 1rem;
 }
 .round-modal-card {
-    background: #11161f; border: 1px solid #2a3548; border-radius: 16px;
+    background: var(--bg-card); border: 1px solid var(--border-col); border-radius: 16px;
     padding: 1.5rem; max-width: 420px; width: 100%;
 }
 .round-modal-title {
-    font-size: 18px; font-weight: 700; color: #e8ff47; text-align: center; margin-bottom: 0.25rem;
+    font-size: 18px; font-weight: 700; color: var(--accent); text-align: center; margin-bottom: 0.25rem;
 }
 .round-modal-sub {
-    font-size: 13px; color: #999; text-align: center; margin-bottom: 1.25rem;
+    font-size: 13px; color: var(--text-dim); text-align: center; margin-bottom: 1.25rem;
 }
 .round-modal-team-label {
     font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
     margin-bottom: 0.5rem; text-align: center;
 }
-.round-modal-team-label.own { color: #e8ff47; }
+.round-modal-team-label.own { color: var(--accent); }
 .round-modal-team-label.opp { color: #ff8080; }
 .round-modal-points {
     display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 1rem;
 }
 .round-modal-points button {
-    aspect-ratio: 1; border-radius: 10px; border: 1px solid #2a3548; background: #1a2330;
-    color: #fff; font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.15s;
+    aspect-ratio: 1; border-radius: 10px; border: 1px solid var(--border-col); background: var(--bg-card3);
+    color: var(--text-main); font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.15s;
 }
-.round-modal-points.own button:hover { background: #e8ff47; color: #080810; border-color: #e8ff47; }
+.round-modal-points.own button:hover { background: #e8ff47; color: var(--bg-main); border-color: var(--accent); }
 .round-modal-points.opp button:hover { background: #ff8080; color: #1a0000; border-color: #ff8080; }
 .round-modal-skip {
     width: 100%; padding: 0.65rem; margin-top: 0.5rem; border-radius: 8px;
-    border: 1px solid #2a3548; background: transparent; color: #999; font-size: 13px; cursor: pointer;
+    border: 1px solid var(--border-col); background: transparent; color: var(--text-dim); font-size: 13px; cursor: pointer;
 }
-.round-modal-skip:hover { color: #ccc; border-color: #555; }
+.round-modal-skip:hover { color: #ccc; border-color: var(--text-faint); }
 
 /* ---- PLAYER DATABASE ---- */
 .player-select-wrap { position: relative; }
 .player-select-wrap select {
-    width: 100%; padding: 10px 12px; background: var(--card, #1a2030);
-    color: #fff; border: 1px solid #2a3548; border-radius: 8px;
+    width: 100%; padding: 10px 12px; background: var(--card, var(--bg-card2));
+    color: var(--text-main); border: 1px solid var(--border-col); border-radius: 8px;
     font-size: 14px; appearance: none; cursor: pointer;
 }
 .player-select-wrap::after {
     content: '▾'; position: absolute; right: 12px; top: 50%;
-    transform: translateY(-50%); color: #999; pointer-events: none;
+    transform: translateY(-50%); color: var(--text-dim); pointer-events: none;
 }
 .manage-players-btn {
-    background: none; border: 1px solid #2a3548; color: #999;
+    background: none; border: 1px solid var(--border-col); color: var(--text-dim);
     border-radius: 6px; padding: 5px 10px; font-size: 12px; cursor: pointer;
     margin-top: 6px; width: 100%;
 }
-.manage-players-btn:hover { border-color: #e8ff47; color: #e8ff47; }
+.manage-players-btn:hover { border-color: var(--accent); color: var(--accent); }
 
 /* ---- FORMAT SELECTOR ---- */
 .format-selector {
     display: flex; gap: 8px; margin-bottom: 1rem;
 }
 .format-btn {
-    flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #2a3548;
-    background: #1a2030; color: #999; font-size: 13px; font-weight: 700;
+    flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border-col);
+    background: var(--bg-card2); color: var(--text-dim); font-size: 13px; font-weight: 700;
     cursor: pointer; transition: all 0.15s; text-align: center;
 }
-.format-btn.active { border-color: #e8ff47; color: #e8ff47; background: rgba(232,255,71,0.08); }
+.format-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(232,255,71,0.08); }
 
 /* ---- MANAGE PLAYERS MODAL ---- */
 .manage-modal-overlay {
@@ -118,18 +158,18 @@
     display: flex; align-items: center; justify-content: center; padding: 1rem;
 }
 .manage-modal-card {
-    background: #11161f; border: 1px solid #2a3548; border-radius: 16px;
+    background: var(--bg-card); border: 1px solid var(--border-col); border-radius: 16px;
     padding: 1.5rem; max-width: 400px; width: 100%; max-height: 80vh; overflow-y: auto;
 }
 .manage-modal-title {
-    font-size: 17px; font-weight: 700; color: #e8ff47; margin-bottom: 1rem;
+    font-size: 17px; font-weight: 700; color: var(--accent); margin-bottom: 1rem;
 }
 .player-list-item {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 8px 0; border-bottom: 1px solid #1a2030; font-size: 14px;
+    padding: 8px 0; border-bottom: 1px solid var(--bg-card2); font-size: 14px;
 }
-.player-list-item .pli-name { color: #fff; font-weight: 600; }
-.player-list-item .pli-pos { color: #999; font-size: 12px; margin-left: 8px; }
+.player-list-item .pli-name { color: var(--text-main); font-weight: 600; }
+.player-list-item .pli-pos { color: var(--text-dim); font-size: 12px; margin-left: 8px; }
 .player-list-item .pli-del {
     background: none; border: 1px solid #3a2020; color: #ff6b6b;
     border-radius: 6px; padding: 3px 8px; font-size: 12px; cursor: pointer;
@@ -139,53 +179,53 @@
     display: flex; gap: 8px; margin-top: 1rem;
 }
 .add-player-row input {
-    flex: 1; padding: 8px 10px; background: #1a2030; border: 1px solid #2a3548;
-    border-radius: 8px; color: #fff; font-size: 13px;
+    flex: 1; padding: 8px 10px; background: var(--bg-card2); border: 1px solid var(--border-col);
+    border-radius: 8px; color: var(--text-main); font-size: 13px;
 }
 .add-player-row select {
-    padding: 8px; background: #1a2030; border: 1px solid #2a3548;
-    border-radius: 8px; color: #fff; font-size: 13px; cursor: pointer;
+    padding: 8px; background: var(--bg-card2); border: 1px solid var(--border-col);
+    border-radius: 8px; color: var(--text-main); font-size: 13px; cursor: pointer;
 }
 .add-player-row button {
-    padding: 8px 14px; background: #e8ff47; color: #080810;
+    padding: 8px 14px; background: #e8ff47; color: var(--bg-main);
     border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px;
 }
 .manage-close-btn {
     width: 100%; padding: 10px; margin-top: 1rem; border-radius: 8px;
-    border: 1px solid #2a3548; background: transparent; color: #999;
+    border: 1px solid var(--border-col); background: transparent; color: var(--text-dim);
     font-size: 13px; cursor: pointer;
 }
-.manage-close-btn:hover { color: #ccc; border-color: #555; }
+.manage-close-btn:hover { color: #ccc; border-color: var(--text-faint); }
 
 /* ---- SPELARE-FLIK ---- */
 .player-stat-card {
-    background: var(--card, #1a2030); border-radius: 12px;
+    background: var(--card, var(--bg-card2)); border-radius: 12px;
     padding: 1rem; margin-bottom: 10px; cursor: pointer;
-    border: 1px solid #2a3548; transition: border-color 0.15s;
+    border: 1px solid var(--border-col); transition: border-color 0.15s;
     display: flex; align-items: center; gap: 1rem;
 }
-.player-stat-card:hover { border-color: #e8ff47; }
+.player-stat-card:hover { border-color: var(--accent); }
 .player-stat-avatar {
     width: 44px; height: 44px; border-radius: 50%;
-    background: linear-gradient(135deg, #1a3a5c, #2a6090);
+    background: linear-gradient(135deg, var(--navy), var(--navy2));
     display: flex; align-items: center; justify-content: center;
-    font-size: 18px; font-weight: 700; color: #e8ff47; flex-shrink: 0;
+    font-size: 18px; font-weight: 700; color: var(--accent); flex-shrink: 0;
 }
 .player-stat-info { flex: 1; min-width: 0; }
-.player-stat-name { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 2px; }
-.player-stat-sub { font-size: 12px; color: #999; }
+.player-stat-name { font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
+.player-stat-sub { font-size: 12px; color: var(--text-dim); }
 .player-stat-numbers {
     display: flex; gap: 12px; text-align: center;
 }
 .player-stat-num-item .psn-val {
-    font-size: 16px; font-weight: 700; color: #e8ff47;
+    font-size: 16px; font-weight: 700; color: var(--accent);
 }
 .player-stat-num-item .psn-lbl {
-    font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 0.5px;
+    font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px;
 }
 .trend-up { color: #4ade80 !important; }
 .trend-down { color: #ff6b6b !important; }
-.trend-neutral { color: #999 !important; }
+.trend-neutral { color: var(--text-dim) !important; }
 
 /* Spelar-detaljvy */
 .player-detail-header {
@@ -193,40 +233,40 @@
 }
 .player-detail-avatar {
     width: 56px; height: 56px; border-radius: 50%;
-    background: linear-gradient(135deg, #1a3a5c, #2a6090);
+    background: linear-gradient(135deg, var(--navy), var(--navy2));
     display: flex; align-items: center; justify-content: center;
-    font-size: 24px; font-weight: 700; color: #e8ff47; flex-shrink: 0;
+    font-size: 24px; font-weight: 700; color: var(--accent); flex-shrink: 0;
 }
-.player-detail-name { font-size: 20px; font-weight: 700; color: #fff; }
-.player-detail-sub { font-size: 13px; color: #999; margin-top: 2px; }
+.player-detail-name { font-size: 20px; font-weight: 700; color: var(--text-main); }
+.player-detail-sub { font-size: 13px; color: var(--text-dim); margin-top: 2px; }
 .player-stat-grid {
     display: grid; grid-template-columns: 1fr 1fr;
     gap: 10px; margin-bottom: 1.25rem;
 }
 .player-stat-box {
-    background: var(--card, #1a2030); border-radius: 10px; padding: 1rem;
-    text-align: center; border: 1px solid #2a3548;
+    background: var(--card, var(--bg-card2)); border-radius: 10px; padding: 1rem;
+    text-align: center; border: 1px solid var(--border-col);
 }
 .player-stat-box .psb-val {
-    font-size: 24px; font-weight: 700; color: #e8ff47; line-height: 1;
+    font-size: 24px; font-weight: 700; color: var(--accent); line-height: 1;
     margin-bottom: 4px;
 }
 .player-stat-box .psb-lbl {
-    font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.5px;
+    font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px;
 }
 .player-match-row {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 9px 0; border-bottom: 1px solid #1a2030; font-size: 13px;
+    padding: 9px 0; border-bottom: 1px solid var(--bg-card2); font-size: 13px;
 }
 .player-match-row .pmr-name { color: #ccc; flex: 1; }
-.player-match-row .pmr-date { color: #666; font-size: 11px; margin-right: 8px; }
-.player-match-row .pmr-stats { color: #999; white-space: nowrap; font-size: 12px; }
-.player-match-row .pmr-pct { font-weight: 700; color: #e8ff47; margin-left: 8px; font-size: 13px; }
+.player-match-row .pmr-date { color: var(--text-muted); font-size: 11px; margin-right: 8px; }
+.player-match-row .pmr-stats { color: var(--text-dim); white-space: nowrap; font-size: 12px; }
+.player-match-row .pmr-pct { font-weight: 700; color: var(--accent); margin-left: 8px; font-size: 13px; }
 
         /* LANG TOGGLE */
         .lang-btn-match {
         background: transparent; border: 1px solid #333;
-        color: #999; border-radius: 6px;
+        color: var(--text-dim); border-radius: 6px;
         padding: 4px 8px; font-size: 0.75rem;
         cursor: pointer; transition: all 0.2s;
     }
@@ -238,16 +278,16 @@
             border: 1px solid rgba(232,255,71,0.15);
             border-radius: 10px; padding: 1.25rem; margin-bottom: 1.25rem;
         }
-        .card-title { font-size: 15px; font-weight: 600; color: #e8ff47; margin-bottom: 1rem; }
+        .card-title { font-size: 15px; font-weight: 600; color: var(--accent); margin-bottom: 1rem; }
 
         /* LOGIN SCREEN */
         .login-logo { text-align: center; margin-bottom: 2rem; }
-        .login-logo h2 { font-size: 22px; color: #e8ff47; font-weight: 700; }
-        .login-logo p { font-size: 13px; color: #999; margin-top: 0.4rem; }
+        .login-logo h2 { font-size: 22px; color: var(--accent); font-weight: 700; }
+        .login-logo p { font-size: 13px; color: var(--text-dim); margin-top: 0.4rem; }
 
         .code-display {
             font-size: 28px; font-weight: 900; letter-spacing: 4px;
-            color: #e8ff47; text-align: center; padding: 1rem;
+            color: var(--accent); text-align: center; padding: 1rem;
             background: rgba(232,255,71,0.05);
             border: 1px solid rgba(232,255,71,0.2);
             border-radius: 8px; margin: 1rem 0;
@@ -261,14 +301,14 @@
             padding: 1rem; font-size: 18px; font-weight: 700;
             background: rgba(232,255,71,0.08);
             border: 1px solid rgba(232,255,71,0.2);
-            border-radius: 8px; color: #e8ff47;
+            border-radius: 8px; color: var(--accent);
             cursor: pointer; text-align: center; transition: all 0.15s;
             user-select: none;
         }
         .key:hover { background: rgba(232,255,71,0.18); }
         .key:active { transform: scale(0.95); background: rgba(232,255,71,0.28); }
         .key.del { color: #ff6b6b; border-color: rgba(255,107,107,0.2); background: rgba(255,107,107,0.08); }
-        .key.enter { color: #0A0E27; background: #e8ff47; border-color: #e8ff47; }
+        .key.enter { color: var(--bg-deep); background: #e8ff47; border-color: var(--accent); }
         .key.enter:hover { background: #f5ff99; }
 
         .login-error { color: #ff6b6b; text-align: center; font-size: 13px; margin-top: 0.5rem; min-height: 20px; }
@@ -280,8 +320,8 @@
             border-radius: 8px; margin-bottom: 1.25rem;
             font-size: 13px;
         }
-        .trainer-code-badge { color: #e8ff47; font-weight: 700; font-family: monospace; font-size: 15px; }
-        .btn-logout { background: none; border: none; color: #999; cursor: pointer; font-size: 12px; padding: 0.25rem 0.5rem; border-radius: 4px; }
+        .trainer-code-badge { color: var(--accent); font-weight: 700; font-family: monospace; font-size: 15px; }
+        .btn-logout { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 12px; padding: 0.25rem 0.5rem; border-radius: 4px; }
         .btn-logout:hover { color: #ff6b6b; }
 
         /* TABS */
@@ -292,31 +332,31 @@
         }
         .tab-btn {
             padding: 0.65rem 1.25rem; background: none; border: none;
-            color: #999; cursor: pointer; font-weight: 600;
+            color: var(--text-dim); cursor: pointer; font-weight: 600;
             border-bottom: 2px solid transparent; transition: all 0.2s; font-size: 14px;
         }
-        .tab-btn.active { color: #e8ff47; border-bottom-color: #e8ff47; }
-        .tab-btn:hover { color: #e8ff47; }
+        .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .tab-btn:hover { color: var(--accent); }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
         /* INPUT */
         .input-group { margin-bottom: 0.9rem; }
-        .input-group label { display: block; font-size: 13px; color: #999; margin-bottom: 0.4rem; }
+        .input-group label { display: block; font-size: 13px; color: var(--text-dim); margin-bottom: 0.4rem; }
         .input-group input {
             width: 100%; padding: 0.7rem;
             background: rgba(0,0,0,0.3);
             border: 1px solid rgba(232,255,71,0.2);
             border-radius: 8px; color: #e0e0e0; font-size: 14px;
         }
-        .input-group input:focus { outline: none; border-color: #e8ff47; }
+        .input-group input:focus { outline: none; border-color: var(--accent); }
 
         /* BUTTONS */
         .btn { padding: 0.75rem 1.25rem; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 14px; border: none; }
         .btn:active { transform: scale(0.97); }
-        .btn-primary { background: #e8ff47; color: #0A0E27; width: 100%; font-size: 15px; padding: 1rem; }
+        .btn-primary { background: #e8ff47; color: var(--bg-deep); width: 100%; font-size: 15px; padding: 1rem; }
         .btn-primary:hover { background: #f5ff99; }
-        .btn-outline { background: rgba(232,255,71,0.1); color: #e8ff47; border: 1px solid rgba(232,255,71,0.3); }
+        .btn-outline { background: rgba(232,255,71,0.1); color: var(--accent); border: 1px solid rgba(232,255,71,0.3); }
         .btn-outline:hover { background: rgba(232,255,71,0.2); }
         .btn-danger { background: rgba(255,107,107,0.1); color: #ff6b6b; border: 1px solid rgba(255,107,107,0.3); }
         .btn-danger:hover { background: rgba(255,107,107,0.2); }
@@ -352,21 +392,21 @@
         /* PLAYER GRID */
         .player-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap: 1.25rem; margin-bottom: 1.25rem; }
         .player-card { background: rgba(26,31,58,0.8); border: 1px solid rgba(232,255,71,0.15); border-radius: 10px; padding: 1.25rem; }
-        .player-card-name { font-size: 16px; font-weight: 700; color: #e8ff47; margin-bottom: 1rem; }
+        .player-card-name { font-size: 16px; font-weight: 700; color: var(--accent); margin-bottom: 1rem; }
         .stat-group { margin-bottom: 1rem; }
-        .stat-group-label { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.6rem; display: block; }
+        .stat-group-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.6rem; display: block; }
         .btn-row { display: flex; gap: 0.6rem; }
 
         /* LIVE TABLE */
         .live-table { width: 100%; border-collapse: collapse; background: rgba(26,31,58,0.8); border: 1px solid rgba(232,255,71,0.15); border-radius: 10px; overflow: hidden; margin-bottom: 1.25rem; }
-        .live-table th { background: rgba(232,255,71,0.1); border-bottom: 1px solid rgba(232,255,71,0.2); padding: 0.7rem; font-size: 11px; font-weight: 700; color: #e8ff47; text-transform: uppercase; text-align: left; }
+        .live-table th { background: rgba(232,255,71,0.1); border-bottom: 1px solid rgba(232,255,71,0.2); padding: 0.7rem; font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; text-align: left; }
         .live-table td { padding: 0.7rem; border-bottom: 1px solid rgba(232,255,71,0.08); font-size: 14px; }
         .live-table tr:last-child td { border-bottom: none; }
         .tc { text-align: center; }
-        .pname { font-weight: 600; color: #e8ff47; }
+        .pname { font-weight: 600; color: var(--accent); }
         .acc-good { color: #51cf66; font-weight: 700; }
         .acc-bad { color: #ff6b6b; font-weight: 700; }
-        .acc-neutral { color: #999; }
+        .acc-neutral { color: var(--text-dim); }
 
         /* MATCH ACTIONS */
         .match-actions { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
@@ -374,7 +414,7 @@
 
         /* CHART */
         .chart-wrap { background: rgba(26,31,58,0.8); border: 1px solid rgba(232,255,71,0.15); border-radius: 10px; padding: 1.25rem; margin-bottom: 1.25rem; position: relative; height: 320px; }
-        .chart-title { font-size: 14px; font-weight: 600; color: #e8ff47; margin-bottom: 0.75rem; }
+        .chart-title { font-size: 14px; font-weight: 600; color: var(--accent); margin-bottom: 0.75rem; }
         .chart-wrap canvas { max-height: 260px; }
 
         /* LIVE BADGE */
@@ -390,45 +430,45 @@
         .history-item { background: rgba(0,0,0,0.2); border: 1px solid rgba(232,255,71,0.1); border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; cursor: pointer; transition: all 0.2s; }
         .history-item:hover { border-color: rgba(232,255,71,0.35); background: rgba(232,255,71,0.04); }
         .history-header { display: flex; justify-content: space-between; align-items: center; }
-        .history-name { font-weight: 700; color: #e8ff47; font-size: 15px; }
-        .history-sub { font-size: 12px; color: #999; margin-top: 0.2rem; }
-        .history-dur { font-size: 12px; color: #999; }
+        .history-name { font-weight: 700; color: var(--accent); font-size: 15px; }
+        .history-sub { font-size: 12px; color: var(--text-dim); margin-top: 0.2rem; }
+        .history-dur { font-size: 12px; color: var(--text-dim); }
         .history-preview { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.6rem; }
-        .history-preview-pill { font-size: 12px; color: #aaa; background: rgba(232,255,71,0.05); border-radius: 4px; padding: 0.2rem 0.5rem; }
+        .history-preview-pill { font-size: 12px; color: var(--text-sec); background: rgba(232,255,71,0.05); border-radius: 4px; padding: 0.2rem 0.5rem; }
 
         /* SYNC BADGE */
         .sync-badge { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 11px; padding: 0.2rem 0.6rem; border-radius: 20px; margin-left: 0.5rem; }
         .sync-ok { background: rgba(81,207,102,0.1); color: #51cf66; border: 1px solid rgba(81,207,102,0.2); }
         .sync-fail { background: rgba(255,107,107,0.1); color: #ff6b6b; border: 1px solid rgba(255,107,107,0.2); }
-        .sync-pending { background: rgba(232,255,71,0.1); color: #e8ff47; border: 1px solid rgba(232,255,71,0.2); }
+        .sync-pending { background: rgba(232,255,71,0.1); color: var(--accent); border: 1px solid rgba(232,255,71,0.2); }
 
         /* DETAIL */
         #detail-view { display: none; }
-        .detail-back { display: flex; align-items: center; gap: 0.5rem; color: #e8ff47; cursor: pointer; font-weight: 600; margin-bottom: 1.25rem; background: none; border: none; font-size: 14px; }
+        .detail-back { display: flex; align-items: center; gap: 0.5rem; color: var(--accent); cursor: pointer; font-weight: 600; margin-bottom: 1.25rem; background: none; border: none; font-size: 14px; }
         .detail-back:hover { opacity: 0.8; }
-        .detail-title { font-size: 22px; font-weight: 700; color: #e8ff47; }
-        .detail-meta { font-size: 13px; color: #999; margin-top: 0.3rem; margin-bottom: 1.25rem; }
+        .detail-title { font-size: 22px; font-weight: 700; color: var(--accent); }
+        .detail-meta { font-size: 13px; color: var(--text-dim); margin-top: 0.3rem; margin-bottom: 1.25rem; }
         .player-stat-card { background: rgba(0,0,0,0.2); border: 1px solid rgba(232,255,71,0.1); border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; }
-        .pscard-name { font-weight: 700; color: #e8ff47; margin-bottom: 0.75rem; font-size: 15px; }
+        .pscard-name { font-weight: 700; color: var(--accent); margin-bottom: 0.75rem; font-size: 15px; }
         .pscard-stats { display: flex; gap: 1rem; flex-wrap: wrap; }
         .pscard-stat { flex: 1; min-width: 90px; text-align: center; background: rgba(232,255,71,0.05); border-radius: 8px; padding: 0.6rem; }
-        .pscard-stat-label { font-size: 11px; color: #999; text-transform: uppercase; }
+        .pscard-stat-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; }
         .pscard-stat-value { font-size: 20px; font-weight: 700; margin-top: 0.2rem; }
-        .pscard-stat-sub { font-size: 11px; color: #999; margin-top: 0.1rem; }
+        .pscard-stat-sub { font-size: 11px; color: var(--text-dim); margin-top: 0.1rem; }
         .progress-bar-wrap { height: 5px; background: rgba(255,255,255,0.08); border-radius: 3px; margin-top: 0.4rem; overflow: hidden; }
         .progress-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s; }
         .trend-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid rgba(232,255,71,0.05); font-size: 13px; }
         .trend-row:last-child { border-bottom: none; }
-        .trend-label { color: #999; }
-        .trend-val { font-weight: 600; color: #e8ff47; }
+        .trend-label { color: var(--text-dim); }
+        .trend-val { font-weight: 600; color: var(--accent); }
         .trend-up { color: #51cf66; }
         .trend-down { color: #ff6b6b; }
-        .trend-flat { color: #999; }
+        .trend-flat { color: var(--text-dim); }
 
         /* TIMELINE */
         .timeline-item { display: flex; gap: 0.75rem; align-items: flex-start; padding: 0.5rem 0; border-bottom: 1px solid rgba(232,255,71,0.05); }
         .timeline-item:last-child { border-bottom: none; }
-        .timeline-time { font-size: 11px; color: #666; min-width: 40px; padding-top: 3px; }
+        .timeline-time { font-size: 11px; color: var(--text-muted); min-width: 40px; padding-top: 3px; }
         .timeline-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
         .dot-lagg-hit { background: #51cf66; }
         .dot-lagg-miss { background: #ff6b6b; }
@@ -437,15 +477,15 @@
         .timeline-text { font-size: 13px; color: #ccc; }
 
         /* EMPTY */
-        .empty { text-align: center; padding: 2rem; color: #666; font-size: 14px; }
+        .empty { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 14px; }
 
         /* OFFLINE */
         .offline-badge { position: fixed; bottom: 1rem; left: 1rem; padding: 0.4rem 0.9rem; background: #ff6b6b; color: white; border-radius: 8px; font-size: 12px; display: none; z-index: 100; }
         .offline-badge.show { display: block; }
 
         /* LOADING */
-        .loading { text-align: center; padding: 2rem; color: #999; }
-        .spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid rgba(232,255,71,0.2); border-top-color: #e8ff47; border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 0.5rem; vertical-align: middle; }
+        .loading { text-align: center; padding: 2rem; color: var(--text-dim); }
+        .spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid rgba(232,255,71,0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 0.5rem; vertical-align: middle; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
         @media (max-width: 600px) {
@@ -471,7 +511,7 @@
 .player-ball-count {
     margin-left: auto;
     background: rgba(232,255,71,0.15);
-    color: #e8ff47;
+    color: var(--accent);
     padding: 0.2rem 0.5rem;
     border-radius: 4px;
     font-size: 11px;
@@ -524,7 +564,7 @@
 }
 .team-header.own {
     background: rgba(232,255,71,0.12);
-    color: #e8ff47;
+    color: var(--accent);
     border: 1px solid rgba(232,255,71,0.25);
 }
 .team-header.opp {
@@ -560,13 +600,13 @@
 }
 .player-role {
     font-size: 10px;
-    color: #999;
+    color: var(--text-dim);
     text-transform: uppercase;
     font-weight: 700;
     letter-spacing: 0.5px;
 }
 .player-name {
-    color: #e8ff47;
+    color: var(--accent);
     font-weight: 700;
     font-size: 13px;
 }
@@ -576,7 +616,7 @@
 .player-ball-count {
     margin-left: auto;
     background: rgba(232,255,71,0.15);
-    color: #e8ff47;
+    color: var(--accent);
     padding: 1px 5px;
     border-radius: 4px;
     font-size: 10px;
@@ -613,7 +653,7 @@
 }
 .action-col-label {
     font-size: 9px;
-    color: #999;
+    color: var(--text-dim);
     text-transform: uppercase;
     font-weight: 700;
     letter-spacing: 0.5px;
@@ -671,12 +711,17 @@
 <div class="container">
 
     <header style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px 0;">
-        <a href="./index.html" style="color:#ccc;text-decoration:none;font-size:0.85rem;padding:4px 8px;border-radius:8px;border:1px solid #333;">← <span data-sv="Hem" data-en="Home" data-fr="Accueil">Hem</span></a>
+        <a href="./index.html" style="color:var(--text-sec);text-decoration:none;font-size:0.85rem;padding:4px 8px;border-radius:8px;border:1px solid var(--border-col);">← <span data-sv="Hem" data-en="Home" data-fr="Accueil">Hem</span></a>
         <h1 data-sv="Matchstatistik" data-fr="Statistiques de match" data-en="Match Statistics" style="margin:0;font-size:1.1rem;">Matchstatistik</h1>
-        <div style="display:flex;gap:4px;">
+        <div style="display:flex;gap:4px;align-items:center;">
             <button class="lang-btn-match" id="ms-btn-sv" onclick="langMgr.set('sv')">🇸🇪 SV</button>
             <button class="lang-btn-match" id="ms-btn-en" onclick="langMgr.set('en')">🇬🇧 EN</button>
             <button class="lang-btn-match" id="ms-btn-fr" onclick="langMgr.set('fr')">🇫🇷 FR</button>
+            <button id="theme-toggle" onclick="toggleTheme()"
+                style="background:none;border:1px solid var(--border-col);border-radius:8px;
+                       padding:4px 8px;cursor:pointer;font-size:14px;line-height:1;
+                       color:var(--text-sec);margin-left:4px;"
+                title="Ljust läge">☀️</button>
         </div>
     </header>
         <div class="match-meta">
@@ -685,20 +730,20 @@
                 <div class="meta-value" id="hdr-id">---</div>
             </div>
             <div class="meta-item">
-                <div class="meta-label" data-sv="STARTTID" data-en="START TIME">STARTTID</div>
+                <div class="meta-label" data-sv="STARTTID" data-en="START TIME" data-fr="DÉBUT">STARTTID</div>
                 <div class="meta-value" id="hdr-time">---</div>
             </div>
             <div class="meta-item">
-                <div class="meta-label" data-sv="VARAKTIGHET" data-en="DURATION">VARAKTIGHET</div>
+                <div class="meta-label" data-sv="VARAKTIGHET" data-en="DURATION" data-fr="DURÉE">VARAKTIGHET</div>
                 <div class="meta-value" id="hdr-dur">0 min</div>
             </div>
             <div class="meta-item">
                 <div class="meta-label" data-sv="OMGÅNG" data-fr="MANCHE" data-en="ROUND">OMGÅNG</div>
-                <div class="meta-value" id="hdr-round" style="font-size: 24px; font-weight: 700; color: #e8ff47;">1</div>
+                <div class="meta-value" id="hdr-round" style="font-size: 24px; font-weight: 700; color: var(--accent);">1</div>
             </div>
             <div class="meta-item">
                 <div class="meta-label" data-sv="RESULTAT" data-fr="SCORE" data-en="SCORE">RESULTAT</div>
-                <div class="meta-value" id="hdr-score" style="font-size: 24px; font-weight: 700; color: #fff;">0 - 0</div>
+                <div class="meta-value" id="hdr-score" style="font-size: 24px; font-weight: 700; color: var(--text-main);">0 - 0</div>
             </div>
         </div>
     </header>
@@ -710,7 +755,7 @@
         <!-- Trainer badge -->
         <div class="trainer-display">
             <div>
-                <span style="color:#999; font-size:12px;" data-sv="Inloggad som: " data-fr="Connecté en tant que: " data-en="Logged in as: ">Inloggad som: </span>
+                <span style="color:var(--text-dim); font-size:12px;" data-sv="Inloggad som: " data-fr="Connecté en tant que: " data-en="Logged in as: ">Inloggad som: </span>
                 <span class="trainer-code-badge" id="trainer-badge"></span>
             </div>
             <button class="btn-logout" id="btn-logout" data-sv="Logga ut" data-fr="Se déconnecter" data-en="Log out">Logga ut</button>
@@ -719,7 +764,7 @@
         <div class="card">
             <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;">
                 <span data-sv="Ny match" data-fr="Nouveau match" data-en="New match">Ny match</span>
-                <button onclick="app.openManagePlayers()" style="background:none;border:1px solid #2a3548;color:#999;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;" onmouseover="this.style.color='#e8ff47';this.style.borderColor='#e8ff47'" onmouseout="this.style.color='#999';this.style.borderColor='#2a3548'" data-sv="⚙️ Spelare" data-en="⚙️ Players" data-fr="⚙️ Joueurs">⚙️ Spelare</button>
+                <button onclick="app.openManagePlayers()" style="background:none;border:1px solid var(--border-col);color:var(--text-dim);border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;" onmouseover="this.style.color='#e8ff47';this.style.borderColor='#e8ff47'" onmouseout="this.style.color='#999';this.style.borderColor='#2a3548'" data-sv="⚙️ Spelare" data-en="⚙️ Players" data-fr="⚙️ Joueurs">⚙️ Spelare</button>
             </div>
 
             <!-- Format: Tripplar/Dubblar -->
@@ -739,7 +784,7 @@
 
             <div class="input-group">
                 <label data-sv="Matchnamn" data-fr="Nom du match" data-en="Match name">Matchnamn</label>
-                <input type="text" id="inp-matchname" placeholder="T.ex. Träning mot Västra">
+                <input type="text" id="inp-matchname" placeholder="T.ex. Träning mot Västra" data-sv-placeholder="T.ex. Träning mot Västra" data-en-placeholder="E.g. Practice vs West" data-fr-placeholder="Ex. Entraînement vs Ouest">
             </div>
             <div class="input-group">
                 <label data-sv="Ditt lagnamn" data-fr="Nom de votre équipe" data-en="Your team name">Ditt lagnamn</label>
@@ -780,6 +825,12 @@
                 </div>
             </div>
 
+            <div id="offline-setup-warning" style="display:none;background:rgba(232,255,71,0.1);border:1px solid rgba(232,255,71,0.3);border-radius:8px;padding:0.75rem;margin-top:0.75rem;font-size:13px;color:var(--accent);text-align:center;"
+                data-sv="⚡ Offline-läge — matcher sparas lokalt och synkas när du får internet"
+                data-en="⚡ Offline mode — matches saved locally and synced when online"
+                data-fr="⚡ Mode hors ligne — matchs sauvegardés localement">
+                ⚡ Offline-läge — matcher sparas lokalt och synkas när du får internet
+            </div>
             <button class="btn btn-primary" id="btn-start" style="margin-top:1rem;"
                 data-sv="STARTA MATCH" data-fr="DÉMARRER LE MATCH" data-en="START MATCH">STARTA MATCH</button>
         </div>
@@ -845,10 +896,10 @@
             <table class="live-table">
                 <thead>
                     <tr>
-                        <th data-sv="Spelare" data-en="Player">Spelare</th>
+                        <th data-sv="Spelare" data-en="Player" data-fr="Joueur">Spelare</th>
                         <th data-sv="Lägg P/S/Tot" data-en="Lägg H/B/Tot" data-fr="Pointé P/B/Tot">Lägg P/S/Tot</th>
                         <th class="tc">Lägg %</th>
-                        <th data-sv="Skott Träff/Tot" data-en="Shot Hit/Tot">Skott Träff/Tot</th>
+                        <th data-sv="Skott Träff/Tot" data-en="Shot Hit/Tot" data-fr="Tir Réussi/Tot">Skott Träff/Tot</th>
                         <th class="tc">Skott %</th>
                     </tr>
                 </thead>
@@ -857,20 +908,20 @@
             <div class="match-actions">
                 <button class="btn btn-outline" id="btn-undo" data-sv="↩ ÅNGRA" data-fr="↩ ANNULER" data-en="↩ UNDO" style="border-color:#ff9f43;color:#ff9f43;">↩ ÅNGRA</button>
                 <button class="btn btn-danger" id="btn-reset" data-sv="ÅTERSTÄLL" data-fr="RÉINITIALISER" data-en="RESET">ÅTERSTÄLL</button>
-                <button class="btn btn-outline" id="btn-next-round" data-sv="NÄSTA OMGÅNG ▶" data-fr="MANCHE SUIVANTE ▶" data-en="NEXT ROUND ▶" style="border-color:#e8ff47;color:#e8ff47;">NÄSTA OMGÅNG ▶</button>
+                <button class="btn btn-outline" id="btn-next-round" data-sv="NÄSTA OMGÅNG ▶" data-fr="MANCHE SUIVANTE ▶" data-en="NEXT ROUND ▶" style="border-color:#e8ff47;color:var(--accent);">NÄSTA OMGÅNG ▶</button>
                 <button class="btn btn-primary" id="btn-finish" data-sv="AVSLUTA MATCH" data-fr="TERMINER LE MATCH" data-en="FINISH MATCH">AVSLUTA MATCH</button>
             </div>
         </div>
 
         <!-- TAB: ANALYS -->
         <div class="tab-content" id="tab-analys">
-            <div class="live-badge"><div class="live-dot"></div> <span data-sv="Uppdateras var 10:e sekund" data-en="Updates every 10 seconds">Uppdateras var 10:e sekund</span></div>
+            <div class="live-badge"><div class="live-dot"></div> <span data-sv="Uppdateras var 10:e sekund" data-en="Updates every 10 seconds" data-fr="Mis à jour toutes les 10 secondes">Uppdateras var 10:e sekund</span></div>
             <div class="chart-wrap">
-                <div class="chart-title" data-sv="Träffprocent — Pågående match" data-en="Accuracy — Current match">Träffprocent — Pågående match</div>
+                <div class="chart-title" data-sv="Träffprocent — Pågående match" data-en="Accuracy — Current match" data-fr="Précision — Match en cours">Träffprocent — Pågående match</div>
                 <canvas id="chart-live"></canvas>
             </div>
             <div class="chart-wrap">
-                <div class="chart-title" data-sv="Träffar vs Missar" data-en="Hits vs Misses">Träffar vs Missar</div>
+                <div class="chart-title" data-sv="Träffar vs Missar" data-en="Hits vs Misses" data-fr="Réussites vs Ratés">Träffar vs Missar</div>
                 <canvas id="chart-compare"></canvas>
             </div>
             <div class="export-row">
@@ -885,7 +936,7 @@
                 <div id="match-history-list"><div class="empty">Ingen matchhistorik än</div></div>
             </div>
             <div id="detail-view" style="display:none;">
-                <button class="detail-back" id="btn-back-detail">← <span data-sv="Tillbaka" data-en="Back">Tillbaka</span></button>
+                <button class="detail-back" id="btn-back-detail">← <span data-sv="Tillbaka" data-en="Back" data-fr="Retour">Tillbaka</span></button>
                 <div class="detail-title" id="detail-title"></div>
                 <div class="detail-meta" id="detail-meta"></div>
 
@@ -909,13 +960,13 @@
 
                 <!-- Laginsnitt -->
                 <div class="card">
-                    <div class="card-title" data-sv="Laginsnitt" data-en="Team Average">Laginsnitt</div>
+                    <div class="card-title" data-sv="Laginsnitt" data-en="Team Average" data-fr="Moyenne d'équipe">Laginsnitt</div>
                     <div id="detail-team"></div>
                 </div>
 
                 <!-- Tidslinje -->
                 <div class="card">
-                    <div class="card-title" data-sv="Tidslinje" data-en="Timeline">Tidslinje</div>
+                    <div class="card-title" data-sv="Tidslinje" data-en="Timeline" data-fr="Chronologie">Tidslinje</div>
                     <div id="detail-timeline"></div>
                 </div>
 
@@ -923,18 +974,18 @@
                     <button class="btn btn-outline" id="btn-export-pdf-detail">📄 PDF</button>
                     <button class="btn btn-outline" id="btn-export-csv-detail">📊 CSV</button>
                 </div>
-                <button class="btn btn-danger" id="btn-delete-detail" style="width:100%;margin-top:0.5rem;" data-sv="Radera match" data-en="Delete match">Radera match</button>
+                <button class="btn btn-danger" id="btn-delete-detail" style="width:100%;margin-top:0.5rem;" data-sv="Radera match" data-en="Delete match" data-fr="Supprimer le match">Radera match</button>
             </div>
         </div>
 
         <!-- TAB: SPELARE -->
         <div class="tab-content" id="tab-spelare">
             <div id="player-stats-list-view">
-                <div style="font-size:13px;color:#999;margin-bottom:1rem;" id="player-stats-summary"></div>
+                <div style="font-size:13px;color:var(--text-dim);margin-bottom:1rem;" id="player-stats-summary"></div>
                 <div id="player-stats-list"></div>
             </div>
             <div id="player-stats-detail-view" style="display:none;">
-                <button class="detail-back" id="btn-back-player-detail">← <span data-sv="Tillbaka" data-en="Back" data-fr="Retour">Tillbaka</span></button>
+                <button class="detail-back" id="btn-back-player-detail">← <span data-sv="Tillbaka" data-en="Back" data-fr="Retour" data-fr="Retour">Tillbaka</span></button>
                 <div class="player-detail-header">
                     <div class="player-detail-avatar" id="pdet-avatar"></div>
                     <div>
@@ -964,7 +1015,7 @@
                     <div class="chart-title" data-sv="Lägg % per match" data-en="Pointer % per match" data-fr="Pointé % par match">Lägg % per match</div>
                     <canvas id="pdet-chart" height="120"></canvas>
                 </div>
-                <div style="font-size:13px;font-weight:700;color:#e8ff47;margin:1rem 0 0.5rem;"
+                <div style="font-size:13px;font-weight:700;color:var(--accent);margin:1rem 0 0.5rem;"
                     data-sv="Matchhistorik" data-en="Match history" data-fr="Historique des matchs">Matchhistorik</div>
                 <div id="pdet-match-list"></div>
             </div>
@@ -974,7 +1025,7 @@
 
 </div>
 
-<div class="offline-badge" id="offline-badge" data-sv="Offline — sparar lokalt" data-en="Offline — saving locally">Offline — sparar lokalt</div>
+<div class="offline-badge" id="offline-badge" data-sv="Offline — sparar lokalt" data-en="Offline — saving locally" data-fr="Hors ligne — sauvegarde locale">Offline — sparar lokalt</div>
 
 <script>
 // ============================================================
@@ -1064,6 +1115,21 @@ class MatchApp {
         window.addEventListener('online', () => { this.isOnline = true; this.checkOnline(); this.syncOfflineData(); });
         window.addEventListener('offline', () => { this.isOnline = false; this.checkOnline(); });
 
+        // Firebase-specifik uppkopplingsdetektering (mer tillförlitlig)
+        if (typeof firebase !== 'undefined' && firebase.database) {
+            firebase.database().ref('.info/connected').on('value', (snap) => {
+                const connected = snap.val() === true;
+                if (connected && !this.isOnline) {
+                    this.isOnline = true;
+                    this.checkOnline();
+                    this.syncOfflineData();
+                } else if (!connected) {
+                    this.isOnline = false;
+                    this.checkOnline();
+                }
+            });
+        }
+
         this.checkOnline();
         langMgr.apply();
 
@@ -1134,6 +1200,8 @@ class MatchApp {
         this.loadPlayers();
 
         this.fbRef = db.ref(`coaches/${this.trainerCode}/matches`);
+        // Förhämta och cacha matcher lokalt — fungerar sedan offline
+        try { this.fbRef.keepSynced(true); } catch(e) {}
         this.loadHistory();
         langMgr.apply();
     }
@@ -1300,6 +1368,14 @@ class MatchApp {
         if (synced > 0) {
             localStorage.removeItem(pendingKey);
             console.log(`[Firebase] Synced ${synced} offline matches`);
+            const lang = typeof langMgr !== 'undefined' ? langMgr.lang : 'sv';
+            const msg = {
+                sv: `☁️ ${synced} match${synced > 1 ? 'er' : ''} synkad${synced > 1 ? 'e' : ''} till molnet!`,
+                en: `☁️ ${synced} match${synced > 1 ? 'es' : ''} synced to cloud!`,
+                fr: `☁️ ${synced} match${synced > 1 ? 's' : ''} synchronisé${synced > 1 ? 's' : ''} !`,
+            };
+            this.showToast(msg[lang] || msg.sv);
+            this.checkOnline();
             this.loadHistory();
         }
     }
@@ -1671,7 +1747,7 @@ class MatchApp {
     // ---- ÅNGRA SENASTE ----
     undoLast() {
         if (!this.match.actionHistory || this.match.actionHistory.length === 0) {
-            this.showToast('Inget att ångra');
+            this.showToast({sv:'Inget att ångra', en:'Nothing to undo', fr:'Rien à annuler'}[langMgr.lang]||'Inget att ångra');
             return;
         }
 
@@ -1725,7 +1801,7 @@ class MatchApp {
 
         this.renderLiveTable();
         this.updateBallCounts();
-        this.showToast('↩ Ångrade: ' + pName + ' (' + last.type + ')');
+        this.showToast(({sv:'↩ Ångrade: ', en:'↩ Undid: ', fr:'↩ Annulé : '}[langMgr.lang]||'↩ Ångrade: ') + pName + ' (' + last.type + ')');
     }
 
     // ---- CHECK AUTO NEXT ROUND ----
@@ -1767,7 +1843,7 @@ class MatchApp {
             this.match.currentRound = finishedRound + 1;
             this.updateBallCounts();
             if (!isAuto) {
-                this.showToast('🎯 Omgång ' + this.match.currentRound);
+                this.showToast('🎯 '+({sv:'Omgång', en:'Round', fr:'Manche'}[langMgr.lang]||'Omgång')+' '+this.match.currentRound);
             }
         });
     }
@@ -1832,7 +1908,7 @@ class MatchApp {
         const t = document.createElement('div');
         t.className = 'toast';
         t.textContent = msg;
-        t.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#e8ff47;color:#080810;padding:10px 20px;border-radius:20px;font-weight:700;z-index:9999';
+        t.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--accent);color:#080810;padding:10px 20px;border-radius:20px;font-weight:700;z-index:9999';
         document.body.appendChild(t);
         setTimeout(() => t.remove(), 2000);
     }
@@ -1848,7 +1924,7 @@ class MatchApp {
             const sa = this.acc(p.stats.skott);
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td class="pname" style="color:#e8ff47">${p.name}</td>
+                <td class="pname" style="color:var(--accent)">${p.name}</td>
                 <td>${p.stats.lagg.hit}/${p.stats.lagg.stang||0}/${p.stats.lagg.total}</td>
                 <td class="tc ${this.accClass(la, p.stats.lagg.total)}">${la}%</td>
                 <td>${p.stats.skott.hit}/${p.stats.skott.total}</td>
@@ -1924,7 +2000,7 @@ class MatchApp {
 
     // ---- RESET ----
     resetStats() {
-        if (!confirm('Återställ all statistik?')) return;
+        if (!confirm({sv:'Återställ all statistik?', en:'Reset all statistics?', fr:'Réinitialiser toutes les statistiques?'}[langMgr.lang]||'Återställ all statistik?')) return;
         this.match.players.forEach(p => { p.stats = { lagg:{hit:0,total:0}, skott:{hit:0,total:0} }; });
         if (this.match.opponents) {
             this.match.opponents.forEach(p => { p.stats = { lagg:{hit:0,total:0}, skott:{hit:0,total:0} }; });
@@ -2212,7 +2288,7 @@ class MatchApp {
         // ---- TIDSLINJE ----
         const tl = document.getElementById('detail-timeline');
         if (!m.timeline || !m.timeline.length) {
-            tl.innerHTML = '<div style="color:#666;font-size:13px;padding:1rem;text-align:center;">Ingen tidslinje registrerad</div>';
+            tl.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:1rem;text-align:center;">Ingen tidslinje registrerad</div>';
         } else {
             tl.innerHTML = m.timeline.map(t => {
                 const dc = t.type==='lagg'?(t.hit?'dot-lagg-hit':'dot-lagg-miss'):(t.hit?'dot-skott-hit':'dot-skott-miss');
@@ -2329,7 +2405,7 @@ class MatchApp {
         // Tidslinje
         const tl = document.getElementById('home-detail-timeline');
         if (!m.timeline || !m.timeline.length) {
-            tl.innerHTML = '<div style="color:#666;font-size:13px;padding:1rem;text-align:center;">Ingen tidslinje registrerad</div>';
+            tl.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:1rem;text-align:center;">Ingen tidslinje registrerad</div>';
         } else {
             tl.innerHTML = m.timeline.map(t => {
                 const dc = t.type==='lagg'?(t.hit?'dot-lagg-hit':'dot-lagg-miss'):(t.hit?'dot-skott-hit':'dot-skott-miss');
@@ -2869,7 +2945,7 @@ class MatchApp {
         if (!el) return;
         if (!this.players || this.players.length === 0) {
             const emptyTxt = { sv: 'Inga spelare sparade än', en: 'No players saved yet', fr: 'Aucun joueur enregistré' };
-            el.innerHTML = `<div style="color:#999;font-size:13px;text-align:center;padding:1rem;">${emptyTxt[langMgr.lang] || emptyTxt.sv}</div>`;
+            el.innerHTML = `<div style="color:var(--text-dim);font-size:13px;text-align:center;padding:1rem;">${emptyTxt[langMgr.lang] || emptyTxt.sv}</div>`;
             return;
         }
         el.innerHTML = this.players
@@ -3024,7 +3100,7 @@ class MatchApp {
 
         if (!players.length) {
             if (summEl) summEl.textContent = '';
-            listEl.innerHTML = `<div class="empty" style="text-align:center;padding:2rem;color:#999;">
+            listEl.innerHTML = `<div class="empty" style="text-align:center;padding:2rem;color:var(--text-dim);">
                 Ingen matchstatistik ännu. Logga matcher för att se spelarstatistik.
             </div>`;
             return;
@@ -3268,12 +3344,53 @@ class MatchApp {
     }
 
     checkOnline() {
-        document.getElementById('offline-badge').classList.toggle('show', !navigator.onLine);
+        // Visa/dölj offline-varning i setup-skärmen
+        const setupWarning = document.getElementById('offline-setup-warning');
+        if (setupWarning) setupWarning.style.display = !this.isOnline ? 'block' : 'none';
+
+        const badge = document.getElementById('offline-badge');
+        const offline = !this.isOnline;
+        badge.classList.toggle('show', offline);
+
+        if (offline && this.trainerCode) {
+            const pending = JSON.parse(localStorage.getItem(`pending-sync-${this.trainerCode}`) || '[]');
+            const lang = typeof langMgr !== 'undefined' ? langMgr.lang : 'sv';
+            const labels = {
+                sv: pending.length > 0
+                    ? `Offline — ${pending.length} match${pending.length > 1 ? 'er' : ''} väntar på synk`
+                    : 'Offline — sparar lokalt',
+                en: pending.length > 0
+                    ? `Offline — ${pending.length} match${pending.length > 1 ? 'es' : ''} pending sync`
+                    : 'Offline — saving locally',
+                fr: pending.length > 0
+                    ? `Hors ligne — ${pending.length} match${pending.length > 1 ? 's' : ''} en attente`
+                    : 'Hors ligne — sauvegarde locale',
+            };
+            badge.textContent = labels[lang] || labels.sv;
+        }
     }
 }
 
 // ---- BOOT ----
 const app = new MatchApp();
+
+// ---- TEMA-TOGGLE ----
+function toggleTheme() {
+    const isLight = document.body.classList.toggle('light-mode');
+    localStorage.setItem('ms_theme', isLight ? 'light' : 'dark');
+    document.getElementById('theme-toggle').textContent = isLight ? '🌑' : '☀️';
+}
+
+// Applicera sparat tema vid sidladdning
+(function initTheme() {
+    const saved = localStorage.getItem('ms_theme') || 
+                  localStorage.getItem('app_theme') || 'dark';
+    if (saved === 'light') {
+        document.body.classList.add('light-mode');
+        const btn = document.getElementById('theme-toggle');
+        if (btn) btn.textContent = '🌑';
+    }
+})();
 document.addEventListener('DOMContentLoaded', () => app.init());
 </script>
 <!-- MANAGE PLAYERS MODAL -->
@@ -3281,7 +3398,7 @@ document.addEventListener('DOMContentLoaded', () => app.init());
     <div class="manage-modal-card">
         <div class="manage-modal-title" data-sv="⚙️ Hantera spelare" data-en="⚙️ Manage players" data-fr="⚙️ Gérer les joueurs">⚙️ Hantera spelare</div>
         <div id="player-db-list">
-            <div style="color:#999;font-size:13px;text-align:center;padding:1rem;" data-sv="Inga spelare sparade än" data-en="No players saved yet" data-fr="Aucun joueur enregistré">Inga spelare sparade än</div>
+            <div style="color:var(--text-dim);font-size:13px;text-align:center;padding:1rem;" data-sv="Inga spelare sparade än" data-en="No players saved yet" data-fr="Aucun joueur enregistré">Inga spelare sparade än</div>
         </div>
         <div class="add-player-row">
             <input type="text" id="new-player-name" placeholder="Spelarens namn"
