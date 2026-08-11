@@ -1070,15 +1070,22 @@ class MatchApp {
         window.addEventListener('online', () => { this.isOnline = true; this.checkOnline(); this.syncOfflineData(); });
         window.addEventListener('offline', () => { this.isOnline = false; this.checkOnline(); });
 
-        // Firebase-specifik uppkopplingsdetektering (mer tillförlitlig)
+        // Firebase-specifik uppkopplingsdetektering
+        // OBS: .info/connected börjar alltid som false vid sidladdning —
+        // ignorera det initiala false-värdet för att undvika falskt offline-läge
         if (typeof firebase !== 'undefined' && firebase.database) {
+            let hasBeenConnected = false;
             firebase.database().ref('.info/connected').on('value', (snap) => {
                 const connected = snap.val() === true;
-                if (connected && !this.isOnline) {
-                    this.isOnline = true;
-                    this.checkOnline();
-                    this.syncOfflineData();
-                } else if (!connected) {
+                if (connected) {
+                    hasBeenConnected = true;
+                    if (!this.isOnline) {
+                        this.isOnline = true;
+                        this.checkOnline();
+                        this.syncOfflineData();
+                    }
+                } else if (!connected && hasBeenConnected) {
+                    // Bara markera offline om vi faktiskt HAFT en anslutning
                     this.isOnline = false;
                     this.checkOnline();
                 }
