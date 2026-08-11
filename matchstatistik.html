@@ -3519,20 +3519,98 @@ class MatchApp {
 const app = new MatchApp();
 
 // ---- TEMA-TOGGLE ----
+function applyThemeStyles(isLight) {
+    const bg     = isLight ? '#ffffff' : null;
+    const card   = isLight ? '#f5f5f5' : null;
+    const border = isLight ? '#cccccc' : null;
+    const text   = isLight ? '#111111' : null;
+    const muted  = isLight ? '#555555' : null;
+
+    // Sätt CSS-variablerna direkt på :root
+    const root = document.documentElement;
+    if (isLight) {
+        root.style.setProperty('--bg-main',    '#ffffff');
+        root.style.setProperty('--bg-card',    '#f5f5f5');
+        root.style.setProperty('--bg-card2',   '#eeeeee');
+        root.style.setProperty('--bg-card3',   '#e8e8e8');
+        root.style.setProperty('--bg-deep',    '#e0e0e0');
+        root.style.setProperty('--border-col', '#cccccc');
+        root.style.setProperty('--border2',    '#d8d8d8');
+        root.style.setProperty('--text-main',  '#111111');
+        root.style.setProperty('--text-sec',   '#333333');
+        root.style.setProperty('--text-muted', '#555555');
+        root.style.setProperty('--text-dim',   '#666666');
+        root.style.setProperty('--text-faint', '#777777');
+        root.style.setProperty('--accent',     '#1a3a5c');
+        root.style.setProperty('--accent-dim', '#2a5a8c');
+    } else {
+        root.style.setProperty('--bg-main',    '#080810');
+        root.style.setProperty('--bg-card',    '#11161f');
+        root.style.setProperty('--bg-card2',   '#1a2030');
+        root.style.setProperty('--bg-card3',   '#1a2330');
+        root.style.setProperty('--bg-deep',    '#0A0E27');
+        root.style.setProperty('--border-col', '#2a3548');
+        root.style.setProperty('--border2',    '#1a1f3a');
+        root.style.setProperty('--text-main',  '#ffffff');
+        root.style.setProperty('--text-sec',   '#aaaaaa');
+        root.style.setProperty('--text-muted', '#666666');
+        root.style.setProperty('--text-dim',   '#999999');
+        root.style.setProperty('--text-faint', '#555555');
+        root.style.setProperty('--accent',     '#e8ff47');
+        root.style.setProperty('--accent-dim', '#f5ff99');
+    }
+
+    // Forcera bakgrundsfärger på dynamiskt skapade element
+    const darkBgs = ['#11161f','#1a2030','#1a2330','#080810','#0a0e27','#1a1f3a'];
+    if (isLight) {
+        document.querySelectorAll('[style*="background"]').forEach(el => {
+            const s = el.style.background || el.style.backgroundColor || '';
+            const sl = s.toLowerCase();
+            if (darkBgs.some(c => sl.includes(c.toLowerCase()))) {
+                el.style.background = '#f5f5f5';
+                el.style.color = '#111111';
+            }
+        });
+
+        // Fixa alla element med mörk text som är oläsbar
+        document.querySelectorAll('[style*="color:#"]').forEach(el => {
+            const s = el.style.color || '';
+            if (['#fff','#ffffff','#e8ff47','#aaa','#aaaaaa','#ccc'].some(c =>
+                s.toLowerCase() === c)) {
+                el.style.color = '#111111';
+            }
+        });
+
+        document.body.style.background = '#ffffff';
+    } else {
+        // Återställ vid mörkt läge — ladda om sidan för enklaste reset
+        document.body.style.background = '';
+        document.querySelectorAll('[style]').forEach(el => {
+            el.style.background = '';
+            el.style.backgroundColor = '';
+            // Behåll andra inline-stilar
+        });
+    }
+}
+
 function toggleTheme() {
     const isLight = document.body.classList.toggle('light-mode');
     localStorage.setItem('ms_theme', isLight ? 'light' : 'dark');
     document.getElementById('theme-toggle').textContent = isLight ? '🌑' : '☀️';
+    applyThemeStyles(isLight);
+    // Om man byter till mörkt — enklast att ladda om för fullständig återställning
+    if (!isLight) location.reload();
 }
 
 // Applicera sparat tema vid sidladdning
 (function initTheme() {
-    const saved = localStorage.getItem('ms_theme') || 
-                  localStorage.getItem('app_theme') || 'dark';
+    const saved = localStorage.getItem('ms_theme') || 'dark';
     if (saved === 'light') {
         document.body.classList.add('light-mode');
         const btn = document.getElementById('theme-toggle');
         if (btn) btn.textContent = '🌑';
+        // Vänta tills DOM är renderad
+        window.addEventListener('load', () => applyThemeStyles(true));
     }
 })();
 document.addEventListener('DOMContentLoaded', () => app.init());
